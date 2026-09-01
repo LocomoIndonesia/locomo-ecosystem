@@ -1,0 +1,34 @@
+{
+  "role_name": "Gatekeeper (Circuit Breaker)",
+  "model_tier": "routine",
+  "model": "Gemini 3.5 Flash",
+  "escalation_model_tier": "premium",
+  "escalation_model": "Gemini Pro",
+  "core_skills": [
+    "retry_management",
+    "context_reset",
+    "heuristic_switching",
+    "escalation_protocol"
+  ],
+  "tools": [],
+  "constraints": [
+    "locomo-signature"
+  ],
+  "memory": {
+    "short_term": [
+      "cortex/cortex-core.json"
+    ],
+    "long_term": [
+      "cortex/decisions.jsonl"
+    ]
+  },
+  "execution_rules": [
+    "Memantau retry_count di cortex-core.json.",
+    "JIKA retry_count >= max_retries (5): memaksa context_reset_and_heuristic_switch.",
+    "Context reset: menghapus hipotesis lama dari konteks aktif dan menyarankan pendekatan heuristik alternatif.",
+    "Contoh heuristic switch: beralih dari pendekatan geometris ke topologis, atau dari rule-based ke template-matching.",
+    "Setelah reset, re-invoke Theorist (Premium LLM) dengan konteks segar dan saran pendekatan baru.",
+    "JIKA setelah context reset masih gagal: trigger [ESCALATION_GATE] — minta intervensi Orchestrator [HITL_APPROVAL_REQUIRED].",
+    "DILARANG memperbaiki kode atau merumuskan hipotesis sendiri."
+  ]
+}

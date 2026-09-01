@@ -1,0 +1,445 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="id"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Market - PitiCoin.id</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400..900;1,400..900&amp;family=Inter:wght@100..900&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+          darkMode: "class",
+          theme: {
+            extend: {
+              "colors": {
+                      "tertiary-fixed": "#cee5ff",
+                      "on-primary-fixed-variant": "#544600",
+                      "surface-container-high": "#2a2a2a",
+                      "obsidian-surface": "#1A1A1A",
+                      "surface-tint": "#e9c400",
+                      "on-tertiary-fixed-variant": "#004a75",
+                      "on-background": "#e5e2e1",
+                      "on-primary-container": "#705e00",
+                      "on-error-container": "#ffdad6",
+                      "inverse-surface": "#e5e2e1",
+                      "tertiary-fixed-dim": "#96ccff",
+                      "primary-fixed-dim": "#e9c400",
+                      "on-surface": "#e5e2e1",
+                      "surface-container": "#201f1f",
+                      "outline": "#999077",
+                      "glass-stroke": "rgba(255, 255, 255, 0.1)",
+                      "primary": "#fff6df",
+                      "background": "#131313",
+                      "surface-bright": "#393939",
+                      "on-secondary-fixed": "#00210c",
+                      "on-tertiary-container": "#206393",
+                      "on-error": "#690005",
+                      "surface": "#131313",
+                      "inverse-on-surface": "#313030",
+                      "surface-container-lowest": "#0e0e0e",
+                      "error": "#ffb4ab",
+                      "on-tertiary-fixed": "#001d32",
+                      "surface-container-highest": "#353534",
+                      "outline-variant": "#4d4732",
+                      "primary-container": "#ffd700",
+                      "faction-android": "#DC143C",
+                      "secondary": "#66dd8b",
+                      "on-secondary-fixed-variant": "#005227",
+                      "error-container": "#93000a",
+                      "inverse-primary": "#705d00",
+                      "faction-nisnas": "#50C878",
+                      "on-tertiary": "#003353",
+                      "on-primary": "#3a3000",
+                      "tertiary-container": "#bdddff",
+                      "surface-container-low": "#1c1b1b",
+                      "on-secondary": "#003919",
+                      "secondary-fixed-dim": "#66dd8b",
+                      "secondary-container": "#25a55a",
+                      "on-surface-variant": "#d0c6ab",
+                      "gold-glow": "rgba(255, 215, 0, 0.4)",
+                      "surface-dim": "#131313",
+                      "faction-human": "#4682B4",
+                      "on-secondary-container": "#003115",
+                      "surface-variant": "#353534",
+                      "secondary-fixed": "#83fba5",
+                      "primary-fixed": "#ffe16d",
+                      "on-primary-fixed": "#221b00",
+                      "tertiary": "#f1f6ff"
+              },
+              "borderRadius": {
+                      "DEFAULT": "0.125rem",
+                      "lg": "0.25rem",
+                      "xl": "0.5rem",
+                      "full": "0.75rem"
+              },
+              "spacing": {
+                      "stack-sm": "8px",
+                      "gutter": "24px",
+                      "margin-mobile": "16px",
+                      "margin-desktop": "48px",
+                      "stack-md": "16px",
+                      "stack-lg": "32px",
+                      "container-max": "1200px"
+              },
+              "fontFamily": {
+                      "display-hero": [
+                              "Playfair Display"
+                      ],
+                      "label-sm": [
+                              "Inter"
+                      ],
+                      "headline-lg": [
+                              "Playfair Display"
+                      ],
+                      "body-md": [
+                              "Inter"
+                      ],
+                      "headline-lg-mobile": [
+                              "Playfair Display"
+                      ],
+                      "body-lg": [
+                              "Inter"
+                      ],
+                      "headline-md": [
+                              "Playfair Display"
+                      ]
+              },
+              "fontSize": {
+                      "display-hero": [
+                              "48px",
+                              {
+                                      "lineHeight": "1.2",
+                                      "letterSpacing": "-0.02em",
+                                      "fontWeight": "700"
+                              }
+                      ],
+                      "label-sm": [
+                              "12px",
+                              {
+                                      "lineHeight": "1",
+                                      "letterSpacing": "0.05em",
+                                      "fontWeight": "600"
+                              }
+                      ],
+                      "headline-lg": [
+                              "32px",
+                              {
+                                      "lineHeight": "1.3",
+                                      "fontWeight": "600"
+                              }
+                      ],
+                      "body-md": [
+                              "16px",
+                              {
+                                      "lineHeight": "1.6",
+                                      "fontWeight": "400"
+                              }
+                      ],
+                      "headline-lg-mobile": [
+                              "28px",
+                              {
+                                      "lineHeight": "1.2",
+                                      "fontWeight": "700"
+                              }
+                      ],
+                      "body-lg": [
+                              "18px",
+                              {
+                                      "lineHeight": "1.6",
+                                      "fontWeight": "400"
+                              }
+                      ],
+                      "headline-md": [
+                              "24px",
+                              {
+                                      "lineHeight": "1.4",
+                                      "fontWeight": "600"
+                              }
+                      ]
+              }
+      },
+          },
+        }
+    </script>
+<style>
+        body {
+            background-color: #131313;
+            min-height: 100vh;
+        }
+
+        /* Glassmorphism utilities */
+        .glass-panel {
+            background-color: rgba(26, 26, 26, 0.4);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .glass-card {
+            background-color: rgba(26, 26, 26, 0.5);
+            backdrop-filter: blur(24px);
+            -webkit-backdrop-filter: blur(24px);
+            border: 1px solid rgba(255, 215, 0, 0.1);
+            transition: all 0.3s ease;
+        }
+
+        .glass-card:hover {
+            border-color: rgba(255, 215, 0, 0.4);
+            box-shadow: 0 0 20px rgba(255, 215, 0, 0.15);
+        }
+
+        /* Primary Treasure Button */
+        .btn-treasure {
+            background-color: #ffd700;
+            color: #131313;
+            box-shadow: 0 0 15px rgba(255, 215, 0, 0.3);
+            transition: all 0.2s ease;
+        }
+        .btn-treasure:hover {
+            box-shadow: 0 0 25px rgba(255, 215, 0, 0.5);
+            transform: translateY(-2px);
+        }
+
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #131313;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #353534;
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #4d4732;
+        }
+
+        /* Marquee Animation */
+        .marquee-container {
+            overflow: hidden;
+            white-space: nowrap;
+        }
+        @keyframes marquee {
+            0% { transform: translateX(100%); }
+            100% { transform: translateX(-100%); }
+        }
+    </style>
+</head>
+<body class="text-on-surface font-body-md antialiased pb-[90px] md:pb-0 pt-[140px] md:pt-[160px]">
+<!-- TopAppBar (Hidden on Mobile, Visible on Desktop) -->
+<header class="hidden md:flex fixed top-0 w-full z-50 flex-col bg-surface/80 backdrop-blur-xl border-b border-glass-stroke shadow-[0_4_15px_rgba(0,0,0,0.5)]">
+<div class="flex items-center justify-between px-margin-desktop h-20">
+<div class="flex items-center gap-4 w-1/3">
+<div class="w-10 h-10 rounded-full overflow-hidden border border-primary/30">
+<img class="w-full h-full object-cover" data-alt="A highly detailed avatar of an adventurer profile in a dark fantasy MMORPG style." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDbkQbvZrbjAskeDXW1eujljPMUG2wPZK9QPX_wETqtS67BHGpptAR2VM4Q9qqliP_5vz0Gt95lCV4U0jEp9_cTGkAexKtwoQhwHd5adQK4OVqaaAN3BOC7aWJbQamn_TyhUFqu1V6hyYy_tvUdotcgjEeztYrvfeXQ3XXkdTqZQjPKWGa41ctWspSCux2_dS-7KwAgo1MnrbNdLzA-603Unr7Mocp6qlMh0_DYfbhBt-q6NNFP0MI"/>
+</div>
+</div>
+<div class="w-1/3 flex justify-center">
+<h1 class="font-display-hero text-headline-md text-primary drop-shadow-[0_0_10px_rgba(255,215,0,0.4)]">PitiCoin.id</h1>
+</div>
+<nav class="w-1/3 flex justify-end items-center gap-8">
+<a class="flex flex-col items-center justify-center text-on-surface-variant hover:text-primary transition-colors group" href="#">
+<span class="material-symbols-outlined mb-1 group-hover:scale-110 transition-transform">account_balance_wallet</span>
+<span class="font-label-sm text-label-sm">Vault</span>
+</a>
+<a class="flex flex-col items-center justify-center text-primary hover:text-primary transition-colors group filter drop-shadow-[0_0_8px_rgba(255,215,0,0.6)]" href="#">
+<span class="material-symbols-outlined mb-1 scale-110 transition-transform" style="font-variation-settings: 'FILL' 1;">storefront</span>
+<span class="font-label-sm text-label-sm">Market</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant hover:text-primary transition-colors group" href="#">
+<span class="material-symbols-outlined mb-1 group-hover:scale-110 transition-transform">military_tech</span>
+<span class="font-label-sm text-label-sm">Quests</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant hover:text-primary transition-colors group" href="#">
+<span class="material-symbols-outlined mb-1 group-hover:scale-110 transition-transform">groups</span>
+<span class="font-label-sm text-label-sm">Guild</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant hover:text-primary transition-colors group" href="#">
+<span class="material-symbols-outlined mb-1 group-hover:scale-110 transition-transform">person</span>
+<span class="font-label-sm text-label-sm">Profile</span>
+</a>
+<button class="text-on-surface-variant hover:text-primary transition-colors scale-95 transition-transform ml-4">
+<span class="material-symbols-outlined">settings</span>
+</button>
+</nav>
+</div>
+<!-- Desktop Balance Bar -->
+<div class="w-full bg-obsidian-surface/90 border-t border-glass-stroke py-2 px-margin-desktop flex justify-center gap-6">
+<div class="flex items-center gap-2 px-4 py-1.5 glass-panel rounded-full">
+<span class="text-lg" title="Silver">🪙</span>
+<span class="font-label-sm text-on-surface">24,500 Perak</span>
+</div>
+<div class="flex items-center gap-2 px-4 py-1.5 glass-panel rounded-full border-primary/20">
+<span class="text-lg" title="Gold">🏆</span>
+<span class="font-label-sm text-primary drop-shadow-[0_0_5px_rgba(255,215,0,0.5)]">150 Emas</span>
+</div>
+</div>
+</header>
+<!-- Mobile Top Header (Visible only on mobile) -->
+<header class="md:hidden fixed top-0 w-full z-50 flex flex-col bg-surface/90 backdrop-blur-xl border-b border-glass-stroke shadow-md">
+<div class="flex items-center justify-between px-margin-mobile h-16">
+<h1 class="font-display-hero text-[20px] text-primary drop-shadow-[0_0_10px_rgba(255,215,0,0.4)]">PitiCoin.id</h1>
+<div class="flex items-center gap-3">
+<div class="px-3 py-1 glass-panel rounded-full flex items-center gap-1">
+<span class="material-symbols-outlined text-[16px] text-primary">toll</span>
+<span class="font-label-sm text-primary">12.5K</span>
+</div>
+<button class="w-8 h-8 rounded-full overflow-hidden border border-primary/30">
+<img class="w-full h-full object-cover" data-alt="Avatar" src="https://lh3.googleusercontent.com/aida-public/AB6AXuC5SCiWRl8ZI5Flg_FACEWx4FR6u95lh4f8zeHswSbRD1pwW3tMVeOtocumI63XVJvpZDod-alufj3gDQh2pvyte6UsFDpsakWHo3YfkK4X4o6ItHfBMAfIUkYlJnjOFeQgiRD0wYt22St1nONo9b3Rty7xN5RLWgNsTBOwD5qodECrZ5hoBAsjWMMrxQRALEaOgOdxi9o47sbhUohbgBQ7-Ybvt9YTBptuXXjoCUYr-lrhXTUI12w"/>
+</button>
+</div>
+</div>
+<!-- Mobile Balance Bar -->
+<div class="w-full bg-obsidian-surface/95 border-t border-glass-stroke py-2.5 px-margin-mobile flex justify-center gap-3">
+<div class="flex-1 flex justify-center items-center gap-2 px-3 py-1.5 glass-panel rounded-lg">
+<span class="text-base" title="Silver">🪙</span>
+<span class="font-label-sm text-on-surface">24,500 Perak</span>
+</div>
+<div class="flex-1 flex justify-center items-center gap-2 px-3 py-1.5 glass-panel rounded-lg border border-primary/20">
+<span class="text-base" title="Gold">🏆</span>
+<span class="font-label-sm text-primary drop-shadow-[0_0_5px_rgba(255,215,0,0.5)]">150 Emas</span>
+</div>
+</div>
+</header>
+<!-- Main Content Canvas -->
+<main class="max-w-[1200px] mx-auto px-margin-mobile md:px-margin-desktop py-stack-lg relative z-10 flex flex-col gap-stack-lg">
+<!-- Marquee Notice -->
+<div class="w-full overflow-hidden marquee-container glass-panel rounded-lg border border-primary/20 py-2.5 px-4 flex items-center gap-2">
+<span class="material-symbols-outlined text-primary text-sm flex-shrink-0 animate-pulse">local_fire_department</span>
+<div class="w-full overflow-hidden relative h-5 flex items-center">
+<p class="font-body-md text-on-surface-variant text-sm absolute whitespace-nowrap animate-[marquee_15s_linear_infinite]">
+                    Maklumat Patih: Setiap transaksi lelang P2P dikenakan upeti 10% Koin Emas yang akan dilebur (Burn System).
+                </p>
+</div>
+</div>
+<!-- Tab Navigation -->
+<div class="flex flex-col md:flex-row gap-3 justify-center">
+<button class="w-full md:w-auto px-8 py-3.5 rounded-xl font-label-sm uppercase tracking-wider bg-primary text-background font-bold shadow-[0_0_15px_rgba(255,215,0,0.2)] transition-all">
+                Perbekalan Resmi
+            </button>
+<button class="w-full md:w-auto px-8 py-3.5 rounded-xl font-label-sm uppercase tracking-wider glass-panel text-on-surface-variant hover:text-on-surface hover:bg-surface-container-high transition-all">
+                Bursa Lelang
+            </button>
+<button class="w-full md:w-auto px-8 py-3.5 rounded-xl font-label-sm uppercase tracking-wider glass-panel text-on-surface-variant hover:text-on-surface hover:bg-surface-container-high transition-all">
+                Persediaan Digital
+            </button>
+</div>
+<!-- Section Header -->
+<div class="flex flex-col gap-2 border-b border-glass-stroke pb-4">
+<h2 class="font-headline-lg-mobile md:font-headline-lg text-primary flex items-center gap-3">
+<span class="material-symbols-outlined text-[32px]">inventory_2</span>
+                Gudang Utama
+            </h2>
+<p class="font-body-md text-on-surface-variant">Item resmi dengan harga tetap. Disuplai langsung oleh Bank Pusat.</p>
+</div>
+<!-- Marketplace Grid -->
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-gutter">
+<!-- Item Card 1 -->
+<article class="glass-card rounded-2xl p-5 flex flex-col group relative overflow-hidden">
+<div class="absolute top-0 right-0 bg-primary text-surface font-label-sm px-4 py-1.5 rounded-bl-xl font-bold z-20 shadow-[0_0_10px_rgba(255,215,0,0.5)]">
+                    HOT
+                </div>
+<div class="w-full aspect-[4/3] rounded-xl mb-5 overflow-hidden relative bg-black/40 flex items-center justify-center p-2 border border-glass-stroke group-hover:border-primary/30 transition-colors">
+<div class="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent z-0"></div>
+<img class="w-full h-full object-cover rounded-lg relative z-10 group-hover:scale-105 transition-transform duration-700" data-alt="A high-quality 3D render of a 'Beliung Emas' (Golden Pickaxe)" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAOIAmOxV0emE1Jrqd-9edrvu7kOgLCUg7KDy9glmSeWQQZiUqaNSrLeK_5xJxo49d_2ja9odZdW-gAlyh8um2AMQb54NaTLeii8rXJPQUeO2jie240BoU1ECnssFdRRKvb113rhLm4PyPjKenWZnyOE00IwBC-BbvRCLawQxQjKmZQmppOJNxmOPR4uiB52qCpHvzC9AMmn61NpDN26p5mxrCUoHYVL-YXWMgQvNI8KpK2MfxFyJg"/>
+</div>
+<div class="flex-1 flex flex-col">
+<h3 class="font-headline-md text-primary mb-2">Beliung Emas</h3>
+<p class="font-body-md text-on-surface-variant text-sm mb-4 line-clamp-2">Alat penambangan premium. Meningkatkan peluang menemukan Koin Emas murni di area Tambang Gelap sebesar 15%.</p>
+<div class="bg-black/30 rounded-lg p-3 mb-6 border border-glass-stroke flex items-center gap-2">
+<span class="material-symbols-outlined text-secondary text-[18px]">trending_up</span>
+<span class="font-body-md text-secondary text-sm">Buff: +15% Mining Yield</span>
+</div>
+<div class="mt-auto pt-4 border-t border-glass-stroke flex items-center justify-between">
+<div class="flex flex-col">
+<span class="font-label-sm text-on-surface-variant text-[10px] tracking-widest uppercase mb-1">Harga</span>
+<span class="font-body-md text-on-surface text-xl">5.000 Perak</span>
+</div>
+<button class="btn-treasure px-6 py-2.5 rounded-xl font-label-sm uppercase font-bold flex items-center gap-2">
+<span class="material-symbols-outlined text-[20px]">shopping_cart</span>
+                            Beli
+                        </button>
+</div>
+</div>
+</article>
+<!-- Item Card 2 -->
+<article class="glass-card rounded-2xl p-5 flex flex-col group relative overflow-hidden">
+<div class="w-full aspect-[4/3] rounded-xl mb-5 overflow-hidden relative bg-black/40 flex items-center justify-center p-2 border border-glass-stroke group-hover:border-primary/30 transition-colors">
+<div class="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent z-0"></div>
+<img class="w-full h-full object-cover rounded-lg relative z-10 group-hover:scale-105 transition-transform duration-700" data-alt="Ransum Pet container" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBhtS8c4GfijEsK18ZOMi50Qj7GAHH9bQDXC0KA7gzfoNhmVQEE_RHRmY9bk3yZTnl51MkU3DvxW9vLJPGzM7zwNw8VBfpuj1xZE5beNQvxdIlYMWgNz5cuHNehYMdsB_bKpsGddnye93PNVEotl9tBSCGSJI7O2qEniSfv63bFsEREV6tfcWdzUlfZBcCwtSWjalS2MofrENwBFZmRK_KXc0T1d3LAxcUcXSY-edcQBmwLz-98P4c"/>
+</div>
+<div class="flex-1 flex flex-col">
+<h3 class="font-headline-md text-primary mb-2">Ransum Pet</h3>
+<p class="font-body-md text-on-surface-variant text-sm mb-4 line-clamp-2">Nutrisi khusus untuk Companion peliharaan. Memulihkan stamina 100% secara instan.</p>
+<div class="bg-black/30 rounded-lg p-3 mb-6 border border-glass-stroke flex items-center gap-2">
+<span class="material-symbols-outlined text-secondary text-[18px]">health_and_safety</span>
+<span class="font-body-md text-secondary text-sm">Buff: 100% Stamina Recovery</span>
+</div>
+<div class="mt-auto pt-4 border-t border-glass-stroke flex items-center justify-between">
+<div class="flex flex-col">
+<span class="font-label-sm text-on-surface-variant text-[10px] tracking-widest uppercase mb-1">Harga</span>
+<span class="font-body-md text-on-surface text-xl">1.200 Perak</span>
+</div>
+<button class="btn-treasure px-6 py-2.5 rounded-xl font-label-sm uppercase font-bold flex items-center gap-2">
+<span class="material-symbols-outlined text-[20px]">shopping_cart</span>
+                            Beli
+                        </button>
+</div>
+</div>
+</article>
+<!-- Item Card 3 -->
+<article class="glass-card rounded-2xl p-5 flex flex-col group relative overflow-hidden">
+<div class="w-full aspect-[4/3] rounded-xl mb-5 overflow-hidden relative bg-black/40 flex items-center justify-center p-2 border border-glass-stroke group-hover:border-primary/30 transition-colors">
+<div class="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent z-0"></div>
+<img class="w-full h-full object-cover rounded-lg relative z-10 group-hover:scale-105 transition-transform duration-700" data-alt="Iron Suit Battery" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCsDzRcICWCXsAZdUCCP67vI6-dhzvDo83nzLzQcYMIg3qxPpSFF9EdBzwnUneeNF0PAxWQy9yPs-GNjHH4Yleg2lSe1UYq4ByboCU7dVhrTg1eNExKK4SqW7GTT4wbdknLQzvLGAe55x4IFALDcDiGXKiLDSxIneJhVewz0YBo9LTTQZ8znLuTble1CqFYQzqPR6khLyPjqCzoytK-196FXAKxxCSlqVGmvSkr39D_2ThRMnvlOu0"/>
+</div>
+<div class="flex-1 flex flex-col">
+<h3 class="font-headline-md text-primary mb-2">Baterai Iron Suit</h3>
+<p class="font-body-md text-on-surface-variant text-sm mb-4 line-clamp-2">Inti tenaga kelas militer. Dibutuhkan untuk mengaktifkan pelindung eksoskeleton selama eksplorasi wilayah Android.</p>
+<div class="bg-black/30 rounded-lg p-3 mb-6 border border-glass-stroke flex items-center gap-2">
+<span class="material-symbols-outlined text-[#4682B4] text-[18px]">bolt</span>
+<span class="font-body-md text-[#4682B4] text-sm">Buff: +2hrs Shield Duration</span>
+</div>
+<div class="mt-auto pt-4 border-t border-glass-stroke flex items-center justify-between">
+<div class="flex flex-col">
+<span class="font-label-sm text-on-surface-variant text-[10px] tracking-widest uppercase mb-1">Harga</span>
+<div class="flex items-center gap-2">
+<span class="text-lg">🏆</span>
+<span class="font-body-md text-primary text-xl">25 Emas</span>
+</div>
+</div>
+<button class="btn-treasure px-6 py-2.5 rounded-xl font-label-sm uppercase font-bold flex items-center gap-2">
+<span class="material-symbols-outlined text-[20px]">shopping_cart</span>
+                            Beli
+                        </button>
+</div>
+</div>
+</article>
+</div>
+</main>
+<!-- BottomNavBar (Visible only on Mobile) -->
+<nav class="md:hidden fixed bottom-0 left-0 w-full z-50 flex justify-around items-center px-4 pb-6 pt-3 bg-surface/95 backdrop-blur-2xl border-t border-glass-stroke shadow-[0_-5px_20px_rgba(0,0,0,0.6)]">
+<a class="flex flex-col items-center justify-center text-on-surface-variant opacity-70 hover:opacity-100 transition-opacity active:scale-90 transition-all duration-150" href="#">
+<span class="material-symbols-outlined mb-1">account_balance_wallet</span>
+<span class="font-label-sm text-label-sm">Vault</span>
+</a>
+<a class="flex flex-col items-center justify-center text-primary filter drop-shadow-[0_0_8px_rgba(255,215,0,0.6)] hover:opacity-100 transition-opacity active:scale-90 transition-all duration-150" href="#">
+<span class="material-symbols-outlined mb-1" style="font-variation-settings: 'FILL' 1;">storefront</span>
+<span class="font-label-sm text-label-sm">Market</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant opacity-70 hover:opacity-100 transition-opacity active:scale-90 transition-all duration-150" href="#">
+<span class="material-symbols-outlined mb-1">military_tech</span>
+<span class="font-label-sm text-label-sm">Quests</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant opacity-70 hover:opacity-100 transition-opacity active:scale-90 transition-all duration-150" href="#">
+<span class="material-symbols-outlined mb-1">groups</span>
+<span class="font-label-sm text-label-sm">Guild</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant opacity-70 hover:opacity-100 transition-opacity active:scale-90 transition-all duration-150" href="#">
+<span class="material-symbols-outlined mb-1">person</span>
+<span class="font-label-sm text-label-sm">Profile</span>
+</a>
+</nav>
+</body></html>

@@ -1,0 +1,61 @@
+# ==========================================
+# Locomo.id Federated Workspace .gitignore
+# ==========================================
+
+# Environment & Secrets (SANGAT KRUSIAL)
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+*.cert
+*.p12
+
+# Dependencies
+**/node_modules/
+**/vendor/
+**/__pycache__/
+*.py[cod]
+*$py.class
+venv/
+.venv/
+env/
+
+# Framework Build, Logs & Caches
+**/storage/logs/
+**/storage/framework/cache/
+**/storage/framework/sessions/
+**/storage/framework/views/
+**/storage/debugbar/
+.phpunit.cache/
+.phpunit.result.cache
+
+# Docker persistent local volumes / DB dumps
+*.sqlite
+*.sqlite3
+*.sql
+*.dump
+
+# IDE & OS specific files
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+*.swp
+*~
+
+# Temporary & backup folders / files
+**/scratch/
+*-bak/
+*_bak/
+*.bak
+**/graphify-out/
+
+# Compressed archives & releases (karena ukurannya terlalu besar untuk Git HTTP)
+*.zip
+*.tar.gz
+*.tgz
+*.tar
+*.rar
+*.7z
+*.iso

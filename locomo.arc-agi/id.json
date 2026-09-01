@@ -1,0 +1,80 @@
+{
+  "project_name": "locomo-arc-agi",
+  "version": "1.0.0",
+  "domain": "ARC-AGI (Abstraction and Reasoning Corpus)",
+  "owner": "The Orchestrator",
+  "description": "Logic Reasoning Factory — Sistem penalaran otonom untuk memecahkan teka-teki transformasi grid visual ARC-AGI.",
+
+  "grid_constraints": {
+    "max_size": [30, 30],
+    "color_palette": {
+      "0": "black (background)",
+      "1": "blue",
+      "2": "red",
+      "3": "green",
+      "4": "yellow",
+      "5": "grey",
+      "6": "magenta",
+      "7": "orange",
+      "8": "cyan",
+      "9": "brown"
+    },
+    "dynamic_token_routing": {
+      "raw_array_threshold": [10, 10],
+      "description": "Grid <= 10x10 dikirim sebagai raw array. Grid > 10x10 dikonversi menjadi metadata semantik (objek, posisi, ukuran, warna) oleh Task Loader."
+    }
+  },
+
+  "sandbox": {
+    "runtime": "python:3.12-slim",
+    "dependencies": ["numpy", "scipy", "networkx"],
+    "execution_timeout_seconds": 30,
+    "forbidden_modules": ["os.system", "subprocess", "shutil.rmtree", "eval", "exec"]
+  },
+
+  "reasoning_loop": {
+    "max_retries": 5,
+    "phases": ["PERCEPTION", "HYPOTHESIS", "IMPLEMENTATION", "VERIFICATION"],
+    "on_deadlock": "context_reset_and_heuristic_switch"
+  },
+
+  "model_routing": {
+    "strategy": "asymmetric_swarm_routing",
+    "premium_model": {
+      "name": "Gemini Pro",
+      "assigned_roles": ["theorist"],
+      "invoked_on": ["HYPOTHESIS phase", "Deadlock escalation from Gatekeeper"]
+    },
+    "routine_model": {
+      "name": "Gemini 3.5 Flash",
+      "assigned_roles": ["perceptor", "coder", "validator", "gatekeeper"]
+    }
+  },
+
+  "guardrails": [
+    {
+      "rule_id": "ARC-GR-001",
+      "scope": "sandbox_security",
+      "statement": "Dilarang keras menggunakan os.system(), subprocess, eval(), exec(), atau modul destruktif lainnya dalam script sandbox.",
+      "severity": "CRITICAL"
+    },
+    {
+      "rule_id": "ARC-GR-002",
+      "scope": "output_integrity",
+      "statement": "Output script harus berupa list-of-lists (matriks 2D) dengan nilai integer 0-9. Format lain ditolak.",
+      "severity": "CRITICAL"
+    },
+    {
+      "rule_id": "ARC-GR-003",
+      "scope": "reasoning",
+      "statement": "Theorist dilarang menulis kode implementasi. Output Theorist murni pseudo-code dan formulasi logika abstrak.",
+      "severity": "HIGH"
+    },
+    {
+      "rule_id": "ARC-GR-004",
+      "scope": "context_efficiency",
+      "statement": "Perceptor dan Coder dilarang memuat grid mentah berukuran > 10x10 ke dalam konteks. Gunakan metadata semantik dari Task Loader.",
+      "severity": "HIGH"
+    }
+  ]
+}

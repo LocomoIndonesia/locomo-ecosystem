@@ -1,0 +1,1475 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>KOA Professional Atlas Workspace</title>
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&family=Cinzel:wght@700;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-dark: #08090d;
+            --bg-card: #0f1118;
+            --gold-primary: #d4af37;
+            --gold-light: #f3e5ab;
+            --gold-dark: #aa7c11;
+            --text-primary: #f0f0f5;
+            --text-muted: #8a8d9a;
+            --border-color: rgba(212, 175, 55, 0.2);
+            --gold-gradient: linear-gradient(135deg, #aa7c11 0%, #d4af37 50%, #f3e5ab 100%);
+            --accent-red: #e74c3c;
+            --accent-green: #2ecc71;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            background-color: var(--bg-dark);
+            color: var(--text-primary);
+            font-family: 'Outfit', sans-serif;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        /* Top Header */
+        header {
+            background: var(--bg-card);
+            border-bottom: 2px solid var(--border-color);
+            padding: 16px 24px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            height: 80px;
+            flex-shrink: 0;
+        }
+
+        header h1 {
+            font-family: 'Cinzel', serif;
+            font-size: 1.8rem;
+            background: var(--gold-gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .header-subtitle {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            margin-top: 2px;
+        }
+
+        /* Views Container */
+        .views-container {
+            flex: 1;
+            display: flex;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .view-section {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .hidden {
+            display: none !important;
+        }
+
+        /* ==================== 1. DASHBOARD VIEW ==================== */
+        #dashboard-view {
+            padding: 30px;
+            overflow-y: auto;
+        }
+
+        .dashboard-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            width: 100%;
+        }
+
+        .dashboard-title {
+            font-family: 'Cinzel', serif;
+            font-size: 1.5rem;
+            color: var(--gold-primary);
+            margin-bottom: 24px;
+            border-left: 4px solid var(--gold-primary);
+            padding-left: 12px;
+        }
+
+        .atlas-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 24px;
+            margin-bottom: 40px;
+        }
+
+        .atlas-card {
+            background: var(--bg-card);
+            border: 1.5px solid rgba(255,255,255,0.03);
+            border-radius: 12px;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            transition: all 0.25s ease;
+        }
+
+        .atlas-card:hover {
+            border-color: var(--gold-primary);
+            transform: translateY(-4px);
+            box-shadow: 0 10px 25px rgba(0,0,0,0.5), 0 0 10px rgba(212, 175, 55, 0.15);
+        }
+
+        .atlas-card-title {
+            font-family: 'Cinzel', serif;
+            font-size: 1.1rem;
+            color: var(--gold-light);
+            margin-bottom: 8px;
+        }
+
+        .atlas-card-desc {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            line-height: 1.4;
+            margin-bottom: 16px;
+            flex: 1;
+        }
+
+        .status-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 18px;
+            font-size: 0.85rem;
+        }
+
+        .status-badge {
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-weight: 700;
+            font-size: 0.72rem;
+            letter-spacing: 0.5px;
+        }
+
+        .status-active {
+            background: rgba(46, 204, 113, 0.15);
+            color: var(--accent-green);
+            border: 1px solid var(--accent-green);
+        }
+
+        .status-missing {
+            background: rgba(231, 76, 60, 0.15);
+            color: var(--accent-red);
+            border: 1px solid var(--accent-red);
+        }
+
+        /* Buttons */
+        .btn {
+            padding: 10px 18px;
+            font-family: inherit;
+            font-size: 0.85rem;
+            font-weight: 700;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            outline: none;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .btn-gold {
+            background: var(--gold-gradient);
+            color: #000;
+            border: none;
+        }
+
+        .btn-gold:hover {
+            box-shadow: 0 0 12px var(--gold-primary);
+        }
+
+        .btn-outline {
+            background: #141722;
+            border: 1px solid var(--border-color);
+            color: var(--gold-primary);
+        }
+
+        .btn-outline:hover {
+            background: rgba(212, 175, 55, 0.1);
+        }
+
+        .btn-red-outline {
+            background: #141722;
+            border: 1px solid var(--accent-red);
+            color: var(--accent-red);
+        }
+
+        .btn-red-outline:hover {
+            background: rgba(231, 76, 60, 0.1);
+        }
+
+        /* ==================== 2. GALLERY VIEW ==================== */
+        #gallery-view {
+            padding: 30px;
+            overflow-y: auto;
+        }
+
+        .gallery-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+        }
+
+        .gallery-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 24px;
+            flex-shrink: 0;
+        }
+
+        .gallery-title-box {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .gallery-title {
+            font-family: 'Cinzel', serif;
+            font-size: 1.5rem;
+            color: var(--gold-primary);
+        }
+
+        .gallery-actions {
+            display: flex;
+            gap: 12px;
+        }
+
+        .filter-bar {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 10px;
+            padding: 14px 20px;
+            display: flex;
+            gap: 16px;
+            align-items: center;
+            margin-bottom: 20px;
+            flex-shrink: 0;
+        }
+
+        .filter-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .filter-item label {
+            font-size: 0.72rem;
+            font-weight: 700;
+            color: var(--gold-primary);
+            letter-spacing: 0.5px;
+            text-transform: uppercase;
+        }
+
+        .filter-item input {
+            background: #141722;
+            border: 1px solid var(--border-color);
+            border-radius: 5px;
+            color: #fff;
+            padding: 8px 12px;
+            font-family: inherit;
+            font-size: 0.85rem;
+            outline: none;
+        }
+
+        .filter-item input:focus {
+            border-color: var(--gold-primary);
+        }
+
+        /* Elements Cards Grid */
+        .elements-display-grid {
+            flex: 1;
+            overflow-y: auto;
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+            gap: 20px;
+            padding-bottom: 40px;
+        }
+
+        .element-card {
+            background: var(--bg-card);
+            border: 1.5px solid rgba(255,255,255,0.03);
+            border-radius: 10px;
+            padding: 14px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            transition: all 0.25s ease;
+            position: relative;
+        }
+
+        .element-card:hover {
+            border-color: var(--gold-primary);
+            transform: translateY(-3px);
+            box-shadow: 0 8px 20px rgba(0,0,0,0.5);
+        }
+
+        .element-thumb {
+            width: 100%;
+            height: 120px;
+            background: #08090d;
+            border-radius: 6px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            overflow: hidden;
+            margin-bottom: 12px;
+            border: 1px solid rgba(255,255,255,0.02);
+            padding: 6px;
+        }
+
+        .element-thumb canvas {
+            max-width: 100%;
+            max-height: 100%;
+            object-fit: contain;
+        }
+
+        .element-title {
+            font-size: 0.85rem;
+            font-weight: 700;
+            color: var(--gold-light);
+            margin-bottom: 4px;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+            overflow: hidden;
+            width: 100%;
+            text-align: center;
+        }
+
+        .element-meta {
+            font-size: 0.72rem;
+            color: var(--text-muted);
+            margin-bottom: 14px;
+            font-family: monospace;
+            text-align: center;
+        }
+
+        .element-buttons-row {
+            display: flex;
+            width: 100%;
+            gap: 8px;
+            margin-top: auto;
+        }
+
+        /* ==================== 3. CANVAS EDITOR VIEW ==================== */
+        #canvas-editor-view {
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .editor-header {
+            background: var(--bg-card);
+            border-bottom: 2px solid var(--border-color);
+            height: 60px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 24px;
+            flex-shrink: 0;
+        }
+
+        .editor-title {
+            font-family: 'Cinzel', serif;
+            font-size: 1.1rem;
+            color: var(--gold-light);
+        }
+
+        .editor-viewport {
+            flex: 1;
+            overflow: auto;
+            position: relative;
+            padding: 30px;
+            background: #050608;
+        }
+
+        .zoom-wrap-container {
+            position: relative;
+            box-shadow: 0 15px 40px rgba(0,0,0,0.8);
+            border: 1px solid rgba(255,255,255,0.04);
+            margin: 0 auto;
+            display: block;
+        }
+
+        #webp-editor-img-bg {
+            display: block;
+            pointer-events: none;
+        }
+
+        #editor-drawing-canvas {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            cursor: crosshair;
+        }
+
+        /* Edit Form Modal (For Stage 2 & 3 Attributes Edit) */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.75);
+            backdrop-filter: blur(4px);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 100;
+        }
+
+        .modal-overlay.hidden {
+            display: none;
+        }
+
+        .modal-box {
+            background: #11141c;
+            border: 2px solid var(--gold-primary);
+            border-radius: 12px;
+            width: 95%;
+            max-width: 860px;
+            height: 520px;
+            max-height: 90vh;
+            padding: 20px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.8);
+            display: flex;
+            flex-direction: column;
+        }
+
+        .modal-body-split {
+            display: flex;
+            gap: 20px;
+            flex: 1;
+            overflow: hidden;
+            margin-top: 10px;
+        }
+
+        .modal-visual-side {
+            flex: 1.3;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            overflow: auto;
+            position: relative;
+            background: #06070a;
+        }
+
+        .modal-image-container {
+            position: relative;
+            transform-origin: top left;
+            display: inline-block;
+        }
+
+        #modal-webp-image {
+            display: block;
+            pointer-events: none;
+        }
+
+        #modal-crop-overlay-box {
+            position: absolute;
+            border: 2.5px solid var(--gold-primary);
+            background: rgba(212, 175, 55, 0.18);
+            box-sizing: border-box;
+            cursor: move;
+            box-shadow: 0 0 12px rgba(212,175,55,0.4);
+        }
+
+        .modal-resize-handle {
+            position: absolute;
+            right: -2px;
+            bottom: -2px;
+            width: 14px;
+            height: 14px;
+            background: var(--gold-primary);
+            cursor: se-resize;
+            border-top-left-radius: 3px;
+            border: 1px solid #000;
+            box-shadow: 0 0 4px #000;
+            z-index: 10;
+        }
+
+        .modal-form-side {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            overflow-y: auto;
+            overflow-x: hidden;
+            padding-right: 14px;
+        }
+
+        .modal-title-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 18px;
+        }
+
+        .modal-title-row h2 {
+            font-family: 'Cinzel', serif;
+            font-size: 1.3rem;
+            color: var(--gold-primary);
+        }
+
+        .btn-close-modal-x {
+            background: none;
+            border: none;
+            color: var(--text-muted);
+            font-size: 1.4rem;
+            cursor: pointer;
+        }
+
+        .modal-form-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+
+        .modal-form-group-full {
+            grid-column: 1 / -1;
+        }
+
+        .modal-form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        .modal-form-group label {
+            font-size: 0.7rem;
+            font-weight: 700;
+            color: var(--gold-primary);
+            letter-spacing: 0.5px;
+        }
+
+        .modal-form-group input {
+            background: #141722;
+            border: 1px solid var(--border-color);
+            border-radius: 5px;
+            color: #fff;
+            padding: 8px 10px;
+            font-family: inherit;
+            font-size: 0.85rem;
+            outline: none;
+        }
+
+        .modal-form-group input:focus {
+            border-color: var(--gold-primary);
+        }
+
+        .modal-footer-btns {
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+            border-top: 1px solid rgba(255,255,255,0.05);
+            padding-top: 14px;
+        }
+
+        /* Toast */
+        .toast-container {
+            position: fixed;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            z-index: 1000;
+        }
+
+        .toast {
+            background: #11141c;
+            border: 1px solid var(--gold-dark);
+            border-left: 4px solid var(--gold-primary);
+            padding: 10px 16px;
+            border-radius: 4px;
+            font-size: 0.8rem;
+            color: var(--text-primary);
+            box-shadow: 0 4px 10px rgba(0,0,0,0.5);
+            animation: toastSlideIn 0.3s ease forwards;
+        }
+
+        @keyframes toastSlideIn {
+            from { transform: translateY(-20px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+
+        .loader {
+            text-align: center;
+            padding: 60px 0;
+            font-size: 1.2rem;
+            color: var(--gold-primary);
+            letter-spacing: 1px;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div>
+            <h1>KOA Interactive Atlas Workspace</h1>
+            <div class="header-subtitle">Dashboard Segmentasi Citra & Penyuntingan Aset Modular</div>
+        </div>
+    </header>
+
+    <div class="views-container">
+        <!-- ==================== 1. DASHBOARD VIEW ==================== -->
+        <section class="view-section" id="dashboard-view">
+            <div class="dashboard-container">
+                <h2 class="dashboard-title">Daftar Kategori Atlas</h2>
+                <div class="atlas-grid" id="atlas-grid-container">
+                    <!-- Loaded dynamically -->
+                </div>
+            </div>
+        </section>
+
+        <!-- ==================== 2. GALLERY VIEW ==================== -->
+        <section class="view-section hidden" id="gallery-view">
+            <div class="gallery-container">
+                <div class="gallery-header">
+                    <div class="gallery-title-box">
+                        <button class="btn btn-outline" id="btn-gallery-back">🔙 KEMBALI</button>
+                        <h2 class="gallery-title" id="gallery-title-label">Kategori Atlas</h2>
+                    </div>
+                    <div class="gallery-actions">
+                        <button class="btn btn-outline" id="btn-open-canvas-editor">🎨 GAMBAR ELEMEN BARU</button>
+                        <button class="btn btn-gold" id="btn-save-manifest-server">💾 SIMPAN KE SERVER DISK</button>
+                    </div>
+                </div>
+
+                <div class="filter-bar">
+                    <div class="filter-item">
+                        <label for="gallery-search">Cari Nama ID</label>
+                        <input type="text" id="gallery-search" placeholder="Cari...">
+                    </div>
+                    <div class="filter-item">
+                        <label for="gallery-min-size">Min Ukuran (px)</label>
+                        <input type="number" id="gallery-min-size" value="15" style="width: 80px;">
+                    </div>
+                    <div class="filter-item" style="flex: 1; max-width: 320px;">
+                        <label for="gallery-image-path">Path File Image/WebP</label>
+                        <input type="text" id="gallery-image-path" placeholder="assets/atlas/...">
+                    </div>
+                    <div class="status-badge status-active" style="margin-left:auto; display:flex;" id="gallery-count-badge">
+                        0 Elemen Terdefinisi
+                    </div>
+                </div>
+
+                <!-- Grid gallery of elements -->
+                <div class="elements-display-grid" id="gallery-grid-container">
+                    <!-- Cards with thumbnails -->
+                </div>
+            </div>
+        </section>
+
+        <!-- ==================== 3. CANVAS EDITOR VIEW ==================== -->
+        <section class="view-section hidden" id="canvas-editor-view">
+            <div class="editor-header">
+                <div class="gallery-title-box">
+                    <button class="btn btn-outline" id="btn-editor-back">🔙 KEMBALI KE GALERI</button>
+                    <h2 class="editor-title" id="editor-title-label">Menggambar Elemen Baru</h2>
+                </div>
+                <div class="gallery-actions" style="align-items:center;">
+                    <button class="btn btn-outline" id="btn-zoom-out" style="padding: 6px 14px; font-size:1rem;">−</button>
+                    <span class="zoom-label" id="zoom-value-label" style="min-width: 50px; text-align:center;">100%</span>
+                    <button class="btn btn-outline" id="btn-zoom-in" style="padding: 6px 14px; font-size:1rem;">+</button>
+                    <button class="btn btn-outline" id="btn-zoom-reset" style="padding: 6px 12px; font-size:0.8rem;">1:1</button>
+                </div>
+            </div>
+
+            <!-- Canvas Viewport -->
+            <div class="editor-viewport">
+                <div class="zoom-wrap-container" id="zoom-wrap-container">
+                    <img id="webp-editor-img-bg" src="" alt="WebP Image Source">
+                    <canvas id="editor-drawing-canvas"></canvas>
+                </div>
+            </div>
+        </section>
+    </div>
+
+    <!-- Edit Attribute Modal (Unified for Gallery Edit & Canvas Add) -->
+    <div class="modal-overlay hidden" id="attribute-modal">
+        <div class="modal-box">
+            <div class="modal-title-row">
+                <h2 id="modal-title-label">Edit Atribut Aset</h2>
+                <button class="btn-close-modal-x" id="btn-close-modal-close">&times;</button>
+            </div>
+            
+            <form id="attribute-edit-form" style="display:flex; flex-direction:column; flex:1; overflow:hidden;">
+                <input type="hidden" id="form-original-key">
+                <input type="hidden" id="form-action-mode" value="edit"> <!-- edit or add -->
+                
+                <div class="modal-body-split">
+                    <!-- Left: Interactive WebP Crop Overlay -->
+                    <div class="modal-visual-side" id="modal-visual-side">
+                        <div class="modal-image-container" id="modal-image-container">
+                            <img id="modal-webp-image" src="" alt="Atlas WebP Source">
+                            <div id="modal-crop-overlay-box">
+                                <div class="modal-resize-handle" id="modal-resize-handle"></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Right: Inputs & Buttons -->
+                    <div class="modal-form-side">
+                        <div class="modal-form-grid">
+                            <div class="modal-form-group modal-form-group-full">
+                                <label for="form-key-name">Nama Panggilan Elemen (Unique ID)</label>
+                                <input type="text" id="form-key-name" required placeholder="Contoh: sym_koa">
+                            </div>
+                            <div class="modal-form-group">
+                                <label for="form-coord-x">Posisi X (px)</label>
+                                <input type="number" id="form-coord-x" required min="0">
+                            </div>
+                            <div class="modal-form-group">
+                                <label for="form-coord-y">Posisi Y (px)</label>
+                                <input type="number" id="form-coord-y" required min="0">
+                            </div>
+                            <div class="modal-form-group">
+                                <label for="form-coord-w">Lebar W (px)</label>
+                                <input type="number" id="form-coord-w" required min="1">
+                            </div>
+                            <div class="modal-form-group">
+                                <label for="form-coord-h">Tinggi H (px)</label>
+                                <input type="number" id="form-coord-h" required min="1">
+                            </div>
+                        </div>
+
+                        <div class="modal-footer-btns">
+                            <button type="button" class="btn btn-red-outline" id="btn-delete-element-modal">❌ HAPUS ASET</button>
+                            <button type="submit" class="btn btn-gold">💾 SIMPAN ASET</button>
+                        </div>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div class="toast-container" id="toast-container"></div>
+
+    <script>
+        const categories = [
+            { id: "cards-atlas", name: "Cards Atlas", desc: "Deck kartu permainan KOA tradisional Minang." },
+            { id: "all-valid-card-atlas", name: "All Valid Card Atlas", desc: "Deck khusus kartu KOA yang telah divalidasi secara terpisah." },
+            { id: "UI_Atlas", name: "UI Atlas", desc: "Tombol, kontainer plate, saldo info plate, dan panel HUD." },
+            { id: "Frame_n_Effect-Atlas", name: "Frame & Effect Atlas", desc: "Bingkai emas ornamen gadang untuk slot grid." },
+            { id: "coin_treasure-atlas", name: "Coin & Treasure Atlas", desc: "Koin perak, koin emas, dan peti harta karun K.O.AA!." },
+            { id: "typografi_atlas", name: "Typography Atlas", desc: "Angka, perkalian emas x1, x2, x4, x5, dan logo utama KOA." },
+            { id: "Icon_atlas", name: "Icon Atlas", desc: "Ikon navigasi bawah (Rank, Misi, Beranda, Inbox, Toko)." },
+            { id: "asset_atlas", name: "Asset Atlas", desc: "Simbol pendukung, wild gold, scatter KOA, dan kunci." },
+            { id: "ornamen_bacjgriund_atlas", name: "Background Atlas", desc: "Latar belakang bermotif ukiran arang perunggu Minang." },
+            { id: "animation_atlas", name: "Animation Atlas", desc: "Visual efek kembang api dan retakan kayu ceki." }
+        ];
+
+        // Views
+        const dashboardView = document.getElementById("dashboard-view");
+        const galleryView = document.getElementById("gallery-view");
+        const canvasEditorView = document.getElementById("canvas-editor-view");
+
+        // Dashboard selectors
+        const atlasGridContainer = document.getElementById("atlas-grid-container");
+
+        // Gallery selectors
+        const btnGalleryBack = document.getElementById("btn-gallery-back");
+        const galleryTitleLabel = document.getElementById("gallery-title-label");
+        const btnOpenCanvasEditor = document.getElementById("btn-open-canvas-editor");
+        const btnSaveManifestServer = document.getElementById("btn-save-manifest-server");
+        const gallerySearch = document.getElementById("gallery-search");
+        const galleryMinSize = document.getElementById("gallery-min-size");
+        const galleryCountBadge = document.getElementById("gallery-count-badge");
+        const galleryGridContainer = document.getElementById("gallery-grid-container");
+
+        // Canvas Editor selectors
+        const btnEditorBack = document.getElementById("btn-editor-back");
+        const editorTitleLabel = document.getElementById("editor-title-label");
+        const webpEditorBg = document.getElementById("webp-editor-img-bg");
+        const editorCanvas = document.getElementById("editor-drawing-canvas");
+        const zoomWrapContainer = document.getElementById("zoom-wrap-container");
+        const btnZoomIn = document.getElementById("btn-zoom-in");
+        const btnZoomOut = document.getElementById("btn-zoom-out");
+        const btnZoomReset = document.getElementById("btn-zoom-reset");
+        const zoomValueLabel = document.getElementById("zoom-value-label");
+
+        // Modal Form selectors
+        const attributeModal = document.getElementById("attribute-modal");
+        const attributeEditForm = document.getElementById("attribute-edit-form");
+        const formOriginalKey = document.getElementById("form-original-key");
+        const formActionMode = document.getElementById("form-action-mode");
+        const formKeyName = document.getElementById("form-key-name");
+        const formCoordX = document.getElementById("form-coord-x");
+        const formCoordY = document.getElementById("form-coord-y");
+        const formCoordW = document.getElementById("form-coord-w");
+        const formCoordH = document.getElementById("form-coord-h");
+        const btnCloseModalClose = document.getElementById("btn-close-modal-close");
+        const btnDeleteElementModal = document.getElementById("btn-delete-element-modal");
+
+        let currentManifest = null;
+        let currentImage = null;
+        let currentAtlasId = null;
+        let zoomLevel = 1.0;
+
+        // Drawing states
+        let isDrawing = false;
+        let startX = 0, startY = 0;
+        let currentX = 0, currentY = 0;
+
+        // ==================== 1. DASHBOARD CONTROLLER ====================
+        async function initDashboard() {
+            dashboardView.classList.remove("hidden");
+            galleryView.classList.add("hidden");
+            canvasEditorView.classList.add("hidden");
+            
+            atlasGridContainer.innerHTML = '<div class="loader">Memuat data status...</div>';
+
+            const fragment = document.createDocumentFragment();
+
+            for (const cat of categories) {
+                const card = document.createElement("div");
+                card.className = "atlas-card";
+
+                // Check JSON existence
+                let hasJson = false;
+                try {
+                    const response = await fetch(`/api/koa-atlas/${cat.id}`);
+                    hasJson = (response.status === 200);
+                } catch (e) {
+                    hasJson = false;
+                }
+
+                card.innerHTML = `
+                    <h3 class="atlas-card-title">${cat.name}</h3>
+                    <p class="atlas-card-desc">${cat.desc}</p>
+                    <div class="status-row">
+                        <span>Manifest JSON:</span>
+                        <span class="status-badge ${hasJson ? 'status-active' : 'status-missing'}">
+                            ${hasJson ? 'AKTIF (200 OK)' : 'TIDAK ADA (404)'}
+                        </span>
+                    </div>
+                    <div style="display:flex; gap:10px; margin-top:auto;">
+                        <button class="btn btn-outline btn-auto-segment" data-id="${cat.id}" style="flex:1; font-size:0.75rem; padding:8px;">
+                            ⚡ AUTO SEGMENT
+                        </button>
+                        <button class="btn btn-gold btn-edit-atlas" data-id="${cat.id}" style="flex:1.2; font-size:0.75rem; padding:8px;">
+                            ✏️ EDIT ATLAS
+                        </button>
+                    </div>
+                `;
+
+                fragment.appendChild(card);
+            }
+
+            atlasGridContainer.innerHTML = "";
+            atlasGridContainer.appendChild(fragment);
+
+            // Button Event listeners
+            document.querySelectorAll(".btn-auto-segment").forEach(btn => {
+                btn.addEventListener("click", async (e) => {
+                    e.stopPropagation();
+                    const id = btn.getAttribute("data-id");
+                    btn.textContent = "⚙️ SEGMENTING...";
+                    btn.disabled = true;
+                    await triggerAutoSegment(id);
+                });
+            });
+
+            document.querySelectorAll(".btn-edit-atlas").forEach(btn => {
+                btn.addEventListener("click", async (e) => {
+                    e.stopPropagation();
+                    const id = btn.getAttribute("data-id");
+                    
+                    btn.textContent = "⌛ LOADING...";
+                    btn.disabled = true;
+
+                    // Trigger autosegment if JSON does not exist
+                    try {
+                        const checkRes = await fetch(`/api/koa-atlas/${id}`);
+                        if (checkRes.status !== 200) {
+                            await fetch(`/api/koa-atlas/${id}/auto-segment`, {
+                                method: 'POST',
+                                headers: { 'Content-Type': 'application/json' }
+                            });
+                        }
+                    } catch (e) {
+                        console.warn("Background autosegment fail:", e);
+                    }
+
+                    openGalleryView(id);
+                });
+            });
+        }
+
+        async function triggerAutoSegment(name) {
+            try {
+                const response = await fetch(`/api/koa-atlas/${name}/auto-segment`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' }
+                });
+                const result = await response.json();
+                if (result.success) {
+                    showToast(result.message, "success");
+                } else {
+                    showToast("Gagal segmentasi: " + result.message, "error");
+                }
+            } catch (e) {
+                showToast("Koneksi gagal saat auto-segmentasi.", "error");
+            }
+            initDashboard();
+        }
+
+        // ==================== 2. GALLERY CONTROLLER ====================
+        async function openGalleryView(id, forceReloadFromServer = false) {
+            const isDifferentAtlas = (currentAtlasId !== id);
+            currentAtlasId = id;
+            const cat = categories.find(c => c.id === id);
+            galleryTitleLabel.textContent = `${cat.name} (${id})`;
+
+            dashboardView.classList.add("hidden");
+            galleryView.classList.remove("hidden");
+            canvasEditorView.classList.add("hidden");
+
+            if (forceReloadFromServer || !currentManifest || isDifferentAtlas) {
+                galleryGridContainer.innerHTML = '<div class="loader">Memuat elemen galeri...</div>';
+                const jsonUrl = `/api/koa-atlas/${id}`;
+                try {
+                    const response = await fetch(jsonUrl);
+                    currentManifest = await response.json();
+
+                    const imgName = (currentManifest.meta && currentManifest.meta.image) ? currentManifest.meta.image : `${id}.webp`;
+                    const webpPath = `assets/atlas/${imgName}`;
+
+                    const inputPath = document.getElementById("gallery-image-path");
+                    if (inputPath) {
+                        inputPath.value = webpPath;
+                    }
+
+                    currentImage = new Image();
+                    currentImage.onload = () => {
+                        renderGalleryGrid();
+                    };
+                    currentImage.onerror = () => {
+                        showToast("Gagal memuat file gambar dari path " + webpPath, "error");
+                        renderGalleryGrid();
+                    };
+                    currentImage.src = webpPath;
+                } catch (e) {
+                    showToast("Gagal memuat galeri atlas.", "error");
+                    initDashboard();
+                }
+            } else {
+                const inputPath = document.getElementById("gallery-image-path");
+                if (inputPath) {
+                    const imgName = (currentManifest.meta && currentManifest.meta.image) ? currentManifest.meta.image : `${id}.webp`;
+                    inputPath.value = `assets/atlas/${imgName}`;
+                }
+                renderGalleryGrid();
+            }
+        }
+
+        function renderGalleryGrid() {
+            if (!currentManifest || !currentImage) return;
+
+            galleryGridContainer.innerHTML = "";
+            const minSize = parseInt(galleryMinSize.value) || 0;
+            const query = gallerySearch.value.toLowerCase();
+
+            const frames = currentManifest.frames;
+            let count = 0;
+
+            const fragment = document.createDocumentFragment();
+
+            for (const [key, item] of Object.entries(frames)) {
+                const rect = item.frame;
+
+                if (rect.w < minSize || rect.h < minSize) continue;
+                if (query && !key.toLowerCase().includes(query)) continue;
+
+                count++;
+
+                const card = document.createElement("div");
+                card.className = "element-card";
+
+                // Cropped Thumbnail
+                const thumb = document.createElement("div");
+                thumb.className = "element-thumb";
+
+                const canvas = document.createElement("canvas");
+                canvas.width = rect.w;
+                canvas.height = rect.h;
+                const ctx = canvas.getContext("2d");
+                ctx.drawImage(
+                    currentImage,
+                    rect.x, rect.y, rect.w, rect.h,
+                    0, 0, rect.w, rect.h
+                );
+
+                thumb.appendChild(canvas);
+                card.appendChild(thumb);
+
+                // Meta details
+                const title = document.createElement("div");
+                title.className = "element-title";
+                title.textContent = key;
+                card.appendChild(title);
+
+                const meta = document.createElement("div");
+                meta.className = "element-meta";
+                meta.innerHTML = `x:${rect.x}, y:${rect.y}<br>Dim:${rect.w}x${rect.h}`;
+                card.appendChild(meta);
+
+                // Control buttons row
+                const btnRow = document.createElement("div");
+                btnRow.className = "element-buttons-row";
+
+                const btnEdit = document.createElement("button");
+                btnEdit.className = "btn btn-outline";
+                btnEdit.style.flex = "1";
+                btnEdit.style.padding = "6px";
+                btnEdit.style.fontSize = "0.72rem";
+                btnEdit.textContent = "✏️ EDIT";
+                btnEdit.addEventListener("click", () => {
+                    openEditModal(key, rect);
+                });
+
+                const btnDelete = document.createElement("button");
+                btnDelete.className = "btn btn-red-outline";
+                btnDelete.style.padding = "6px 10px";
+                btnDelete.style.fontSize = "0.72rem";
+                btnDelete.textContent = "❌";
+                btnDelete.addEventListener("click", () => {
+                    if (confirm(`Apakah Anda yakin ingin menghapus elemen ${key}?`)) {
+                        delete currentManifest.frames[key];
+                        renderGalleryGrid();
+                        showToast(`Elemen ${key} berhasil dihapus dari memori.`, "success");
+                    }
+                });
+
+                btnRow.appendChild(btnEdit);
+                btnRow.appendChild(btnDelete);
+                card.appendChild(btnRow);
+
+                fragment.appendChild(card);
+            }
+
+            galleryGridContainer.appendChild(fragment);
+            galleryCountBadge.textContent = `${count} Elemen Terdefinisi`;
+        }
+
+        // ==================== 3. CANVAS EDITOR CONTROLLER ====================
+        function openCanvasEditor() {
+            if (!currentImage || !currentManifest) return;
+
+            const cat = categories.find(c => c.id === currentAtlasId);
+            editorTitleLabel.textContent = `Gambar Elemen Baru - ${cat.name}`;
+
+            dashboardView.classList.add("hidden");
+            galleryView.classList.add("hidden");
+            canvasEditorView.classList.remove("hidden");
+
+            // Set images and canvases
+            webpEditorBg.src = currentImage.src;
+            editorCanvas.width = currentImage.width;
+            editorCanvas.height = currentImage.height;
+
+            setZoom(1.0);
+            drawEditorCanvasOverlays();
+        }
+
+        function drawEditorCanvasOverlays() {
+            if (!editorCanvas || !currentManifest) return;
+
+            const ctx = editorCanvas.getContext("2d");
+            ctx.clearRect(0, 0, editorCanvas.width, editorCanvas.height);
+
+            // Draw red borders for all existing elements
+            ctx.strokeStyle = "#e74c3c";
+            ctx.lineWidth = 1.5;
+            ctx.setLineDash([4, 2]);
+
+            for (const item of Object.values(currentManifest.frames)) {
+                const rect = item.frame;
+                ctx.strokeRect(rect.x, rect.y, rect.w, rect.h);
+            }
+        }
+
+        function setZoom(level) {
+            zoomLevel = Math.max(0.4, Math.min(3.0, level));
+            if (currentImage && currentImage.width) {
+                const targetW = currentImage.width * zoomLevel;
+                const targetH = currentImage.height * zoomLevel;
+                zoomWrapContainer.style.width = `${targetW}px`;
+                zoomWrapContainer.style.height = `${targetH}px`;
+                
+                zoomWrapContainer.style.transform = 'none';
+                
+                webpEditorBg.style.width = '100%';
+                webpEditorBg.style.height = '100%';
+                editorCanvas.style.width = '100%';
+                editorCanvas.style.height = '100%';
+            } else {
+                zoomWrapContainer.style.transform = `scale(${zoomLevel})`;
+                zoomWrapContainer.style.transformOrigin = 'top left';
+            }
+            zoomValueLabel.textContent = `${Math.round(zoomLevel * 100)}%`;
+        }
+
+        // Zoom Click Listeners
+        btnZoomIn.addEventListener("click", () => setZoom(zoomLevel + 0.15));
+        btnZoomOut.addEventListener("click", () => setZoom(zoomLevel - 0.15));
+        btnZoomReset.addEventListener("click", () => setZoom(1.0));
+
+        // Drag to Draw Bounding Box (Canvas Editor)
+        editorCanvas.addEventListener("mousedown", (e) => {
+            const rect = editorCanvas.getBoundingClientRect();
+            const scaleX = editorCanvas.width / rect.width;
+            const scaleY = editorCanvas.height / rect.height;
+
+            startX = (e.clientX - rect.left) * scaleX;
+            startY = (e.clientY - rect.top) * scaleY;
+            isDrawing = true;
+        });
+
+        editorCanvas.addEventListener("mousemove", (e) => {
+            if (!isDrawing) return;
+
+            const rect = editorCanvas.getBoundingClientRect();
+            const scaleX = editorCanvas.width / rect.width;
+            const scaleY = editorCanvas.height / rect.height;
+
+            currentX = (e.clientX - rect.left) * scaleX;
+            currentY = (e.clientY - rect.top) * scaleY;
+
+            drawEditorCanvasOverlays();
+
+            // Draw drag border
+            const ctx = editorCanvas.getContext("2d");
+            ctx.strokeStyle = "#2ecc71";
+            ctx.lineWidth = 3 / zoomLevel;
+            ctx.setLineDash([5, 3]);
+            
+            const boxW = currentX - startX;
+            const boxH = currentY - startY;
+            ctx.strokeRect(startX, startY, boxW, boxH);
+        });
+
+        editorCanvas.addEventListener("mouseup", () => {
+            if (!isDrawing) return;
+            isDrawing = false;
+
+            const finalW = Math.abs(currentX - startX);
+            const finalH = Math.abs(currentY - startY);
+
+            if (finalW > 10 && finalH > 10) {
+                const rect = {
+                    x: Math.round(Math.min(startX, currentX)),
+                    y: Math.round(Math.min(startY, currentY)),
+                    w: Math.round(finalW),
+                    h: Math.round(finalH)
+                };
+                
+                // Open modal form to define new element attributes
+                openEditModal("", rect, true);
+            } else {
+                drawEditorCanvasOverlays();
+            }
+        });
+
+        // ==================== FORM & MODAL CONTROLLERS ====================
+        const modalWebpImage = document.getElementById("modal-webp-image");
+        const modalCropOverlayBox = document.getElementById("modal-crop-overlay-box");
+        const modalResizeHandle = document.getElementById("modal-resize-handle");
+        const modalVisualSide = document.getElementById("modal-visual-side");
+
+        // Drag to Move / Resize Box
+        let isMovingBox = false;
+        let isResizingBox = false;
+        
+        let startMoveX = 0, startMoveY = 0;
+        let boxStartLeft = 0, boxStartTop = 0;
+        
+        let startResizeX = 0, startResizeY = 0;
+        let boxStartWidth = 0, boxStartHeight = 0;
+
+        modalCropOverlayBox.addEventListener("mousedown", (e) => {
+            const isHandle = e.target.classList.contains("modal-resize-handle") || e.target.id === "modal-resize-handle";
+            
+            if (isHandle) {
+                isResizingBox = true;
+                startResizeX = e.clientX;
+                startResizeY = e.clientY;
+                boxStartWidth = parseInt(modalCropOverlayBox.style.width) || 10;
+                boxStartHeight = parseInt(modalCropOverlayBox.style.height) || 10;
+                
+                document.addEventListener("mousemove", handleResizeBox);
+                document.addEventListener("mouseup", stopResizeBox);
+            } else {
+                isMovingBox = true;
+                startMoveX = e.clientX;
+                startMoveY = e.clientY;
+                boxStartLeft = parseInt(modalCropOverlayBox.style.left) || 0;
+                boxStartTop = parseInt(modalCropOverlayBox.style.top) || 0;
+                
+                document.addEventListener("mousemove", handleMoveBox);
+                document.addEventListener("mouseup", stopMoveBox);
+            }
+            e.preventDefault();
+        });
+
+        function handleMoveBox(e) {
+            if (!isMovingBox) return;
+            const dx = e.clientX - startMoveX;
+            const dy = e.clientY - startMoveY;
+            
+            let newX = Math.max(0, boxStartLeft + dx);
+            let newY = Math.max(0, boxStartTop + dy);
+            
+            if (modalWebpImage.naturalWidth) {
+                newX = Math.min(newX, modalWebpImage.naturalWidth - parseInt(formCoordW.value));
+                newY = Math.min(newY, modalWebpImage.naturalHeight - parseInt(formCoordH.value));
+            }
+
+            modalCropOverlayBox.style.left = `${newX}px`;
+            modalCropOverlayBox.style.top = `${newY}px`;
+            
+            formCoordX.value = Math.round(newX);
+            formCoordY.value = Math.round(newY);
+        }
+
+        function stopMoveBox() {
+            isMovingBox = false;
+            document.removeEventListener("mousemove", handleMoveBox);
+            document.removeEventListener("mouseup", stopMoveBox);
+        }
+
+        function handleResizeBox(e) {
+            if (!isResizingBox) return;
+            const dx = e.clientX - startResizeX;
+            const dy = e.clientY - startResizeY;
+            
+            let newW = Math.max(5, boxStartWidth + dx);
+            let newH = Math.max(5, boxStartHeight + dy);
+
+            const currentLeft = parseInt(modalCropOverlayBox.style.left) || 0;
+            const currentTop = parseInt(modalCropOverlayBox.style.top) || 0;
+            if (modalWebpImage.naturalWidth) {
+                newW = Math.min(newW, modalWebpImage.naturalWidth - currentLeft);
+                newH = Math.min(newH, modalWebpImage.naturalHeight - currentTop);
+            }
+
+            modalCropOverlayBox.style.width = `${newW}px`;
+            modalCropOverlayBox.style.height = `${newH}px`;
+            
+            formCoordW.value = Math.round(newW);
+            formCoordH.value = Math.round(newH);
+        }
+
+        function stopResizeBox() {
+            isResizingBox = false;
+            document.removeEventListener("mousemove", handleResizeBox);
+            document.removeEventListener("mouseup", stopResizeBox);
+        }
+
+        // Two-Way Numeric Input Sync
+        [formCoordX, formCoordY, formCoordW, formCoordH].forEach(input => {
+            input.addEventListener("input", () => {
+                const x = parseInt(formCoordX.value) || 0;
+                const y = parseInt(formCoordY.value) || 0;
+                const w = parseInt(formCoordW.value) || 5;
+                const h = parseInt(formCoordH.value) || 5;
+
+                modalCropOverlayBox.style.left = `${x}px`;
+                modalCropOverlayBox.style.top = `${y}px`;
+                modalCropOverlayBox.style.width = `${w}px`;
+                modalCropOverlayBox.style.height = `${h}px`;
+            });
+        });
+
+        function openEditModal(key, rect, isNew = false) {
+            document.getElementById("modal-title-label").textContent = isNew ? "Tambah Elemen Baru" : "Edit Atribut Aset";
+            formOriginalKey.value = isNew ? "" : key;
+            formActionMode.value = isNew ? "add" : "edit";
+            formKeyName.value = isNew ? `element_${Object.keys(currentManifest.frames).length}` : key;
+            formCoordX.value = rect.x;
+            formCoordY.value = rect.y;
+            formCoordW.value = rect.w;
+            formCoordH.value = rect.h;
+
+            if (isNew) {
+                btnDeleteElementModal.style.display = "none";
+            } else {
+                btnDeleteElementModal.style.display = "block";
+            }
+
+            // Load atlas image inside modal
+            modalWebpImage.src = currentImage.src;
+
+            // Size crop overlay box
+            modalCropOverlayBox.style.left = `${rect.x}px`;
+            modalCropOverlayBox.style.top = `${rect.y}px`;
+            modalCropOverlayBox.style.width = `${rect.w}px`;
+            modalCropOverlayBox.style.height = `${rect.h}px`;
+
+            attributeModal.classList.remove("hidden");
+
+            // Smooth Scroll Centering overlay crop box
+            setTimeout(() => {
+                const centerX = rect.x + (rect.w / 2);
+                const centerY = rect.y + (rect.h / 2);
+                modalVisualSide.scrollTo({
+                    left: centerX - (modalVisualSide.clientWidth / 2),
+                    top: centerY - (modalVisualSide.clientHeight / 2),
+                    behavior: 'smooth'
+                });
+            }, 60);
+        }
+
+        // Form Submit
+        attributeEditForm.addEventListener("submit", (e) => {
+            e.preventDefault();
+            if (!currentManifest) return;
+
+            const origKey = formOriginalKey.value;
+            const mode = formActionMode.value;
+            const newKey = formKeyName.value.trim();
+            const x = parseInt(formCoordX.value);
+            const y = parseInt(formCoordY.value);
+            const w = parseInt(formCoordW.value);
+            const h = parseInt(formCoordH.value);
+
+            if (!newKey) return;
+
+            // Remove old key if name changed
+            if (origKey && origKey !== newKey) {
+                delete currentManifest.frames[origKey];
+            }
+
+            currentManifest.frames[newKey] = {
+                "frame": { "x": x, "y": y, "w": w, "h": h },
+                "sourceSize": { "w": w, "h": h },
+                "spriteSourceSize": { "x": 0, "y": 0, "w": w, "h": h }
+            };
+
+            attributeModal.classList.add("hidden");
+            showToast("Atribut elemen berhasil diperbarui.", "success");
+
+            if (mode === "add") {
+                // If it was added from editor, save and return back to gallery view
+                openGalleryView(currentAtlasId);
+            } else {
+                // Just reload gallery view
+                renderGalleryGrid();
+            }
+        });
+
+        // Delete inside modal
+        btnDeleteElementModal.addEventListener("click", () => {
+            const origKey = formOriginalKey.value;
+            if (origKey && currentManifest.frames[origKey]) {
+                delete currentManifest.frames[origKey];
+                attributeModal.classList.add("hidden");
+                renderGalleryGrid();
+                showToast(`Elemen ${origKey} berhasil dihapus.`, "success");
+            }
+        });
+
+        // Save changes to Server disk
+        btnSaveManifestServer.addEventListener("click", async () => {
+            if (!currentManifest || !currentAtlasId) return;
+
+            try {
+                const response = await fetch(`/api/koa-atlas/${currentAtlasId}`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(currentManifest)
+                });
+                const result = await response.json();
+                if (result.success) {
+                    showToast(`Selesai! Manifest berkas ${currentAtlasId}.json tersimpan di server.`, "success");
+                } else {
+                    showToast("Gagal menyimpan: " + result.message, "error");
+                }
+            } catch (e) {
+                showToast("Koneksi gagal saat menulis manifest di server.", "error");
+            }
+        });
+
+        // Close Modal events
+        btnCloseModalClose.addEventListener("click", () => attributeModal.classList.add("hidden"));
+        window.addEventListener("click", (e) => {
+            if (e.target === attributeModal) attributeModal.classList.add("hidden");
+        });
+
+        // Filter events
+        gallerySearch.addEventListener("input", renderGalleryGrid);
+        galleryMinSize.addEventListener("input", renderGalleryGrid);
+
+        // Image path change event
+        const galleryImagePath = document.getElementById("gallery-image-path");
+        galleryImagePath.addEventListener("change", () => {
+            const newPath = galleryImagePath.value.trim();
+            if (!newPath) return;
+            
+            showToast("Memuat gambar baru...", "success");
+            const tempImg = new Image();
+            tempImg.onload = () => {
+                currentImage = tempImg;
+                
+                // Update manifest meta.image
+                const filename = newPath.substring(newPath.lastIndexOf('/') + 1);
+                if (currentManifest && currentManifest.meta) {
+                    currentManifest.meta.image = filename;
+                }
+                
+                renderGalleryGrid();
+                showToast(`Gambar berhasil dimuat! Nama file manifest diperbarui: ${filename}`, "success");
+            };
+            tempImg.onerror = () => {
+                showToast("Gagal memuat gambar dari path tersebut.", "error");
+            };
+            tempImg.src = newPath;
+        });
+
+        // Go Back events
+        btnGalleryBack.addEventListener("click", initDashboard);
+        btnOpenCanvasEditor.addEventListener("click", openCanvasEditor);
+        btnEditorBack.addEventListener("click", () => openGalleryView(currentAtlasId));
+
+        function showToast(message, type = "success") {
+            const toastContainer = document.getElementById("toast-container");
+            const toast = document.createElement("div");
+            toast.className = `toast ${type}`;
+            toast.textContent = message;
+            toastContainer.appendChild(toast);
+            setTimeout(() => toast.remove(), 2500);
+        }
+
+        // Start
+        initDashboard();
+    </script>
+</body>
+</html>

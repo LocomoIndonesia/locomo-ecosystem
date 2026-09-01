@@ -1,0 +1,17 @@
+{
+  "schema_version": "1.0",
+  "last_updated": "2026-06-10",
+  "workspace_name": "Locomo.id Federated Ecosystem",
+  "active_project": "mandeh.online.v2",
+  "projects": ["locomo-web", "mandeh.online", "mandeh.id", "tapak.pandeka", "mandeh.online.v2", "locomo.agent"],
+  "business_objective": "Membangun ekosistem kedaulatan digital terfederasi di locomo.id yang mencakup gateway identitas (Mandeh.ID), portal wisata & reputasi (Mandeh.Online), platform akademik (HakCampus.id), jaringan kepemudaan (Tapak Pandeka), dan modul demokrasi warga (Smart-Citizen).",
+  "stakeholders": {
+    "users": ["warga", "wisatawan", "business_owner", "layanan_publik", "sponsor", "siswa", "guru", "pemuda", "ketua_osis", "ketua_pemuda", "wali_murid", "admin"]
+  },
+  "deployment": {
+    "strategy": "Docker-Only Deployment",
+    "infrastructure": "Laravel 13/11, Python FastAPI, PostgreSQL, pgvector, Ollama Local"
+  },
+  "core_modules": ["Locomo Agent OS", "Mandeh.ID", "Mandeh.Online", "HakCampus.id", "Tapak Pandeka", "Smart-Citizen", "PitiCoin"],
+  "hard_constraints": ["API-First design", "Docker-Only execution for all tools", "Stateless authentication via Mandeh.ID JWT tokens", "User approval required before registering or syncing new projects"]
+}

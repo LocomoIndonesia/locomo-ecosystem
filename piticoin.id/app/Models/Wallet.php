@@ -1,0 +1,29 @@
+<?php
+
+namespace App\Models;
+
+use Illuminate\Database\Eloquent\Model;
+
+class Wallet extends Model
+{
+    protected $table = 'wallets';
+    protected $primaryKey = 'user_id';
+    public $incrementing = false;
+    protected $keyType = 'string';
+
+    protected $fillable = [
+        'user_id',
+        'silver_balance',
+        'gold_balance',
+    ];
+
+    protected $casts = [
+        'silver_balance' => 'integer',
+        'gold_balance' => 'integer',
+    ];
+
+    public function user()
+    {
+        return $this->belongsTo(User::class, 'user_id');
+    }
+}

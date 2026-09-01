@@ -1,0 +1,32 @@
+{
+  "version": "10.2.0-arc-agi",
+  "name": "Locomo ARC-AGI — Logic Reasoning Factory",
+  "description": "5-Layer Cognitive Architecture for ARC-AGI puzzle solving with Hypothetico-Deductive Loop, Asymmetric Swarm Routing, and Dynamic Token Routing.",
+  "kernel": "skills/kernel.md",
+  "identity": "id.json",
+  "docs": "docs",
+  "cortex": "cortex",
+  "drivers": "drivers",
+  "brain": "brain",
+  "scratch": "scratch",
+  "roms": "skills/roms",
+  "hooks": "skills/hooks",
+  "runtime": "skills/runtime",
+  "task_loader": "docs/task_loader.py",
+  "sandbox": "scratch/matrix_sandbox.py",
+  "roles": [
+    "skills/roles/perceptor.json",
+    "skills/roles/theorist.json",
+    "skills/roles/coder.json",
+    "skills/roles/validator.json",
+    "skills/roles/gatekeeper.json"
+  ],
+  "patterns": [
+    "skills/patterns/locomo-signature.json"
+  ],
+  "protocols": {
+    "hitl": "skills/roms/hitl-protocol.json"
+  },
+  "telemetry": "skills/runtime/telemetry.json",
+  "learning_log": "skills/runtime/learning-log.jsonl"
+}

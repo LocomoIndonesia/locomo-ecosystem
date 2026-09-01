@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Buru Harta Karun: Gunung Mas</title>
+    <!-- Google Fonts: Cinzel (untuk tema antik) dan Inter (untuk UI bersih) -->
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;800;900&family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div id="game-container">
+        <!-- Sun/Glow background effect -->
+        <div class="glow-bg"></div>
+
+        <!-- Header / Banner Status -->
+        <header>
+            <h1 class="logo">BURU HARTA KARUN</h1>
+            <div class="logo-sub">GUNUNG MAS</div>
+        </header>
+
+        <!-- Piticoin Integration Panel -->
+        <div id="piticoin-panel">
+            <div class="pool-row">
+                <span class="pool-lbl">LIQUIDITY POOL:</span>
+                <span class="pool-val" id="piticoin-pool-val">Rp 0</span>
+            </div>
+            <div class="claim-row">
+                <div class="gold-available-box">
+                    <span class="gold-lbl">EMAS TERSEDIA (TURNOVER):</span>
+                    <span class="gold-val" id="gold-available-val">🪙 0</span>
+                </div>
+                <button id="btn-claim-gold" class="claim-gold-btn" title="Klaim Emas (Dipotong Koin Perak)">
+                    KLAIM EMAS
+                </button>
+            </div>
+            <div class="conversion-info">
+                * Biaya klaim: 100 Perak per 1 Emas
+            </div>
+        </div>
+
+        <!-- Multiplier Bar -->
+        <div id="multiplier-bar">
+            <div class="multi-indicator" data-multi="1">x1</div>
+            <div class="multi-indicator" data-multi="2">x2</div>
+            <div class="multi-indicator" data-multi="3">x3</div>
+            <div class="multi-indicator" data-multi="5">x5</div>
+        </div>
+
+        <!-- Notification Banner (Free Spins, Big Win, etc.) -->
+        <div id="notice-banner" class="hidden">
+            <span id="notice-text">FREE SPINS DIMULAI!</span>
+        </div>
+
+        <!-- Main Reels Area (4-5-5-5-4 Grid) -->
+        <div id="reels-board-wrapper">
+            <div id="reels-board">
+                <!-- Reel 1 (4 rows) -->
+                <div class="reel" id="reel-1" data-rows="4">
+                    <div class="reel-window"></div>
+                </div>
+                <!-- Reel 2 (5 rows) -->
+                <div class="reel" id="reel-2" data-rows="5">
+                    <div class="reel-window"></div>
+                </div>
+                <!-- Reel 3 (5 rows) -->
+                <div class="reel" id="reel-3" data-rows="5">
+                    <div class="reel-window"></div>
+                </div>
+                <!-- Reel 4 (5 rows) -->
+                <div class="reel" id="reel-4" data-rows="5">
+                    <div class="reel-window"></div>
+                </div>
+                <!-- Reel 5 (4 rows) -->
+                <div class="reel" id="reel-5" data-rows="4">
+                    <div class="reel-window"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Center Spin Button Area -->
+        <div id="center-spin-container">
+            <button class="spin-btn" id="btn-spin">
+                <div class="spin-ring"></div>
+                <span class="spin-label">SPIN</span>
+            </button>
+        </div>
+
+        <!-- Win & Status Display -->
+        <div id="win-display">
+            <div class="win-label">KEMENANGAN</div>
+            <div class="win-val" id="win-amount">0</div>
+        </div>
+
+        <!-- HUD / Control Panel -->
+        <div id="hud-panel">
+            <!-- Balance & Bet Info -->
+            <div class="hud-row stats">
+                <div class="stat-box">
+                    <span class="lbl">SALDO PERAK</span>
+                    <span class="val" id="balance-val">0</span>
+                </div>
+                <div class="stat-box">
+                    <span class="lbl">SALDO EMAS</span>
+                    <span class="val" id="wallet-gold-val">0</span>
+                </div>
+                <div class="stat-box">
+                    <span class="lbl">TOTAL TARUHAN</span>
+                    <span class="val" id="total-bet-val">20</span>
+                </div>
+                <div class="stat-box" id="free-spin-counter" style="display: none;">
+                    <span class="lbl" style="color: #ff5e5e;">FREE SPINS</span>
+                    <span class="val" id="free-spins-left" style="color: #ff5e5e;">10</span>
+                </div>
+            </div>
+
+            <!-- Bet Adjusters -->
+            <div class="hud-row bet-controls">
+                <div class="control-group">
+                    <label>Ukuran Taruhan</label>
+                    <div class="select-wrapper">
+                        <button class="adjust-btn" id="btn-bet-size-minus">-</button>
+                        <span class="control-value" id="bet-size-val">1</span>
+                        <button class="adjust-btn" id="btn-bet-size-plus">+</button>
+                    </div>
+                </div>
+
+                <div class="control-group">
+                    <label>Level Taruhan</label>
+                    <div class="select-wrapper">
+                        <button class="adjust-btn" id="btn-bet-level-minus">-</button>
+                        <span class="control-value" id="bet-level-val">1</span>
+                        <button class="adjust-btn" id="btn-bet-level-plus">+</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Spinning Action & Toggles -->
+            <div class="hud-row spin-controls">
+                <button class="secondary-btn" id="btn-paytable">
+                    <span class="icon">ℹ</span>
+                    <span class="btn-text">PAYTABLE</span>
+                </button>
+
+                <div class="toggle-group">
+                    <button class="toggle-btn" id="btn-turbo" title="Turbo Mode (Animasi Lebih Cepat)">
+                        <span class="icon">⚡</span>
+                        <span>TURBO</span>
+                    </button>
+                    <button class="toggle-btn" id="btn-auto" title="Auto Spin">
+                        <span class="icon">🔄</span>
+                        <span id="auto-text">AUTO</span>
+                    </button>
+                </div>
+
+                <button class="secondary-btn" id="btn-sound" title="Toggle Sound">
+                    <span class="icon" id="sound-icon">🔊</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modals -->
+    <!-- Paytable & Rules Modal -->
+    <div id="modal-overlay" class="hidden">
+        <div id="modal-content">
+            <button id="btn-close-modal" class="close-btn">&times;</button>
+            <h2 class="modal-title">ATURAN & TABEL PEMBAYARAN</h2>
+            
+            <div class="modal-body">
+                <h3>Sistem Kemenangan (Ways to Win)</h3>
+                <p>Kombinasi pemenang dihitung dari kiri ke kanan secara berurutan mulai dari <strong>Reel 1</strong>. Jumlah cara menang dihitung dengan mengalikan jumlah simbol yang berdekatan pada setiap reel dari kiri ke kanan (2.000 cara menang).</p>
+                <div class="paytable-grid">
+                    <div class="pay-item">
+                        <span class="sym-icon">👑</span>
+                        <span class="sym-name">Mahkota Emas</span>
+                        <span class="sym-payout">5x = 80 | 4x = 40 | 3x = 10</span>
+                    </div>
+                    <div class="pay-item">
+                        <span class="sym-icon">💎</span>
+                        <span class="sym-name">Batu Merah (Ruby)</span>
+                        <span class="sym-payout">5x = 50 | 4x = 25 | 3x = 8</span>
+                    </div>
+                    <div class="pay-item">
+                        <span class="sym-icon">🟢</span>
+                        <span class="sym-name">Batu Hijau</span>
+                        <span class="sym-payout">5x = 40 | 4x = 20 | 3x = 6</span>
+                    </div>
+                    <div class="pay-item">
+                        <span class="sym-icon">🔵</span>
+                        <span class="sym-name">Batu Biru</span>
+                        <span class="sym-payout">5x = 30 | 4x = 15 | 3x = 5</span>
+                    </div>
+                    <div class="pay-item">
+                        <span class="sym-icon">🗺️</span>
+                        <span class="sym-name">Peta Karun</span>
+                        <span class="sym-payout">5x = 15 | 4x = 8 | 3x = 3</span>
+                    </div>
+                    <div class="pay-item">
+                        <span class="sym-icon">🗝️</span>
+                        <span class="sym-name">Kunci Emas</span>
+                        <span class="sym-payout">5x = 10 | 4x = 5 | 3x = 2</span>
+                    </div>
+                    <div class="pay-item">
+                        <span class="sym-icon">🪙</span>
+                        <span class="sym-name">Koin Emas</span>
+                        <span class="sym-payout">5x = 5 | 4x = 2 | 3x = 1</span>
+                    </div>
+                </div>
+
+                <h3>Simbol Spesial</h3>
+                <ul>
+                    <li><strong>💀 WILD (Tengkorak)</strong>: Menggantikan semua simbol kecuali Scatter.</li>
+                    <li><strong>📦 SCATTER (Peti Harta Karun)</strong>: 3 simbol Scatter memicu <strong>10 Free Spins</strong>. Setiap tambahan Scatter memberikan +2 Free Spins. Retrigger aktif!</li>
+                    <li><strong>⚡ PETIR PENGALI (x2 - x1000)</strong>: Menyambar gulungan saat ada kemenangan, mengumpulkan angka pengali yang akan mengalikan total kemenangan di akhir putaran!</li>
+                </ul>
+
+                <h3>Simbol Bingkai Emas (Gold Plated)</h3>
+                <p>Selama spin biasa, beberapa simbol di reel 2, 3, dan 4 dapat muncul secara acak dengan bingkai emas. Jika simbol tersebut memicu kemenangan, pada babak cascading berikutnya ia akan meledak dan bertransformasi menjadi <strong>💀 WILD</strong>.</p>
+
+                <h3>Sistem Pengali Multiplier</h3>
+                <p>Di atas reels terdapat deretan multiplier:</p>
+                <ul>
+                    <li><strong>Mode Normal</strong>: Runtuhan ke-1 (x1), ke-2 (x2), ke-3 (x3), ke-4+ (x5).</li>
+                    <li><strong>Mode Free Spins</strong>: Runtuhan ke-1 (x2), ke-2 (x4), ke-3 (x6), ke-4+ (x10). Di samping itu, seluruh simbol di Reel 3 (kecuali Wild/Scatter) otomatis bertipe bingkai emas.</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <!-- Auto Spin Selection Popup Modal -->
+    <div id="auto-modal" class="hidden">
+        <div class="auto-content">
+            <h3>PILIH JUMLAH AUTO SPIN</h3>
+            <div class="auto-buttons">
+                <button class="auto-opt" data-rounds="10">10</button>
+                <button class="auto-opt" data-rounds="30">30</button>
+                <button class="auto-opt" data-rounds="50">50</button>
+                <button class="auto-opt" data-rounds="80">80</button>
+                <button class="auto-opt" data-rounds="100">100</button>
+                <button class="auto-opt" data-rounds="999">∞ (Tanpa Batas)</button>
+            </div>
+            <button id="btn-close-auto" class="btn-cancel">Batal</button>
+        </div>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>

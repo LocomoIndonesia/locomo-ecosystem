@@ -1,0 +1,902 @@
+#!/usr/bin/env python3
+# ==============================================================================
+# LOCOMO AGENT OS CLI TOOL (v10.1.0-master)
+# ==============================================================================
+# CLI mandiri untuk mengelola instalasi, graf proyek, memori kognitif,
+# dan penalaran offline menggunakan model lokal.
+# ==============================================================================
+
+import os
+import sys
+import json
+import shutil
+import argparse
+import urllib.request
+import urllib.error
+import re
+import datetime
+import subprocess
+
+# Default Port / URL kontainer driver
+API_URL = "http://localhost:8000"
+OLLAMA_URL = "http://localhost:11434"
+
+MODIFICATIONS = []
+
+# Helper Utility untuk HTTP POST request menggunakan library standar
+def http_post(url, data):
+    req = urllib.request.Request(url, method='POST')
+    req.add_header('Content-Type', 'application/json')
+    try:
+        payload = json.dumps(data).encode('utf-8')
+        with urllib.request.urlopen(req, data=payload) as response:
+            res_body = response.read().decode('utf-8')
+            return json.loads(res_body)
+    except urllib.error.URLError as e:
+        print(f"API Error: Gagal terhubung ke {url}. Alasan: {e}")
+        return None
+    except Exception as e:
+        print(f"API Error: {e}")
+        return None
+
+def get_project_code():
+    anti_dir = os.path.abspath(".antigravity")
+    if not os.path.exists(anti_dir):
+        # Fallback to current working directory name
+        return os.path.basename(os.getcwd())
+    try:
+        with open(os.path.join(anti_dir, "id.json"), 'r') as f:
+            cfg = json.load(f)
+            return cfg.get("project_name", os.path.basename(os.getcwd()))
+    except Exception:
+        return os.path.basename(os.getcwd())
+
+def register_file_modification(path, action):
+    MODIFICATIONS.append({
+        "file": path,
+        "action": action,
+        "timestamp": datetime.datetime.now().isoformat()
+    })
+
+def run_in_docker(args_list):
+    anti_dir = os.path.abspath(".antigravity")
+    drivers_dir = os.path.join(anti_dir, "drivers")
+    # If container is not running, we print a warning and run via shell/docker compose
+    cmd = ["docker", "compose", "exec", "-T", "semantic-api", "python3", "/app/docker_agent_editor.py"] + args_list
+    try:
+        ret = subprocess.run(cmd, cwd=drivers_dir, capture_output=True, text=True)
+        if ret.returncode == 0:
+            return {"status": "success", "message": ret.stdout.strip()}
+        else:
+            return {"status": "error", "message": ret.stderr.strip() or ret.stdout.strip()}
+    except Exception as e:
+        return {"status": "error", "message": f"Failed to execute command in Docker container: {e}"}
+
+def log_decision_to_file(task_id, phase, hypothesis, result):
+    res = run_in_docker([
+        "log_decision", 
+        "--task_id", task_id, 
+        "--phase", phase, 
+        "--hypothesis", hypothesis, 
+        "--result", result
+    ])
+    if res["status"] != "success":
+        print(f"Warning: Gagal menulis log keputusan via Docker: {res['message']}")
+
+def write_automatic_changelog(prompt):
+    if not MODIFICATIONS:
+        return
+    mods_json = json.dumps(MODIFICATIONS)
+    res = run_in_docker([
+        "changelog",
+        "--prompt", prompt,
+        "--modifications", mods_json
+    ])
+    if res["status"] == "success":
+        print(res["message"])
+    else:
+        print(f"Warning: Gagal menulis changelog otomatis via Docker: {res['message']}")
+
+def safe_resolve(path):
+    if os.path.isabs(path):
+        parts = []
+        drive, path = os.path.splitdrive(path)
+        while True:
+            path, folder = os.path.split(path)
+            if folder:
+                parts.append(folder)
+            else:
+                if path:
+                    parts.append(path)
+                break
+        parts.reverse()
+        clean_parts = [p.replace('/', '').replace('\\', '') for p in parts if p not in ('', '/', '\\')]
+        path = os.path.join(*clean_parts) if clean_parts else "."
+        
+    resolved = os.path.abspath(path)
+    cwd = os.getcwd()
+    if not resolved.startswith(cwd):
+        raise PermissionError(f"Access denied: Path '{path}' is outside the workspace.")
+    return resolved
+
+# Tool Functions untuk Offline Reasoning Agent
+def tool_read_file(args):
+    path = args.get("path")
+    if not path:
+        return {"status": "error", "message": "Missing 'path' argument."}
+    try:
+        safe_path = safe_resolve(path)
+        with open(safe_path, 'r', encoding='utf-8') as f:
+            return {"status": "success", "content": f.read()}
+    except Exception as e:
+        return {"status": "error", "message": str(e)}
+
+def tool_write_file(args):
+    path = args.get("path")
+    content = args.get("content")
+    if not path or content is None:
+        return {"status": "error", "message": "Missing 'path' or 'content' arguments."}
+    
+    res = run_in_docker(["write", "--path", path, "--content", content])
+    if res["status"] == "success":
+        register_file_modification(path, "created/overwritten")
+    return res
+
+def tool_edit_file(args):
+    path = args.get("path")
+    target = args.get("target")
+    replacement = args.get("replacement")
+    if not path or target is None or replacement is None:
+        return {"status": "error", "message": "Missing 'path', 'target', or 'replacement' arguments."}
+        
+    res = run_in_docker(["edit", "--path", path, "--target", target, "--replacement", replacement])
+    if res["status"] == "success":
+        register_file_modification(path, "edited")
+    return res
+
+def tool_grep_search(args):
+    query = args.get("query")
+    path = args.get("path", ".")
+    if not query:
+        return {"status": "error", "message": "Missing 'query' argument."}
+    try:
+        results = []
+        if os.path.isfile(path):
+            files = [path]
+        else:
+            files = []
+            for root, dirs, filenames in os.walk(path):
+                dirs[:] = [d for d in dirs if d not in {'vendor', 'node_modules', '.git', '.antigravity'}]
+                for f in filenames:
+                    files.append(os.path.join(root, f))
+        for f_path in files:
+            try:
+                with open(f_path, 'r', encoding='utf-8', errors='ignore') as f:
+                    for line_no, line in enumerate(f, 1):
+                        if query in line:
+                            results.append({
+                                "file": f_path,
+                                "line": line_no,
+                                "content": line.strip()
+                            })
+                            if len(results) >= 50:
+                                break
+            except Exception:
+                pass
+            if len(results) >= 50:
+                break
+        return {"status": "success", "results": results}
+    except Exception as e:
+        return {"status": "error", "message": str(e)}
+
+def tool_list_dir(args):
+    path = args.get("path", ".")
+    try:
+        entries = os.listdir(path)
+        result = []
+        for entry in entries:
+            full = os.path.join(path, entry)
+            result.append({
+                "name": entry,
+                "type": "directory" if os.path.isdir(full) else "file"
+            })
+        return {"status": "success", "entries": result}
+    except Exception as e:
+        return {"status": "error", "message": str(e)}
+
+def tool_store_memory(args):
+    content = args.get("content")
+    type_ = args.get("type", "code")
+    metadata = args.get("metadata", {})
+    if not content:
+        return {"status": "error", "message": "Missing 'content' argument."}
+    project_code = get_project_code()
+    payload = {
+        "project_code": project_code,
+        "type": type_,
+        "content": content,
+        "metadata": metadata
+    }
+    res = http_post(f"{API_URL}/memory/store", payload)
+    if res:
+        return {"status": "success", "message": "Memory stored in pgvector.", "response": res}
+    else:
+        return {"status": "error", "message": "Could not connect to semantic-api."}
+
+def tool_query_memory(args):
+    query = args.get("query")
+    top_k = args.get("top_k", 3)
+    if not query:
+        return {"status": "error", "message": "Missing 'query' argument."}
+    project_code = get_project_code()
+    payload = {
+        "project_code": project_code,
+        "query": query,
+        "top_k": top_k
+    }
+    res = http_post(f"{API_URL}/memory/query", payload)
+    if res and res.get("status") == "success":
+        return {"status": "success", "memories": res.get("data", [])}
+    else:
+        return {"status": "error", "message": "Could not query memory from semantic-api."}
+
+def tool_log_decision(args):
+    task_id = args.get("task_id", "LOCAL_THINK")
+    phase = args.get("phase", "ACT")
+    hypothesis = args.get("hypothesis", "")
+    result = args.get("result", "success")
+    log_decision_to_file(task_id, phase, hypothesis, result)
+    return {"status": "success", "message": "Decision logged to decisions.jsonl."}
+
+TOOLS = {
+    "read_file": tool_read_file,
+    "write_file": tool_write_file,
+    "edit_file": tool_edit_file,
+    "grep_search": tool_grep_search,
+    "list_dir": tool_list_dir,
+    "store_memory": tool_store_memory,
+    "query_memory": tool_query_memory,
+    "log_decision": tool_log_decision
+}
+
+# Perintah CLI
+def cmd_init(args):
+    target = os.path.abspath(args.target_dir)
+    print(f"Initializing Locomo Agent OS at: {target}")
+    
+    os.makedirs(target, exist_ok=True)
+    
+    anti_dir = os.path.join(target, ".antigravity")
+    if os.path.exists(anti_dir):
+        print(f"Error: .antigravity folder already exists at {target}. Use upgrade command instead.")
+        sys.exit(1)
+        
+    source_dir = os.path.dirname(os.path.abspath(__file__))
+    os.makedirs(anti_dir)
+    print("Copying core template files...")
+    
+    ignore_patterns = shutil.ignore_patterns('.git', '__pycache__', '*.pyc', '.Zone.Identifier')
+    
+    for item in os.listdir(source_dir):
+        s = os.path.join(source_dir, item)
+        d = os.path.join(anti_dir, item)
+        if os.path.isdir(s):
+            shutil.copytree(s, d, ignore=ignore_patterns)
+        else:
+            shutil.copy2(s, d)
+            
+    copied_locomo = os.path.join(anti_dir, "locomo")
+    if os.path.exists(copied_locomo):
+        os.chmod(copied_locomo, 0o755)
+        
+    # Initialize .agents folder
+    agents_dir = os.path.join(target, ".agents")
+    os.makedirs(agents_dir, exist_ok=True)
+    agents_md_path = os.path.join(agents_dir, "AGENTS.md")
+    
+    # Try to copy from existing .agents/AGENTS.md in the source project if it exists
+    src_agents_md = os.path.join(os.path.dirname(source_dir), ".agents", "AGENTS.md")
+    if os.path.exists(src_agents_md):
+        print("Copying AGENTS.md rules...")
+        shutil.copy2(src_agents_md, agents_md_path)
+    else:
+        # Fallback to generating AGENTS.md dynamically
+        print("Generating default AGENTS.md rules...")
+        agents_content = """# Locomo Agent OS Auto-Boot Rules
+
+Setiap kali sesi obrolan baru (chat session) dimulai di dalam workspace ini, Agen AI (termasuk Antigravity) WAJIB secara proaktif melakukan langkah-langkah onboarding berikut sebelum menanggapi atau mengeksekusi instruksi pengguna:
+
+## 1. Menjalankan Protokol Onboarding ("jalankan locomo.agent")
+Agen harus langsung menganggap perintah "jalankan locomo.agent" telah dipicu secara otomatis.
+- **Langkah 1**: Baca status kognitif aktif dari berkas memori Trinity:
+  - `.antigravity/id.json` (Trinity 1 - Guardrails & Tech Stack)
+  - `.antigravity/cortex/cortex-core.json` (Trinity 2 - Status & Fase Aktif)
+  - `.antigravity/docs/project-context.json` (Cartridge - Project Context)
+- **Langkah 2**: Lakukan pelaporan boot sequence ke obrolan dengan format terstruktur:
+  - **Locomo Agent OS Active Mode**: `[OS_MODE: COGNITIVE]` atau `[OS_MODE: DRIVERLESS]` (lakukan cek cepat status driver `docker ps` jika `env_status` bukan `running`)
+  - **Environment Status**: `idle` / `running` / `error` (sesuai status aktif)
+  - **Active Project**: (diambil dari `project-context.json`)
+  - **Current Phase**: (diambil dari `cortex-core.json`)
+  - **Priorities**: (prioritas aktif dari `cortex-core.json`)
+
+## 2. Context Lock & Progressive Disclosure
+Setelah pelaporan boot selesai, patuhi batasan context lock:
+- Jangan melakukan pemindaian Docker berulang kali dalam sesi yang sama.
+- Gunakan pendekatan *Lazy Loading* (menggunakan pencarian grep/file parsial) untuk membaca `docs/domain-knowledge.json` atau file besar lainnya guna menghemat token.
+
+## 3. Aturan Respon Sederhana & Dokumentasi Mandiri
+- Respon chat langsung wajib dibuat sederhana, ringkas, dan to-the-point.
+- Jika memerlukan laporan detail, panduan arsitektur, atau hasil analisis yang panjang, tulis dokumentasi tersebut ke dalam berkas Markdown (`.md`) di dalam folder `.antigravity/docs/` atau `.antigravity/scratch/` proyek aktif, kemudian cantumkan tautan berkasnya saja di chat.
+
+## 4. Aturan Eksekusi Perintah (Docker-Only Execution)
+- Semua perintah skrip (seperti `python`, `php`, `composer`, `npm`, `node`, dll.) **TIDAK BOLEH** dijalankan langsung di host (Windows/Linux).
+- Semua eksekusi wajib dijalankan di dalam kontainer Docker yang sesuai (menggunakan `docker compose exec` atau `docker compose exec semantic-api python3` untuk skrip Python).
+"""
+        with open(agents_md_path, 'w', encoding='utf-8') as f:
+            f.write(agents_content)
+        
+    # Configure target project name in id.json
+    id_path = os.path.join(anti_dir, "id.json")
+    proj_name = args.name or os.path.basename(target)
+    if os.path.exists(id_path):
+        try:
+            with open(id_path, 'r') as f:
+                config = json.load(f)
+            config["project_name"] = proj_name
+            with open(id_path, 'w') as f:
+                json.dump(config, f, indent=2)
+        except Exception as e:
+            print(f"Warning: Could not configure id.json: {e}")
+            
+    # Configure target active project in project-context.json
+    context_path = os.path.join(anti_dir, "docs", "project-context.json")
+    if os.path.exists(context_path):
+        try:
+            with open(context_path, 'r') as f:
+                ctx = json.load(f)
+            ctx["active_project"] = proj_name
+            if proj_name not in ctx["projects"]:
+                ctx["projects"].append(proj_name)
+            with open(context_path, 'w') as f:
+                json.dump(ctx, f, indent=2)
+        except Exception as e:
+            print(f"Warning: Could not configure project-context.json: {e}")
+
+    print("\nLocomo Agent OS successfully initialized!")
+    print(f"Active OS folder: {anti_dir}")
+    print("To start drivers, run:")
+    print(f"  cd {anti_dir}/drivers && docker compose up -d")
+
+def cmd_upgrade(args):
+    anti_dir = os.path.abspath(".antigravity")
+    if not os.path.exists(anti_dir) or not os.path.isdir(anti_dir):
+        if os.path.basename(os.getcwd()) == ".antigravity":
+            anti_dir = os.getcwd()
+        else:
+            print("Error: Could not find .antigravity folder. Run this command from your project root.")
+            sys.exit(1)
+            
+    master_dir = "/home/dev360_03/locomo.id/locomo.agent"
+    if not os.path.exists(master_dir):
+        if os.path.exists("/workspace/locomo.agent"):
+            master_dir = "/workspace/locomo.agent"
+        else:
+            print(f"Error: Master source template not found at {master_dir}")
+            sys.exit(1)
+        
+    print(f"Upgrading Locomo Agent OS at {anti_dir} from master template...")
+    
+    core_dirs = ["skills", "drivers"]
+    core_files = ["SKILL.md", "skills.json", "locomo"]
+    
+    ignore_patterns = shutil.ignore_patterns('.git', '__pycache__', '*.pyc', '.Zone.Identifier')
+    
+    for d_name in core_dirs:
+        src_d = os.path.join(master_dir, d_name)
+        dst_d = os.path.join(anti_dir, d_name)
+        if os.path.exists(dst_d):
+            shutil.rmtree(dst_d)
+        shutil.copytree(src_d, dst_d, ignore=ignore_patterns)
+        
+    for f_name in core_files:
+        src_f = os.path.join(master_dir, f_name)
+        dst_f = os.path.join(anti_dir, f_name)
+        shutil.copy2(src_f, dst_f)
+        
+    copied_locomo = os.path.join(anti_dir, "locomo")
+    if os.path.exists(copied_locomo):
+        os.chmod(copied_locomo, 0o755)
+        
+    print("Locomo Agent OS successfully upgraded to the latest master version!")
+
+def cmd_graphify(args):
+    anti_dir = os.path.abspath(".antigravity")
+    if not os.path.exists(anti_dir) or not os.path.isdir(anti_dir):
+        print("Error: .antigravity folder not found. Run this from project root.")
+        sys.exit(1)
+        
+    project_code = get_project_code()
+    print(f"Starting Graphify for project: {project_code}")
+    
+    api_dir = os.path.join(anti_dir, "drivers", "api")
+    graph_gen_script = os.path.join(api_dir, "generate_project_graph.py")
+    sync_script = os.path.join(api_dir, "sync_context.py")
+    graph_out = os.path.join(api_dir, "graphify-out", "graph.json")
+    
+    scan_dir = "."
+    if os.path.isdir(project_code):
+        scan_dir = project_code
+        
+    print(f"[1/2] Generating project graph for '{scan_dir}'...")
+    ret = subprocess.run([sys.executable, graph_gen_script, scan_dir, graph_out], capture_output=True, text=True)
+    if ret.returncode != 0:
+        print(f"Error generating graph: {ret.stderr}")
+        sys.exit(1)
+    print(ret.stdout.strip())
+    
+    print("[2/2] Synchronizing graph nodes to pgvector database...")
+    ret = subprocess.run([sys.executable, sync_script, "-p", project_code, "-g", graph_out], capture_output=True, text=True)
+    if ret.returncode != 0:
+        print(f"Error synchronizing graph: {ret.stderr}")
+        sys.exit(1)
+    print(ret.stdout.strip())
+    print("Graphify completed successfully.")
+
+def cmd_select(args):
+    project_name = args.project_name
+    anti_dir = os.path.abspath(".antigravity")
+    if not os.path.exists(anti_dir) or not os.path.isdir(anti_dir):
+        print("Error: .antigravity folder not found. Run this from project root.")
+        sys.exit(1)
+        
+    project_dir = os.path.join(os.getcwd(), project_name)
+    
+    if not os.path.exists(project_dir):
+        print(f"Project directory '{project_name}' does not exist. Creating it...")
+        os.makedirs(project_dir, exist_ok=True)
+        
+    id_path = os.path.join(anti_dir, "id.json")
+    if os.path.exists(id_path):
+        try:
+            with open(id_path, 'r') as f:
+                config = json.load(f)
+            config["project_name"] = project_name
+            with open(id_path, 'w') as f:
+                json.dump(config, f, indent=2)
+            print(f"Updated id.json project_name to: {project_name}")
+        except Exception as e:
+            print(f"Warning: Could not update id.json: {e}")
+            
+    context_path = os.path.join(anti_dir, "docs", "project-context.json")
+    if os.path.exists(context_path):
+        try:
+            with open(context_path, 'r') as f:
+                ctx = json.load(f)
+            ctx["active_project"] = project_name
+            if project_name not in ctx["projects"]:
+                ctx["projects"].append(project_name)
+            with open(context_path, 'w') as f:
+                json.dump(ctx, f, indent=2)
+            print(f"Updated project-context.json active_project to: {project_name}")
+        except Exception as e:
+            print(f"Warning: Could not update project-context.json: {e}")
+            
+    payload = {
+        "project_code": project_name,
+        "project_name": f"{project_name.upper()} Project"
+    }
+    print(f"Registering project '{project_name}' in pgvector database...")
+    res = http_post(f"{API_URL}/project/init", payload)
+    if res and res.get("status") == "success":
+        print("Project registered successfully in pgvector database.")
+    else:
+        print("Warning: Could not register project in pgvector database. Ensure drivers are running.")
+        
+    print("Running initial graphify for the selected project...")
+    cmd_graphify(None)
+
+def cmd_store(args):
+    project_code = get_project_code()
+    metadata = {}
+    if args.metadata:
+        try:
+            metadata = json.loads(args.metadata)
+        except Exception as e:
+            print(f"Error parsing metadata JSON: {e}")
+            sys.exit(1)
+            
+    payload = {
+        "project_code": project_code,
+        "type": args.type,
+        "content": args.content,
+        "metadata": metadata
+    }
+    
+    res = http_post(f"{API_URL}/memory/store", payload)
+    if res:
+        print(f"Success: {json.dumps(res)}")
+    else:
+        sys.exit(1)
+
+def cmd_read(args):
+    project_code = get_project_code()
+    payload = {
+        "project_code": project_code,
+        "query": args.query,
+        "top_k": args.top_k
+    }
+    
+    res = http_post(f"{API_URL}/memory/query", payload)
+    if res and res.get("status") == "success":
+        data = res.get("data", [])
+        print(f"\nFound {len(data)} cognitive memories matching '{args.query}':")
+        for i, item in enumerate(data):
+            print(f"\n[{i+1}] Score: {item.get('score'):.4f} | Type: {item.get('metadata', {}).get('file_type', 'unknown')}")
+            print(f"Content:\n{item.get('content')}")
+            print("-" * 40)
+    else:
+        sys.exit(1)
+
+def cmd_update(args):
+    project_code = get_project_code()
+    metadata = {"id": args.id}
+    if args.metadata:
+        try:
+            metadata.update(json.loads(args.metadata))
+        except Exception as e:
+            print(f"Error parsing metadata JSON: {e}")
+            sys.exit(1)
+            
+    payload = {
+        "project_code": project_code,
+        "type": args.type,
+        "content": args.content,
+        "metadata": metadata
+    }
+    
+    res = http_post(f"{API_URL}/memory/store", payload)
+    if res:
+        print(f"Success: {json.dumps(res)}")
+    else:
+        sys.exit(1)
+
+def load_env_variables():
+    env_path = os.path.abspath(".env")
+    if os.path.exists(env_path):
+        try:
+            with open(env_path, 'r', encoding='utf-8') as f:
+                for line in f:
+                    line = line.strip()
+                    if line and not line.startswith('#') and '=' in line:
+                        k, v = line.split('=', 1)
+                        os.environ[k.strip()] = v.strip().strip('"').strip("'")
+        except Exception:
+            pass
+
+def map_to_gemini(history):
+    contents = []
+    system_instruction = None
+    for msg in history:
+        role = msg["role"]
+        content = msg["content"]
+        if role == "system":
+            system_instruction = {"parts": [{"text": content}]}
+        else:
+            mapped_role = "model" if role in ("assistant", "model") else "user"
+            contents.append({
+                "role": mapped_role,
+                "parts": [{"text": content}]
+            })
+    return contents, system_instruction
+
+def call_gemini_api(api_key, model_name, history):
+    contents, system_instruction = map_to_gemini(history)
+    payload = {
+        "contents": contents,
+        "generationConfig": {
+            "temperature": 0.2
+        }
+    }
+    if system_instruction:
+        payload["systemInstruction"] = system_instruction
+        
+    url = f"https://generativelanguage.googleapis.com/v1beta/models/{model_name}:generateContent?key={api_key}"
+    req = urllib.request.Request(url, method='POST')
+    req.add_header('Content-Type', 'application/json')
+    try:
+        payload_data = json.dumps(payload).encode('utf-8')
+        with urllib.request.urlopen(req, data=payload_data) as response:
+            res_body = response.read().decode('utf-8')
+            res_json = json.loads(res_body)
+            text = res_json["candidates"][0]["content"]["parts"][0]["text"]
+            return {"role": "assistant", "content": text}
+    except Exception as e:
+        print(f"Error calling Gemini API: {e}")
+        return None
+
+def cmd_think(args):
+    load_env_variables()
+    prompt = args.prompt
+    model = args.model
+    provider = args.provider
+    gemini_model = args.gemini_model
+    
+    gemini_api_key = os.environ.get("GEMINI_API_KEY")
+    # If GEMINI_MODEL is set in .env, prioritize it over default
+    if os.environ.get("GEMINI_MODEL"):
+        gemini_model = os.environ.get("GEMINI_MODEL")
+        
+    if provider == "gemini" and not gemini_api_key:
+        print("Error: Perintah menggunakan provider 'gemini' tetapi GEMINI_API_KEY tidak ditemukan di environment atau berkas .env.")
+        sys.exit(1)
+        
+    # Setup Ollama model tags if local is needed
+    available_models = []
+    if provider == "local" or not gemini_api_key:
+        url = f"{OLLAMA_URL}/api/tags"
+        req = urllib.request.Request(url)
+        try:
+            with urllib.request.urlopen(req) as res:
+                tags = json.loads(res.read().decode('utf-8'))
+                available_models = [m["name"] for m in tags.get("models", [])]
+        except Exception:
+            pass
+            
+        if not available_models and provider == "local":
+            print("Warning: Gagal terhubung ke Ollama lokal.")
+            if gemini_api_key:
+                print("[AUTO-ROUTING] Mengalihkan ke Gemini API karena Ollama tidak dapat dihubungi...")
+                provider = "gemini"
+            else:
+                print("Error: Tidak ada model lokal tersedia dan GEMINI_API_KEY tidak dikonfigurasi.")
+                sys.exit(1)
+        elif model not in available_models and provider == "local":
+            qwen_models = [m for m in available_models if "qwen" in m]
+            if qwen_models:
+                model = qwen_models[0]
+            elif available_models:
+                model = available_models[0]
+
+    print(f"Active Task: {prompt}")
+    print(f"Initial reasoning provider: {provider.upper()}")
+    if provider == "gemini":
+        print(f"Using Cloud model: {gemini_model}")
+    else:
+        print(f"Using Local model: {model}")
+    print("Initializing Reasoning Loop...")
+    
+    project_code = get_project_code()
+    tech_stack = "General"
+    id_path = os.path.abspath(".antigravity/id.json")
+    if os.path.exists(id_path):
+        try:
+            with open(id_path, 'r') as f:
+                cfg = json.load(f)
+                tech_stack = json.dumps(cfg.get("tech_stack", {}))
+        except Exception:
+            pass
+            
+    system_prompt = f"""You are the local offline reasoning agent of Locomo Agent OS V2.0.
+Your active project is: {project_code}
+Your active tech stack: {tech_stack}
+
+Your task is: {prompt}
+
+You have access to the following tools:
+1. read_file: Read file content in the project.
+   Args: {{"path": "<relative_path>"}}
+2. write_file: Create a new file or overwrite an existing file.
+   Args: {{"path": "<relative_path>", "content": "<file_content>"}}
+3. edit_file: Replace a specific block of text in a file.
+   Args: {{"path": "<relative_path>", "target": "<exact_text_to_replace>", "replacement": "<new_text>"}}
+4. grep_search: Search for a query inside files in the project.
+   Args: {{"query": "<text>", "path": "<relative_path>"}}
+5. list_dir: List files in a directory.
+   Args: {{"path": "<relative_path>"}}
+6. store_memory: Store a cognitive memory block in pgvector database.
+   Args: {{"content": "<text>", "type": "<type>", "metadata": {{}}}}
+7. query_memory: Retrieve matching cognitive memories from pgvector.
+   Args: {{"query": "<search_term>"}}
+8. log_decision: Write a log entry to cortex/decisions.jsonl.
+   Args: {{"task_id": "LOCAL_THINK", "phase": "ACT", "hypothesis": "<details>", "result": "success"}}
+
+To use a tool, you MUST output a single JSON block representing the tool call, like this:
+{{
+  "tool": "read_file",
+  "args": {{"path": "src/App.vue"}}
+}}
+
+Wait for the system response. Do not output anything else in the same message when you call a tool.
+If you have completed your task, or if you cannot complete it, output your final response in this JSON format:
+{{
+  "final_response": "Your detailed summary of actions and results."
+}}
+"""
+
+    history = [
+        {"role": "system", "content": system_prompt},
+        {"role": "user", "content": f"Task: {prompt}\nPlease start by planning and using any tools necessary."}
+    ]
+    
+    max_steps = 15
+    step = 0
+    
+    while step < max_steps:
+        step += 1
+        print(f"\n--- Reasoning Step {step}/{max_steps} ---")
+        
+        # Calculate Context Tokens size (approximated)
+        approx_tokens = sum(len(m["content"]) for m in history) // 4
+        print(f"Current Context Size: ~{approx_tokens} tokens")
+        
+        # Auto-routing fallback check
+        if approx_tokens > 4096 and provider == "local":
+            if gemini_api_key:
+                print(f"[AUTO-ROUTING] Konteks saat ini (~{approx_tokens} token) melebihi batas 4.096 token.")
+                print(f"Mengalihkan otomatis ke Google Gemini API ({gemini_model}) untuk penanganan optimal...")
+                provider = "gemini"
+            else:
+                print(f"[WARNING] Konteks saat ini (~{approx_tokens} token) melebihi kapasitas optimal lokal (4.096 token). Performa dapat menurun.")
+        
+        response_text = None
+        
+        if provider == "gemini":
+            res_msg = call_gemini_api(gemini_api_key, gemini_model, history)
+            if res_msg:
+                response_text = res_msg["content"]
+                model_message = res_msg
+            else:
+                print("Error: Gemini API call failed.")
+                break
+        else:
+            req_payload = {
+                "model": model,
+                "messages": history,
+                "stream": False,
+                "options": {
+                    "temperature": 0.2
+                }
+            }
+            req = urllib.request.Request(f"{OLLAMA_URL}/api/chat", method='POST')
+            req.add_header('Content-Type', 'application/json')
+            try:
+                payload_data = json.dumps(req_payload).encode('utf-8')
+                with urllib.request.urlopen(req, data=payload_data) as response:
+                    res_body = response.read().decode('utf-8')
+                    res_json = json.loads(res_body)
+                    model_message = res_json["message"]
+                    response_text = model_message["content"]
+            except Exception as e:
+                print(f"Error calling Ollama API: {e}")
+                break
+                
+        print(f"Agent response:\n{response_text}")
+        history.append(model_message)
+        
+        tool_call = None
+        final_response = None
+        
+        parsed_json = None
+        start_indices = [m.start() for m in re.finditer(r'\{', response_text)]
+        for start in start_indices:
+            stack = 0
+            for i in range(start, len(response_text)):
+                if response_text[i] == '{':
+                    stack += 1
+                elif response_text[i] == '}':
+                    stack -= 1
+                    if stack == 0:
+                        candidate = response_text[start:i+1]
+                        try:
+                            parsed_json = json.loads(candidate)
+                            break
+                        except Exception:
+                            pass
+            if parsed_json:
+                break
+                
+        if parsed_json:
+            if "tool" in parsed_json and "args" in parsed_json:
+                tool_call = parsed_json
+            elif "final_response" in parsed_json:
+                final_response = parsed_json["final_response"]
+                
+        if final_response:
+            print(f"\n[FINAL RESPONSE]\n{final_response}")
+            log_decision_to_file("LOCAL_THINK", "REFLECT", prompt, "success")
+            break
+            
+        if tool_call:
+            tool_name = tool_call["tool"]
+            tool_args = tool_call["args"]
+            print(f"\n[TOOL CALL] Executing tool: '{tool_name}' with args: {tool_args}")
+            
+            tool_fn = TOOLS.get(tool_name)
+            if tool_fn:
+                tool_result = tool_fn(tool_args)
+            else:
+                tool_result = {"status": "error", "message": f"Unknown tool '{tool_name}'."}
+                
+            print(f"[TOOL RESULT] {json.dumps(tool_result)}")
+            
+            history.append({
+                "role": "user",
+                "content": json.dumps(tool_result)
+            })
+        else:
+            warning_msg = "Please output a valid tool call JSON or a final_response JSON. Do not output plain text."
+            print(f"\n[WARNING] {warning_msg}")
+            history.append({
+                "role": "user",
+                "content": warning_msg
+            })
+            
+    if MODIFICATIONS:
+        print(f"\nAuto-updating change logs & project context... ({len(MODIFICATIONS)} modifications detected)")
+        write_automatic_changelog(prompt)
+
+def main():
+    parser = argparse.ArgumentParser(description="Locomo Agent OS CLI — Terminal Management & Reasoning Engine")
+    subparsers = parser.add_subparsers(dest="command", help="Available subcommands")
+
+    # Command: init
+    p_init = subparsers.add_parser("init", help="Install Locomo Agent OS to a target directory")
+    p_init.add_argument("target_dir", nargs="?", default=".", help="Target directory (default: current)")
+    p_init.add_argument("--name", help="Custom project code/name (default: target folder name)")
+
+    # Command: upgrade
+    subparsers.add_parser("upgrade", help="Upgrade local Locomo Agent OS directory from master source")
+
+    # Command: graphify
+    subparsers.add_parser("graphify", help="Scan project files and sync graph context to pgvector database")
+
+    # Command: store
+    p_store = subparsers.add_parser("store", help="Store a cognitive memory record in pgvector")
+    p_store.add_argument("content", help="Text content of the memory")
+    p_store.add_argument("--type", default="code", help="Type of memory (default: code)")
+    p_store.add_argument("--metadata", help="Metadata JSON string (e.g. '{\"id\":\"val\"}')")
+
+    # Command: read
+    p_read = subparsers.add_parser("read", help="Query cognitive memory database using similarity search")
+    p_read.add_argument("query", help="Text query to search for")
+    p_read.add_argument("--top_k", type=int, default=3, help="Max records to return (default: 3)")
+
+    # Command: update
+    p_update = subparsers.add_parser("update", help="Update an existing cognitive memory by its metadata ID")
+    p_update.add_argument("id", help="Target record metadata ID")
+    p_update.add_argument("content", help="New content")
+    p_update.add_argument("--type", default="code", help="Type of memory")
+    p_update.add_argument("--metadata", help="Metadata JSON string")
+
+    # Command: think
+    p_think = subparsers.add_parser("think", help="Run offline reasoning agent (using Qwen/Ollama or Google Gemini API)")
+    p_think.add_argument("prompt", help="Instructions for the reasoning agent")
+    p_think.add_argument("--provider", default="local", choices=["local", "gemini"], help="Model provider (local or gemini, default: local)")
+    p_think.add_argument("--gemini-model", default="gemini-1.5-flash", help="Model name in Gemini API (default: gemini-1.5-flash)")
+    p_think.add_argument("--model", default="qwen2.5:1.5b", help="Model name in Ollama (default: qwen2.5:1.5b)")
+
+    # Command: select
+    p_select = subparsers.add_parser("select", help="Switch or create active project in the workspace")
+    p_select.add_argument("project_name", help="Name of the project folder/code")
+
+    args = parser.parse_args()
+
+    if not args.command:
+        parser.print_help()
+        sys.exit(0)
+
+    commands = {
+        "init": cmd_init,
+        "upgrade": cmd_upgrade,
+        "graphify": cmd_graphify,
+        "store": cmd_store,
+        "read": cmd_read,
+        "update": cmd_update,
+        "think": cmd_think,
+        "select": cmd_select
+    }
+
+    commands[args.command](args)
+
+if __name__ == "__main__":
+    main()

@@ -1,0 +1,33 @@
+{
+  "project_name": "unimart.group",
+  "version": "1.0.0",
+  "owner": "The Orchestrator",
+  "description": "Platform SaaS Multi-Tenant Kasir Pintar (POS) & Asisten Bisnis Pintar",
+  "tech_stack": {
+    "language": "PHP 8.4",
+    "framework": "Laravel 13",
+    "database": "PostgreSQL",
+    "cache": "File",
+    "frontend": "Blade / Alpine.js"
+  },
+  "guardrails": [
+    {
+      "rule_id": "GR-001",
+      "scope": "security",
+      "statement": "Dilarang keras menggunakan fungsi eval() atau eksekusi kode dinamis yang tidak aman.",
+      "severity": "CRITICAL"
+    },
+    {
+      "rule_id": "GR-002",
+      "scope": "database",
+      "statement": "Wajib menggunakan Eloquent ORM atau Query Builder terikat parameter untuk mencegah SQL Injection.",
+      "severity": "CRITICAL"
+    },
+    {
+      "rule_id": "GR-003",
+      "scope": "architecture",
+      "statement": "Terapkan pola 'Skinny Controller, Fat Service'. Seluruh logika bisnis wajib berada di Service Layer.",
+      "severity": "HIGH"
+    }
+  ]
+}

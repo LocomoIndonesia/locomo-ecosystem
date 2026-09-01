@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>KOA Slot - PitiCoin.id</title>
+    <meta name="description" content="Slot Kartu KOA (Ceki) premium dengan Arsitektur Deterministic RNG dan PitiCoin integration.">
+    <meta name="csrf-token" content="">
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;700;800&family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <!-- Main Style -->
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <div class="game-container">
+        <!-- Unified Header HUD Overlay (floating on top of PixiJS canvas header) -->
+        <header class="game-header-panel">
+            <!-- Top Row: Profile (left), Hamburger (right), Balances (center/right) -->
+            <div class="header-top-row">
+                <div class="header-profile">
+                    <div class="profile-avatar">
+                        <img src="assets/cards/07.png" alt="Avatar" class="avatar-img-premium" onerror="this.style.display='none'">
+                    </div>
+                    <div class="profile-info">
+                        <div class="profile-username-row">
+                            <span class="username">PANDAWA88</span>
+                            <span class="vip-badge">VIP 5</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="header-balances">
+                    <div class="profile-balance silver-balance">
+                        <span class="coin-symbol">🥈</span>
+                        <span id="personal-silver-balance">12.450.000</span>
+                    </div>
+                    <div class="profile-balance gold-balance">
+                        <span class="coin-symbol">🪙</span>
+                        <span id="personal-gold-balance">0</span>
+                    </div>
+                </div>
+                
+                <div class="header-menu-right">
+                    <button class="btn-hamburger-menu" id="btn-menu">
+                        <span class="menu-line"></span>
+                        <span class="menu-line"></span>
+                        <span class="menu-line"></span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Middle Row: Total KOA & Chest Box Area -->
+            <div class="header-middle-row">
+                <div class="gold-labels-center">
+                    <span class="total-koa-label">TOTAL KOA</span>
+                    <span class="total-koa-value" id="global-gold-pool">125.000.000</span>
+                </div>
+                <!-- Transparent click overlay for the PixiJS Chest Box -->
+                <div class="chest-box-container" id="chest-box"></div>
+            </div>
+
+            <!-- Bottom Row: Sub-economy capsules -->
+            <div class="header-bottom-row">
+                <div class="sub-economy-capsule left-capsule">
+                    <span class="sub-label">SALDO PERAK</span>
+                    <span class="sub-value silver-text" id="personal-silver-sub">12.450.000</span>
+                </div>
+                <div class="sub-economy-capsule right-capsule" id="personal-gold-quota-trigger">
+                    <span class="sub-label">HASIL KOIN EMAS</span>
+                    <span class="sub-value gold-text" id="personal-gold-quota">0</span>
+                    <button id="btn-claim-hud" class="claim-btn-header" style="margin-left: 5px; font-size: 0.6rem; padding: 2px 6px; border-radius: 4px; background: var(--gold-gradient); color: black; border: none; font-weight: 700; cursor: pointer;">KLAIM</button>
+                </div>
+            </div>
+        </header>
+
+        <!-- Main Game Section (PixiJS Canvas handles multipliers and grid dynamically) -->
+        <section class="game-play-board">
+            <!-- Right Column: PixiJS Grid Container -->
+            <main class="game-main-board">
+                <div class="board-outer-frame">
+                    <div class="board-inner-frame">
+                        <div id="game-canvas-container">
+                            <!-- PixiJS Canvas Appended here -->
+                        </div>
+                    </div>
+                </div>
+            </main>
+        </section>
+
+        <!-- Bet & Spin Selector -->
+        <section class="bet-spin-selector">
+            <div class="bet-info-box-premium">
+                <button class="btn-circle-control-premium btn-bet-minus" id="btn-bet-minus">−</button>
+                <div class="bet-label-container">
+                    <span class="bet-label">TOTAL BET</span>
+                    <span class="bet-value" id="val-total-bet">18.000.000</span>
+                </div>
+                <button class="btn-circle-control-premium btn-bet-plus" id="btn-bet-plus">+</button>
+            </div>
+
+            <!-- Spin Circular Button -->
+            <div class="spin-btn-container-premium">
+                <button class="btn-spin-circular-premium" id="btn-spin">
+                    <div class="spin-arrows-inner">🔄</div>
+                </button>
+            </div>
+
+            <button class="btn-max-bet-premium" id="btn-max-bet">MAX BET</button>
+        </section>
+
+        <!-- Bottom Mode Controls (Turbo, Auto, FreeSpin, Paytable) -->
+        <section class="mode-controls-bar">
+            <button class="btn-action-opt-premium" id="btn-turbo">
+                <div class="opt-icon-premium">⚡</div>
+                <span class="opt-label-premium">TURBO</span>
+            </button>
+            <button class="btn-action-opt-premium" id="btn-auto">
+                <div class="opt-icon-premium">🔄</div>
+                <span class="opt-label-premium">AUTO</span>
+            </button>
+            
+            <div class="fs-badge-display-premium" id="fs-indicator">
+                <span class="fs-badge-label-premium">FREE SPIN</span>
+                <span class="fs-badge-count-premium" id="fs-current">10</span>
+            </div>
+
+            <button class="btn-action-opt-premium" id="btn-pay-table">
+                <div class="opt-icon-premium">☰</div>
+                <span class="opt-label-premium">PAY TABLE</span>
+            </button>
+
+            <button class="btn-action-opt-premium" id="btn-test-free-spins" style="border: 1px dashed rgba(162, 89, 255, 0.6); background: rgba(162, 89, 255, 0.15) !important;">
+                <div class="opt-icon-premium" style="color: #a259ff;">⚡</div>
+                <span class="opt-label-premium" style="color: #a259ff; font-weight: 750;">TEST FS</span>
+            </button>
+        </section>
+
+        <!-- Bottom Navigation removed for larger card grid display on mobile screens -->
+
+        <!-- Overlays & Modals -->
+        <div class="modal-overlay hidden" id="modal-container">
+            <div class="modal-card">
+                <h2 id="modal-title">K.O.AA!</h2>
+                <div id="modal-message">Selamat! Anda memicu 12 Free Spins.</div>
+                <button class="btn-modal-close" id="btn-modal-close">LANJUTKAN</button>
+            </div>
+        </div>
+
+        <div class="modal-overlay hidden" id="hamburger-menu-modal">
+            <div class="modal-card menu-card-modal">
+                <h2 class="menu-modal-title">MENU NAVIGASI</h2>
+                <div class="menu-modal-grid">
+                    <button class="menu-modal-item" id="menu-opt-home-side">
+                        <span class="menu-modal-icon">🏠</span>
+                        <span class="menu-modal-label">BERANDA LOBI</span>
+                    </button>
+                    <button class="menu-modal-item" id="menu-opt-rank-side">
+                        <span class="menu-modal-icon">🏆</span>
+                        <span class="menu-modal-label">RANKING EMAS</span>
+                    </button>
+                    <button class="menu-modal-item" id="menu-opt-misi-side">
+                        <span class="menu-modal-icon">📋</span>
+                        <span class="menu-modal-label">MISI HARIAN</span>
+                    </button>
+                    <button class="menu-modal-item" id="menu-opt-inbox-side">
+                        <span class="menu-modal-icon">✉️</span>
+                        <span class="menu-modal-label">INBOX PESAN</span>
+                    </button>
+                    <button class="menu-modal-item" id="menu-opt-toko-side">
+                        <span class="menu-modal-icon">🛒</span>
+                        <span class="menu-modal-label">TOKO EMAS</span>
+                    </button>
+                </div>
+                <button class="btn-modal-close" id="btn-menu-close">TUTUP</button>
+            </div>
+        </div>
+        <div class="modal-overlay hidden" id="claim-gold-modal">
+            <div class="modal-card menu-card-modal">
+                <h2 class="menu-modal-title">KLAIM KOA GOLD</h2>
+                <div class="menu-modal-grid" style="display: block; text-align: center; padding: 10px;">
+                    <p style="font-size: 0.8rem; color: var(--text-muted); margin-bottom: 15px;">
+                        Tukarkan Hasil Koin Emas Anda menjadi koin Emas di Brankas dengan membakar koin Perak.
+                    </p>
+                    <div style="background: rgba(0,0,0,0.4); border: 1px solid rgba(255,255,255,0.08); border-radius: 8px; padding: 12px; margin-bottom: 20px; text-align: left;">
+                        <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
+                            <span style="font-size: 0.75rem; color: var(--text-muted);">Hasil Klaim:</span>
+                            <span id="modal-gold-quota-val" style="font-weight: 700; color: var(--gold-light);">0 Emas</span>
+                        </div>
+                        <div style="display: flex; justify-content: space-between;">
+                            <span style="font-size: 0.75rem; color: var(--text-muted);">Biaya Pembakaran:</span>
+                            <span id="modal-silver-needed-val" style="font-weight: 700; color: #cfd8dc;">0 Perak</span>
+                        </div>
+                    </div>
+                    <button class="btn-action-opt-premium" id="btn-claim-gold-confirm" style="width: 100%; padding: 12px; margin-bottom: 10px; height: auto;">
+                        BAKAR PERAK & KLAIM
+                    </button>
+                </div>
+                <button class="btn-modal-close" id="btn-claim-close">BATAL</button>
+            </div>
+        </div>
+
+        <div class="toast-container" id="toast-container"></div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pixi.js/7.4.2/pixi.min.js"></script>
+    <script src="js/atlas-loader.js"></script>
+    <script src="js/engine.js"></script>
+    <script src="js/audio-synth.js"></script>
+    <script src="js/ui.js"></script>
+    <script src="js/game.js"></script>
+</body>
+</html>

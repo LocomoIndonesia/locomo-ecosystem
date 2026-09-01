@@ -1,0 +1,95 @@
+services:
+    laravel.test:
+        build:
+            context: './locomo-web/vendor/laravel/sail/runtimes/8.4'
+            dockerfile: Dockerfile
+            args:
+                WWWGROUP: '${WWWGROUP:-1000}'
+        image: 'sail-8.4/app'
+        extra_hosts:
+            - 'host.docker.internal:host-gateway'
+        ports:
+            - '${APP_PORT:-8080}:80'
+            - '${VITE_PORT:-5173}:${VITE_PORT:-5173}'
+        environment:
+            WWWUSER: '${WWWUSER:-1000}'
+            LARAVEL_SAIL: 1
+            XDEBUG_MODE: '${SAIL_XDEBUG_MODE:-off}'
+            XDEBUG_CONFIG: '${SAIL_XDEBUG_CONFIG:-client_host=host.docker.internal}'
+            IGNITION_LOCAL_SITES_PATH: '${PWD}/locomo-web'
+        volumes:
+            - './locomo-web:/var/www/html'
+        networks:
+            - sail
+        depends_on:
+            - pgsql
+
+    pgsql:
+        image: 'postgres:18-alpine'
+        ports:
+            - '${FORWARD_DB_PORT:-5432}:5432'
+        environment:
+            PGPASSWORD: '${DB_PASSWORD:-password}'
+            POSTGRES_DB: '${DB_DATABASE:-laravel}'
+            POSTGRES_USER: '${DB_USERNAME:-sail}'
+            POSTGRES_PASSWORD: '${DB_PASSWORD:-password}'
+        volumes:
+            - 'sail-pgsql:/var/lib/postgresql'
+            - './locomo-web/vendor/laravel/sail/database/pgsql/create-testing-database.sql:/docker-entrypoint-initdb.d/10-create-testing-database.sql'
+        networks:
+            - sail
+        healthcheck:
+            test:
+                - CMD
+                - pg_isready
+                - '-q'
+                - '-d'
+                - '${DB_DATABASE:-laravel}'
+                - '-U'
+                - '${DB_USERNAME:-sail}'
+            retries: 3
+            timeout: 5s
+
+    php-fpm:
+        build:
+            context: ./.antigravity/drivers
+            dockerfile: php-fpm.Dockerfile
+        volumes:
+            - .:/var/www/html
+            - '/mnt/c/Users/dev360_03/Documents/myData/__2026/Project/Rekontruksi PSB/HUT RI 81/Web-Donasi-PSB:/var/www/html/Web-Donasi-PSB'
+        networks:
+            - sail
+        depends_on:
+            - pgsql
+
+    gateway:
+        image: 'node:20-alpine'
+        working_dir: /app
+        volumes:
+            - './locomo.gateway:/app'
+        command: 'sh -c "npm install && npm start"'
+        environment:
+            - PORT=3000
+        networks:
+            - sail
+
+    nginx:
+        image: nginx:alpine
+        ports:
+            - "80:80"
+        volumes:
+            - .:/var/www/html
+            - ./.antigravity/drivers/conf.d:/etc/nginx/conf.d:ro
+            - '/mnt/c/Users/dev360_03/Documents/myData/__2026/Project/Rekontruksi PSB/HUT RI 81/Web-Donasi-PSB:/var/www/html/Web-Donasi-PSB'
+        networks:
+            - sail
+        depends_on:
+            - php-fpm
+
+networks:
+    sail:
+        driver: bridge
+
+volumes:
+    sail-pgsql:
+        driver: local

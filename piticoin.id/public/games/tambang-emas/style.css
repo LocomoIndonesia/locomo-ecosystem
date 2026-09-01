@@ -1,0 +1,744 @@
+/* Reset & Core styles */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    user-select: none;
+    -webkit-user-select: none;
+}
+
+:root {
+    --gold: #f59e0b;
+    --gold-glow: rgba(245, 158, 11, 0.6);
+    --dark-bg: #090604;
+    --border-color: rgba(255, 255, 255, 0.08);
+    --font-heading: 'Cinzel', serif;
+    --font-body: 'Inter', sans-serif;
+    --cell-size: clamp(64px, 8.5vh, 84px);
+}
+
+body {
+    background-color: var(--dark-bg);
+    color: #f7fafc;
+    font-family: var(--font-body);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    min-height: 100dvh;
+    overflow: hidden;
+}
+
+/* Cavern Container */
+#game-container {
+    width: 100%;
+    max-width: 520px;
+    height: 100vh;
+    height: 100dvh;
+    background: radial-gradient(circle at center, #261b12 0%, #0a0705 100%);
+    border-left: 2px solid rgba(245, 158, 11, 0.15);
+    border-right: 2px solid rgba(245, 158, 11, 0.15);
+    box-shadow: 0 0 50px rgba(0, 0, 0, 0.9);
+    display: flex;
+    flex-direction: column;
+    position: relative;
+    z-index: 2;
+    overflow: hidden;
+}
+
+/* Torches flicker effect */
+.torch {
+    position: absolute;
+    top: 50px;
+    font-size: 1.8rem;
+    filter: drop-shadow(0 0 10px #f59e0b);
+    animation: flicker 1.5s infinite alternate;
+    pointer-events: none;
+    z-index: 3;
+}
+
+.torch-left { left: 20px; }
+.torch-right { right: 20px; }
+
+@keyframes flicker {
+    0% { transform: scale(1) rotate(-2deg); filter: drop-shadow(0 0 8px #f59e0b); }
+    100% { transform: scale(1.1) rotate(3deg); filter: drop-shadow(0 0 16px #d97706); }
+}
+
+/* Header */
+header {
+    text-align: center;
+    padding: 1vh 0 0.2vh 0;
+    z-index: 4;
+}
+
+.logo {
+    font-family: var(--font-heading);
+    font-size: clamp(1.4rem, 3.8vh, 1.85rem);
+    font-weight: 900;
+    color: transparent;
+    background: linear-gradient(135deg, #fff 0%, var(--gold) 60%, #78350f 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    text-shadow: 0 0 12px rgba(245, 158, 11, 0.4);
+    letter-spacing: 2px;
+}
+
+.logo-sub {
+    font-size: 0.6rem;
+    letter-spacing: 3px;
+    color: #a0aec0;
+    font-weight: 700;
+    margin-top: -3px;
+}
+
+/* Mine Shaft containing Hammer & Grid */
+#mine-shaft {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 0.5vh 12px;
+    position: relative;
+}
+
+/* Hammer Area */
+#hammer-container {
+    width: clamp(90px, 12vh, 120px);
+    height: clamp(90px, 12vh, 120px);
+    position: relative;
+    z-index: 10;
+    margin-bottom: -15px;
+    transform-origin: 50% 80%; /* Swing pivot is handle grip bottom */
+    transform: rotate(-15deg);
+    transition: transform 0.1s ease-out;
+}
+
+/* Hammer Animations */
+#hammer-container.ready {
+    transform: rotate(-45deg);
+    transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.15);
+}
+
+#hammer-container.strike {
+    transform: rotate(65deg) translateY(-10px);
+    transition: transform 0.08s cubic-bezier(0.6, -0.28, 0.735, 0.045);
+}
+
+#hammer-container.rebound {
+    transform: rotate(-15deg);
+    transition: transform 0.3s cubic-bezier(0.25, 0.8, 0.25, 1.2);
+}
+
+/* Rock Grid 3x3 */
+#rock-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 8px;
+    background: rgba(18, 12, 8, 0.8);
+    padding: 10px;
+    border-radius: 12px;
+    border: 3px solid #4a2f1c;
+    box-shadow: inset 0 0 30px rgba(0, 0, 0, 0.9), 0 10px 25px rgba(0,0,0,0.5);
+    width: 100%;
+    max-width: 320px;
+    position: relative;
+    z-index: 5;
+}
+
+/* Grid shake effect on impact */
+#rock-grid.shake {
+    animation: gridShake 0.4s ease-out;
+}
+
+@keyframes gridShake {
+    0% { transform: translate(0, 0); }
+    10% { transform: translate(-6px, 4px); }
+    20% { transform: translate(6px, -4px); }
+    30% { transform: translate(-4px, -2px); }
+    40% { transform: translate(4px, 4px); }
+    50% { transform: translate(-2px, -4px); }
+    60% { transform: translate(2px, 2px); }
+    80% { transform: translate(-1px, 1px); }
+    100% { transform: translate(0, 0); }
+}
+
+/* Rock Cell structure */
+.rock-cell {
+    width: 100%;
+    height: var(--cell-size);
+    perspective: 800px;
+    cursor: pointer;
+}
+
+.rock-wrapper {
+    width: 100%;
+    height: 100%;
+    position: relative;
+    transform-style: preserve-3d;
+    transition: transform 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+/* Front Rock Face */
+.rock-front {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    background: radial-gradient(circle at center, #5c5d63 0%, #3a3b40 100%);
+    border: 3px solid #2d2e33;
+    border-radius: 12px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 2.2rem;
+    box-shadow: inset 0 3px 6px rgba(255,255,255,0.1), 0 4px 8px rgba(0,0,0,0.4);
+    backface-visibility: hidden;
+    z-index: 2;
+    transition: all 0.25s ease-out;
+}
+
+/* Cracked details on unbroken rocks */
+.rock-front::before {
+    content: '⚡';
+    position: absolute;
+    color: rgba(0, 0, 0, 0.3);
+    font-size: 1.5rem;
+    transform: rotate(45deg);
+    pointer-events: none;
+}
+
+/* Hidden Back Item */
+.rock-back {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    background: #0f111a;
+    border: 2px solid #2d3748;
+    border-radius: 12px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: clamp(2rem, 5vh, 2.7rem);
+    backface-visibility: hidden;
+    z-index: 1;
+    box-shadow: inset 0 0 15px rgba(0, 0, 0, 0.8);
+    transform: scale(0.9);
+    opacity: 0;
+    transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.25);
+}
+
+/* Shatter/Crumble action styling */
+.rock-cell.shattered .rock-front {
+    transform: scale(1.4) rotate(15deg);
+    opacity: 0;
+    pointer-events: none;
+    z-index: 1;
+}
+
+.rock-cell.shattered .rock-back {
+    transform: scale(1);
+    opacity: 1;
+    z-index: 2;
+}
+
+/* Sparkle glow for gems */
+.rock-back.gem-glow {
+    animation: gemPulse 1.5s infinite alternate;
+}
+
+@keyframes gemPulse {
+    0% { box-shadow: inset 0 0 10px rgba(255,255,255,0.1); }
+    100% { box-shadow: inset 0 0 20px rgba(245, 158, 11, 0.4), 0 0 10px rgba(245, 158, 11, 0.3); }
+}
+
+/* Bomb Explosion Special Style */
+.rock-back.bomb-struck {
+    animation: bombFlash 0.3s ease-out infinite alternate;
+}
+
+@keyframes bombFlash {
+    0% { filter: brightness(1); }
+    100% { filter: brightness(2) drop-shadow(0 0 10px #ef4444); }
+}
+
+/* Win display section */
+#win-display {
+    text-align: center;
+    padding: 0.4vh 0;
+    z-index: 4;
+}
+
+.win-label {
+    font-size: 0.65rem;
+    letter-spacing: 2px;
+    color: #a0aec0;
+    font-weight: 700;
+}
+
+.win-val {
+    font-family: var(--font-heading);
+    font-size: 1.8rem;
+    font-weight: 900;
+    color: var(--gold);
+    text-shadow: 0 0 12px var(--gold-glow);
+}
+
+/* Announcement Banner */
+#announcement-banner {
+    position: absolute;
+    top: 25vh;
+    left: 5%;
+    width: 90%;
+    background: linear-gradient(90deg, transparent 0%, rgba(245, 158, 11, 0.9) 15%, rgba(245, 158, 11, 0.9) 85%, transparent 100%);
+    color: #000;
+    font-family: var(--font-heading);
+    font-weight: 900;
+    text-align: center;
+    padding: 10px 0;
+    font-size: 1.15rem;
+    letter-spacing: 2px;
+    z-index: 100;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.6);
+    animation: bannerDrop 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.25);
+}
+
+#announcement-banner.bomb-blast {
+    background: linear-gradient(90deg, transparent 0%, rgba(239, 68, 68, 0.9) 15%, rgba(239, 68, 68, 0.9) 85%, transparent 100%);
+    color: #fff;
+    text-shadow: 0 1px 5px rgba(0,0,0,0.5);
+}
+
+#announcement-banner.hidden {
+    display: none;
+}
+
+@keyframes bannerDrop {
+    from { transform: translateY(-50px); opacity: 0; }
+    to { transform: translateY(0); opacity: 1; }
+}
+
+/* HUD Panel styling */
+#hud-panel {
+    background: rgba(18, 12, 9, 0.95);
+    border-top: 3px solid #4a2f1c;
+    padding: 1vh 12px 1.5vh 12px;
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    display: flex;
+    flex-direction: column;
+    gap: 0.8vh;
+    z-index: 6;
+}
+
+.hud-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.hud-row.stats {
+    gap: 12px;
+}
+
+.stat-box {
+    flex: 1;
+    background: rgba(0, 0, 0, 0.5);
+    border: 1px solid var(--border-color);
+    padding: 8px 6px;
+    border-radius: 8px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.stat-box .lbl {
+    font-size: 0.6rem;
+    color: #a0aec0;
+    font-weight: 700;
+    letter-spacing: 1px;
+    margin-bottom: 2px;
+}
+
+.stat-box .val {
+    font-size: 0.95rem;
+    font-weight: 800;
+    color: #fff;
+}
+
+/* Bet Adjusters */
+.hud-row.bet-controls {
+    gap: 16px;
+}
+
+.control-group {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.control-group label {
+    font-size: 0.6rem;
+    color: #a0aec0;
+    font-weight: 700;
+}
+
+.select-wrapper {
+    display: flex;
+    background: rgba(0, 0, 0, 0.5);
+    border: 1px solid #4a5568;
+    border-radius: 8px;
+    height: 28px;
+    align-items: center;
+    justify-content: space-between;
+    overflow: hidden;
+}
+
+.adjust-btn {
+    width: 32px;
+    height: 100%;
+    background: transparent;
+    border: none;
+    color: #a0aec0;
+    font-size: 1.1rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.adjust-btn:hover {
+    color: var(--gold);
+    background: rgba(255, 255, 255, 0.05);
+}
+
+.control-value {
+    font-size: 0.85rem;
+    font-weight: 800;
+    color: #fff;
+}
+
+/* Action controls */
+.hud-row.spin-controls {
+    gap: 12px;
+    margin-top: 4px;
+}
+
+.secondary-btn {
+    width: 36px;
+    height: 36px;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid var(--border-color);
+    border-radius: 50%;
+    color: #fff;
+    cursor: pointer;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    transition: all 0.2s ease;
+    font-size: 0.95rem;
+}
+
+.secondary-btn:hover {
+    border-color: var(--gold);
+    color: var(--gold);
+    background: rgba(255, 255, 255, 0.08);
+}
+
+/* Giant Strike Button */
+.strike-btn {
+    width: 120px;
+    height: 40px;
+    border-radius: 20px;
+    background: radial-gradient(circle, #f59e0b 0%, #b45309 80%, #78350f 100%);
+    border: 3px solid #2d2013;
+    box-shadow: 0 0 20px rgba(245, 158, 11, 0.4), inset 0 0 6px rgba(255, 255, 255, 0.5);
+    position: relative;
+    cursor: pointer;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    transition: all 0.2s ease;
+}
+
+.strike-btn:hover {
+    transform: scale(1.06);
+    box-shadow: 0 0 25px rgba(245, 158, 11, 0.6);
+}
+
+.strike-btn:active {
+    transform: scale(0.95);
+}
+
+.strike-btn.disabled {
+    filter: grayscale(1);
+    opacity: 0.5;
+    pointer-events: none;
+}
+
+.strike-label {
+    font-family: var(--font-heading);
+    font-size: 0.95rem;
+    font-weight: 900;
+    color: #fff;
+    text-shadow: 0 1px 3px rgba(0,0,0,0.8);
+    letter-spacing: 1px;
+}
+
+/* Modals styling */
+#modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.85);
+    z-index: 200;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+}
+
+#modal-content {
+    background: #1c140e;
+    border: 2px solid var(--gold);
+    border-radius: 16px;
+    width: 90%;
+    max-width: 440px;
+    max-height: 80vh;
+    padding: 24px;
+    position: relative;
+    overflow-y: auto;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.8);
+}
+
+.modal-title {
+    font-family: var(--font-heading);
+    color: var(--gold);
+    font-size: 1.3rem;
+    margin-bottom: 20px;
+    text-align: center;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    padding-bottom: 10px;
+}
+
+.close-btn {
+    position: absolute;
+    top: 15px;
+    right: 15px;
+    background: transparent;
+    border: none;
+    color: #cbd5e0;
+    font-size: 2rem;
+    cursor: pointer;
+    line-height: 1;
+}
+
+.modal-body h3 {
+    color: var(--gold);
+    font-size: 0.95rem;
+    margin: 15px 0 8px 0;
+}
+
+.modal-body p, .modal-body li {
+    font-size: 0.8rem;
+    color: #e2e8f0;
+    line-height: 1.5;
+    margin-bottom: 6px;
+}
+
+/* Paytable items */
+.paytable-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 8px;
+    margin: 10px 0;
+}
+
+.pay-item {
+    display: flex;
+    align-items: center;
+    background: rgba(0, 0, 0, 0.4);
+    padding: 6px 12px;
+    border-radius: 8px;
+    border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.sym-icon {
+    font-size: 1.5rem;
+    width: 32px;
+    margin-right: 10px;
+}
+
+.sym-name {
+    font-size: 0.8rem;
+    font-weight: 700;
+    flex: 1;
+}
+
+.sym-payout {
+    font-size: 0.75rem;
+    color: var(--gold);
+    font-family: monospace;
+}
+
+/* Flying rock shard particles */
+.rock-shard {
+    position: absolute;
+    width: 14px;
+    height: 14px;
+    background: #4a4b50;
+    border: 1px solid #2d2e33;
+    border-radius: 2px;
+    pointer-events: none;
+    z-index: 12;
+    animation: shardFly 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
+}
+
+@keyframes shardFly {
+    0% { transform: translate(0, 0) scale(1) rotate(0deg); opacity: 1; }
+    100% { transform: translate(var(--x-offset), var(--y-offset)) scale(0.3) rotate(720deg); opacity: 0; }
+}
+
+.hidden {
+    display: none !important;
+}
+
+/* Sound particles or coins effect */
+.coin-particle {
+    position: absolute;
+    font-size: 1.2rem;
+    pointer-events: none;
+    z-index: 150;
+    animation: coinFly 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
+}
+
+@keyframes coinFly {
+    0% { transform: translateY(0) scale(1) rotate(0deg); opacity: 1; }
+    100% { transform: translateY(-100px) translateX(var(--x-offset)) scale(0.5) rotate(360deg); opacity: 0; }
+}
+
+/* Responsive Mobile Adjustments for Short Viewports & Mobile Screen */
+@media (max-width: 480px), (max-height: 740px) {
+    :root {
+        --cell-size: clamp(40px, 6vh, 52px);
+    }
+    #game-container {
+        height: 100vh;
+        height: 100dvh;
+    }
+    .torch {
+        display: none !important; /* Sembunyikan obor untuk hemat ruang di mobile */
+    }
+    header {
+        padding: 0.5vh 0 0.1vh 0;
+    }
+    .logo {
+        font-size: clamp(1.2rem, 3vh, 1.5rem);
+    }
+    .logo-sub {
+        font-size: 0.55rem;
+    }
+    #mine-shaft {
+        padding: 0.2vh 8px;
+    }
+    #hammer-container {
+        width: clamp(50px, 7vh, 70px);
+        height: clamp(50px, 7vh, 70px);
+        margin-bottom: -12px;
+    }
+    #rock-grid {
+        max-width: 240px;
+        padding: 6px;
+        gap: 5px;
+        border-width: 2px;
+    }
+    .rock-front, .rock-back {
+        font-size: 1.5rem;
+        border-radius: 8px;
+    }
+    #win-display {
+        padding: 0.1vh 0;
+    }
+    .win-val {
+        font-size: 1.3rem;
+    }
+    
+    /* Optimasi HUD Panel */
+    #hud-panel {
+        padding: 0.6vh 12px 1vh 12px;
+        gap: 0.4vh;
+    }
+    
+    /* Ubah Stats box menjadi baris tipis yang hemat ruang */
+    .hud-row.stats {
+        justify-content: space-around;
+        background: rgba(0, 0, 0, 0.4);
+        padding: 4px;
+        border-radius: 6px;
+        gap: 8px;
+    }
+    .stat-box {
+        flex-direction: row;
+        background: transparent;
+        border: none;
+        padding: 0;
+        gap: 6px;
+        align-items: center;
+    }
+    .stat-box .lbl {
+        margin-bottom: 0;
+        font-size: 0.55rem;
+    }
+    .stat-box .val {
+        font-size: 0.75rem;
+    }
+    
+    /* Buat bet-controls lebih padat secara horizontal */
+    .hud-row.bet-controls {
+        gap: 8px;
+    }
+    .control-group {
+        flex-direction: row;
+        align-items: center;
+        justify-content: space-between;
+        gap: 4px;
+    }
+    .control-group label {
+        font-size: 0.55rem;
+        margin-bottom: 0;
+    }
+    .select-wrapper {
+        height: 22px;
+        width: 70px;
+    }
+    .adjust-btn {
+        width: 18px;
+        font-size: 0.9rem;
+    }
+    .control-value {
+        font-size: 0.7rem;
+    }
+    
+    /* Posisikan tombol STRIKE! di tengah dan tombol sekunder di sisinya */
+    .hud-row.spin-controls {
+        justify-content: center;
+        gap: 20px;
+        margin-top: 2px;
+    }
+    .strike-btn {
+        width: 120px;
+        height: 38px;
+        border-radius: 19px;
+    }
+    .strike-label {
+        font-size: 0.8rem;
+    }
+    .secondary-btn {
+        width: 32px;
+        height: 32px;
+        font-size: 0.8rem;
+    }
+}

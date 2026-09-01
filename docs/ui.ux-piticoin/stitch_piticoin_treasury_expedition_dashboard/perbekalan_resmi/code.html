@@ -1,0 +1,504 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="id"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Market - PitiCoin.id</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400..900;1,400..900&amp;family=Inter:wght@100..900&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+          darkMode: "class",
+          theme: {
+            extend: {
+              "colors": {
+                      "on-error-container": "#ffdad6",
+                      "surface-bright": "#393939",
+                      "on-primary-container": "#705e00",
+                      "surface-container-highest": "#353534",
+                      "outline-variant": "#4d4732",
+                      "faction-nisnas": "#50C878",
+                      "surface-container-high": "#2a2a2a",
+                      "on-error": "#690005",
+                      "primary": "#fff6df",
+                      "tertiary": "#f1f6ff",
+                      "on-primary-fixed-variant": "#544600",
+                      "on-tertiary-fixed": "#001d32",
+                      "primary-fixed": "#ffe16d",
+                      "faction-android": "#DC143C",
+                      "primary-container": "#ffd700",
+                      "on-tertiary": "#003353",
+                      "inverse-surface": "#e5e2e1",
+                      "error": "#ffb4ab",
+                      "surface-dim": "#131313",
+                      "on-background": "#e5e2e1",
+                      "on-tertiary-fixed-variant": "#004a75",
+                      "surface-container": "#201f1f",
+                      "secondary-fixed-dim": "#66dd8b",
+                      "error-container": "#93000a",
+                      "secondary-fixed": "#83fba5",
+                      "on-tertiary-container": "#206393",
+                      "on-secondary": "#003919",
+                      "inverse-primary": "#705d00",
+                      "outline": "#999077",
+                      "inverse-on-surface": "#313030",
+                      "glass-stroke": "rgba(255, 255, 255, 0.1)",
+                      "tertiary-fixed-dim": "#96ccff",
+                      "primary-fixed-dim": "#e9c400",
+                      "surface-container-low": "#1c1b1b",
+                      "surface-container-lowest": "#0e0e0e",
+                      "on-primary": "#3a3000",
+                      "tertiary-container": "#bdddff",
+                      "surface-tint": "#e9c400",
+                      "on-surface": "#e5e2e1",
+                      "secondary": "#66dd8b",
+                      "obsidian-surface": "#1A1A1A",
+                      "on-primary-fixed": "#221b00",
+                      "tertiary-fixed": "#cee5ff",
+                      "gold-glow": "rgba(255, 215, 0, 0.4)",
+                      "faction-human": "#4682B4",
+                      "on-secondary-container": "#003115",
+                      "on-surface-variant": "#d0c6ab",
+                      "on-secondary-fixed": "#00210c",
+                      "surface-variant": "#353534",
+                      "on-secondary-fixed-variant": "#005227",
+                      "surface": "#131313",
+                      "secondary-container": "#25a55a",
+                      "background": "#131313"
+              },
+              "borderRadius": {
+                      "DEFAULT": "0.125rem",
+                      "lg": "0.25rem",
+                      "xl": "0.5rem",
+                      "full": "0.75rem"
+              },
+              "spacing": {
+                      "margin-desktop": "48px",
+                      "stack-sm": "8px",
+                      "margin-mobile": "16px",
+                      "stack-lg": "32px",
+                      "gutter": "24px",
+                      "container-max": "1200px",
+                      "stack-md": "16px"
+              },
+              "fontFamily": {
+                      "headline-md": [
+                              "Playfair Display"
+                      ],
+                      "display-hero": [
+                              "Playfair Display"
+                      ],
+                      "headline-lg-mobile": [
+                              "Playfair Display"
+                      ],
+                      "body-lg": [
+                              "Inter"
+                      ],
+                      "label-sm": [
+                              "Inter"
+                      ],
+                      "headline-lg": [
+                              "Playfair Display"
+                      ],
+                      "body-md": [
+                              "Inter"
+                      ]
+              },
+              "fontSize": {
+                      "headline-md": [
+                              "24px",
+                              {
+                                      "lineHeight": "1.4",
+                                      "fontWeight": "600"
+                              }
+                      ],
+                      "display-hero": [
+                              "48px",
+                              {
+                                      "lineHeight": "1.2",
+                                      "letterSpacing": "-0.02em",
+                                      "fontWeight": "700"
+                              }
+                      ],
+                      "headline-lg-mobile": [
+                              "28px",
+                              {
+                                      "lineHeight": "1.2",
+                                      "fontWeight": "700"
+                              }
+                      ],
+                      "body-lg": [
+                              "18px",
+                              {
+                                      "lineHeight": "1.6",
+                                      "fontWeight": "400"
+                              }
+                      ],
+                      "label-sm": [
+                              "12px",
+                              {
+                                      "lineHeight": "1",
+                                      "letterSpacing": "0.05em",
+                                      "fontWeight": "600"
+                              }
+                      ],
+                      "headline-lg": [
+                              "32px",
+                              {
+                                      "lineHeight": "1.3",
+                                      "fontWeight": "600"
+                              }
+                      ],
+                      "body-md": [
+                              "16px",
+                              {
+                                      "lineHeight": "1.6",
+                                      "fontWeight": "400"
+                              }
+                      ]
+              }
+      },
+          },
+        }
+    </script>
+<style>
+        /* Mystic Purple Gradient Background */
+        body {
+            background-color: #121212;
+            background-image: radial-gradient(circle at top right, rgba(128, 0, 128, 0.15) 0%, transparent 60%),
+                              radial-gradient(circle at bottom left, rgba(75, 0, 130, 0.1) 0%, transparent 50%);
+            background-attachment: fixed;
+            min-height: 100vh;
+        }
+
+        /* Glassmorphism utilities */
+        .glass-panel {
+            background-color: rgba(26, 26, 26, 0.6);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .glass-card {
+            background-color: rgba(26, 26, 26, 0.6);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid transparent;
+            background-image: linear-gradient(rgba(26, 26, 26, 0.6), rgba(26, 26, 26, 0.6)), 
+                              linear-gradient(to bottom, rgba(255, 255, 255, 0.2), transparent);
+            background-origin: border-box;
+            background-clip: padding-box, border-box;
+            transition: all 0.3s ease;
+        }
+
+        .glass-card:hover {
+            border-color: #ffd700;
+            box-shadow: 0 0 15px rgba(255, 215, 0, 0.2);
+        }
+
+        /* Primary Treasure Button */
+        .btn-treasure {
+            background-color: #ffd700;
+            color: #131313;
+            box-shadow: 0 0 10px rgba(255, 215, 0, 0.4);
+            transition: all 0.2s ease;
+        }
+        .btn-treasure:hover {
+            box-shadow: 0 0 20px rgba(255, 215, 0, 0.6);
+            transform: scale(1.02);
+        }
+
+        /* Particle Overlay */
+        .particle-overlay {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            pointer-events: none;
+            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)' opacity='0.03'/%3E%3C/svg%3E");
+            z-index: 0;
+        }
+
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #131313;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #353534;
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #4d4732;
+        }
+
+        /* Marquee Animation */
+        .marquee-container {
+            overflow: hidden;
+            white-space: nowrap;
+        }
+        .marquee-content {
+            display: inline-block;
+            animation: marquee 20s linear infinite;
+        }
+        @keyframes marquee {
+            0% { transform: translateX(100%); }
+            100% { transform: translateX(-100%); }
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="text-on-surface font-body-md antialiased pb-[90px] md:pb-0 pt-20">
+<div class="particle-overlay"></div>
+<!-- TopAppBar (Hidden on Mobile, Visible on Desktop) -->
+<header class="hidden md:flex fixed top-0 w-full z-50 flex items-center px-margin-desktop h-20 bg-surface/60 backdrop-blur-xl border-b border-glass-stroke shadow-[0_4_15px_rgba(0,0,0,0.5)]">
+<div class="flex items-center gap-4 w-1/3">
+<div class="w-10 h-10 rounded-full overflow-hidden border border-primary/30">
+<img class="w-full h-full object-cover" data-alt="A highly detailed avatar of an adventurer profile in a dark fantasy MMORPG style. The character has rugged features, glowing eyes, and is set against an obsidian background. The lighting is cinematic with soft, high-contrast shadows emphasizing a premium, mysterious vibe. The aesthetic is elite and high-stakes." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDbkQbvZrbjAskeDXW1eujljPMUG2wPZK9QPX_wETqtS67BHGpptAR2VM4Q9qqliP_5vz0Gt95lCV4U0jEp9_cTGkAexKtwoQhwHd5adQK4OVqaaAN3BOC7aWJbQamn_TyhUFqu1V6hyYy_tvUdotcgjEeztYrvfeXQ3XXkdTqZQjPKWGa41ctWspSCux2_dS-7KwAgo1MnrbNdLzA-603Unr7Mocp6qlMh0_DYfbhBt-q6NNFP0MI"/>
+</div>
+</div>
+<div class="w-1/3 flex justify-center">
+<h1 class="font-display-hero text-headline-md text-primary drop-shadow-[0_0_10px_rgba(255,215,0,0.4)]">PitiCoin.id</h1>
+</div>
+<nav class="w-1/3 flex justify-end items-center gap-8">
+<a class="flex flex-col items-center justify-center text-on-surface-variant hover:text-primary transition-colors group" href="#">
+<span class="material-symbols-outlined mb-1 group-hover:scale-110 transition-transform">account_balance_wallet</span>
+<span class="font-label-sm text-label-sm">Vault</span>
+</a>
+<a class="flex flex-col items-center justify-center text-primary hover:text-primary transition-colors group filter drop-shadow-[0_0_8px_rgba(255,215,0,0.6)]" href="#">
+<span class="material-symbols-outlined mb-1 scale-110 transition-transform" style="font-variation-settings: 'FILL' 1;">storefront</span>
+<span class="font-label-sm text-label-sm">Market</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant hover:text-primary transition-colors group" href="#">
+<span class="material-symbols-outlined mb-1 group-hover:scale-110 transition-transform">military_tech</span>
+<span class="font-label-sm text-label-sm">Quests</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant hover:text-primary transition-colors group" href="#">
+<span class="material-symbols-outlined mb-1 group-hover:scale-110 transition-transform">groups</span>
+<span class="font-label-sm text-label-sm">Guild</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant hover:text-primary transition-colors group" href="#">
+<span class="material-symbols-outlined mb-1 group-hover:scale-110 transition-transform">person</span>
+<span class="font-label-sm text-label-sm">Profile</span>
+</a>
+<button class="text-on-surface-variant hover:text-primary transition-colors scale-95 transition-transform ml-4">
+<span class="material-symbols-outlined">settings</span>
+</button>
+</nav>
+</header>
+<!-- Mobile Top Header (Visible only on mobile) -->
+<header class="md:hidden fixed top-0 w-full z-50 flex items-center justify-between px-margin-mobile h-16 bg-surface/80 backdrop-blur-xl border-b border-glass-stroke shadow-md">
+<h1 class="font-display-hero text-[20px] text-primary drop-shadow-[0_0_10px_rgba(255,215,0,0.4)]">PitiCoin.id</h1>
+<div class="flex items-center gap-3">
+<div class="px-3 py-1 glass-panel rounded-full flex items-center gap-1">
+<span class="material-symbols-outlined text-[16px] text-primary">toll</span>
+<span class="font-label-sm text-primary">12.5K</span>
+</div>
+<button class="w-8 h-8 rounded-full overflow-hidden border border-primary/30">
+<img class="w-full h-full object-cover" data-alt="A highly detailed avatar of an adventurer profile in a dark fantasy MMORPG style. The character has rugged features, glowing eyes, and is set against an obsidian background. The lighting is cinematic with soft, high-contrast shadows emphasizing a premium, mysterious vibe. The aesthetic is elite and high-stakes." src="https://lh3.googleusercontent.com/aida-public/AB6AXuC5SCiWRl8ZI5Flg_FACEWx4FR6u95lh4f8zeHswSbRD1pwW3tMVeOtocumI63XVJvpZDod-alufj3gDQh2pvyte6UsFDpsakWHo3YfkK4X4o6ItHfBMAfIUkYlJnjOFeQgiRD0wYt22St1nONo9b3Rty7xN5RLWgNsTBOwD5qodECrZ5hoBAsjWMMrxQRALEaOgOdxi9o47sbhUohbgBQ7-Ybvt9YTBptuXXjoCUYr-lrhXTUI12w"/>
+</button>
+</div>
+</header>
+<!-- Sticky Sub-Header: Balance & Marquee -->
+<div class="sticky top-16 md:top-20 z-40 w-full bg-obsidian-surface/90 backdrop-blur-md border-b border-glass-stroke shadow-lg">
+<div class="max-w-[1200px] mx-auto px-margin-mobile md:px-margin-desktop py-3 flex flex-col md:flex-row items-center justify-between gap-3">
+<!-- Balance -->
+<div class="flex items-center gap-4 order-2 md:order-1">
+<div class="flex items-center gap-2 px-4 py-2 glass-panel rounded-lg">
+<span class="text-xl" title="Silver">🪙</span>
+<span class="font-label-sm text-on-surface font-bold">24,500 Perak</span>
+</div>
+<div class="flex items-center gap-2 px-4 py-2 glass-panel rounded-lg border-primary/30">
+<span class="text-xl" title="Gold">🏆</span>
+<span class="font-label-sm text-primary font-bold drop-shadow-[0_0_5px_rgba(255,215,0,0.5)]">150 Emas</span>
+</div>
+</div>
+<!-- Marquee -->
+<div class="flex-1 w-full overflow-hidden marquee-container bg-surface-container-high/50 rounded-lg border border-error/20 py-2 px-4 flex items-center gap-2 order-1 md:order-2">
+<span class="material-symbols-outlined text-primary text-sm flex-shrink-0 animate-pulse">local_fire_department</span>
+<div class="w-full overflow-hidden relative h-5 flex items-center">
+<p class="font-label-sm text-on-surface-variant text-xs absolute whitespace-nowrap animate-[marquee_15s_linear_infinite]">
+                        Maklumat Patih: Setiap transaksi lelang P2P dikenakan upeti 10% Koin Emas yang akan dilebur (Burn System).
+                    </p>
+</div>
+</div>
+</div>
+</div>
+<!-- Main Content Canvas -->
+<main class="max-w-[1200px] mx-auto px-margin-mobile md:px-margin-desktop py-stack-lg relative z-10">
+<!-- Tab Navigation -->
+<div class="flex flex-wrap gap-3 mb-stack-lg justify-center md:justify-start">
+<button class="px-6 py-3 rounded-full font-label-sm uppercase tracking-wider bg-surface-container-high text-primary border border-primary/50 shadow-[0_0_15px_rgba(128,0,128,0.4)] drop-shadow-[0_0_8px_rgba(255,215,0,0.3)] transition-all">
+                Perbekalan Resmi
+            </button>
+<button class="px-6 py-3 rounded-full font-label-sm uppercase tracking-wider glass-panel text-on-surface-variant hover:text-on-surface hover:bg-surface-container-high transition-all">
+                Bursa Lelang
+            </button>
+<button class="px-6 py-3 rounded-full font-label-sm uppercase tracking-wider glass-panel text-on-surface-variant hover:text-on-surface hover:bg-surface-container-high transition-all">
+                Persediaan Digital
+            </button>
+</div>
+<!-- Section Header -->
+<div class="mb-stack-md flex items-end justify-between">
+<div>
+<h2 class="font-headline-lg-mobile md:font-headline-lg text-primary mb-2 flex items-center gap-2">
+<span class="material-symbols-outlined text-[32px]">inventory_2</span>
+                    Gudang Utama
+                </h2>
+<p class="font-body-md text-on-surface-variant">Item resmi dengan harga tetap. Disuplai langsung oleh Bank Pusat.</p>
+</div>
+<div class="hidden md:flex gap-2">
+<button class="p-2 glass-panel rounded-lg hover:bg-surface-container-highest transition-colors">
+<span class="material-symbols-outlined text-on-surface-variant">filter_list</span>
+</button>
+<button class="p-2 glass-panel rounded-lg hover:bg-surface-container-highest transition-colors">
+<span class="material-symbols-outlined text-on-surface-variant">sort</span>
+</button>
+</div>
+</div>
+<!-- Marketplace Grid -->
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-gutter">
+<!-- Item Card 1 -->
+<article class="glass-card rounded-xl p-4 flex flex-col group relative overflow-hidden">
+<div class="absolute top-0 right-0 bg-primary text-surface font-label-sm px-3 py-1 rounded-bl-lg font-bold z-10 shadow-[0_0_10px_rgba(255,215,0,0.5)]">
+                    HOT
+                </div>
+<div class="w-full h-48 rounded-lg mb-4 overflow-hidden relative bg-surface-container-lowest flex items-center justify-center p-4">
+<div class="absolute inset-0 bg-gradient-to-t from-black/80 to-transparent z-0"></div>
+<img class="w-full h-full object-contain relative z-10 group-hover:scale-110 transition-transform duration-500" data-alt="A high-quality 3D render of a 'Beliung Emas' (Golden Pickaxe) glowing intensely in an obsidian dark room. The pickaxe is hovering slightly, emitting golden particles. Cinematic lighting highlights the intricate metallic textures and glowing runes on the handle, representing a premium MMORPG loot item." src="https://lh3.googleusercontent.com/aida-public/AB6AXuAOIAmOxV0emE1Jrqd-9edrvu7kOgLCUg7KDy9glmSeWQQZiUqaNSrLeK_5xJxo49d_2ja9odZdW-gAlyh8um2AMQb54NaTLeii8rXJPQUeO2jie240BoU1ECnssFdRRKvb113rhLm4PyPjKenWZnyOE00IwBC-BbvRCLawQxQjKmZQmppOJNxmOPR4uiB52qCpHvzC9AMmn61NpDN26p5mxrCUoHYVL-YXWMgQvNI8KpK2MfxFyJg"/>
+</div>
+<div class="flex-1 flex flex-col">
+<h3 class="font-headline-md text-on-surface mb-1 group-hover:text-primary transition-colors">Beliung Emas</h3>
+<p class="font-body-md text-on-surface-variant text-sm mb-3 line-clamp-2">Alat penambangan premium. Meningkatkan peluang menemukan Koin Emas murni di area Tambang Gelap sebesar 15%.</p>
+<div class="bg-surface-container-lowest/50 rounded p-2 mb-4 flex items-center gap-2 border border-glass-stroke">
+<span class="material-symbols-outlined text-secondary text-sm">trending_up</span>
+<span class="font-label-sm text-secondary text-xs">Buff: +15% Mining Yield</span>
+</div>
+<div class="mt-auto pt-4 border-t border-glass-stroke flex items-center justify-between">
+<div class="flex flex-col">
+<span class="font-label-sm text-on-surface-variant text-[10px] uppercase">Harga</span>
+<span class="font-headline-md text-primary text-lg">5.000 Perak</span>
+</div>
+<button class="btn-treasure px-5 py-2 rounded-lg font-label-sm uppercase font-bold flex items-center gap-2">
+<span class="material-symbols-outlined text-[18px]">shopping_cart</span>
+                            Beli
+                        </button>
+</div>
+</div>
+</article>
+<!-- Item Card 2 -->
+<article class="glass-card rounded-xl p-4 flex flex-col group relative overflow-hidden">
+<div class="w-full h-48 rounded-lg mb-4 overflow-hidden relative bg-surface-container-lowest flex items-center justify-center p-4">
+<div class="absolute inset-0 bg-gradient-to-t from-black/80 to-transparent z-0"></div>
+<img class="w-full h-full object-contain relative z-10 group-hover:scale-110 transition-transform duration-500" data-alt="A stylized 3D render of 'Ransum Pet' (Pet Rations) in a futuristic, sleek container sitting in a dark, atmospheric environment. The container emits a faint green glowing aura. High contrast lighting accentuates the dark background and the vibrant green details of the item, evoking a sci-fi survival MMORPG feel." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBhtS8c4GfijEsK18ZOMi50Qj7GAHH9bQDXC0KA7gzfoNhmVQEE_RHRmY9bk3yZTnl51MkU3DvxW9vLJPGzM7zwNw8VBfpuj1xZE5beNQvxdIlYMWgNz5cuHNehYMdsB_bKpsGddnye93PNVEotl9tBSCGSJI7O2qEniSfv63bFsEREV6tfcWdzUlfZBcCwtSWjalS2MofrENwBFZmRK_KXc0T1d3LAxcUcXSY-edcQBmwLz-98P4c"/>
+</div>
+<div class="flex-1 flex flex-col">
+<h3 class="font-headline-md text-on-surface mb-1 group-hover:text-primary transition-colors">Ransum Pet</h3>
+<p class="font-body-md text-on-surface-variant text-sm mb-3 line-clamp-2">Nutrisi khusus untuk Companion peliharaan. Memulihkan stamina 100% secara instan.</p>
+<div class="bg-surface-container-lowest/50 rounded p-2 mb-4 flex items-center gap-2 border border-glass-stroke">
+<span class="material-symbols-outlined text-secondary text-sm">health_and_safety</span>
+<span class="font-label-sm text-secondary text-xs">Buff: 100% Stamina Recovery</span>
+</div>
+<div class="mt-auto pt-4 border-t border-glass-stroke flex items-center justify-between">
+<div class="flex flex-col">
+<span class="font-label-sm text-on-surface-variant text-[10px] uppercase">Harga</span>
+<span class="font-headline-md text-primary text-lg">1.200 Perak</span>
+</div>
+<button class="btn-treasure px-5 py-2 rounded-lg font-label-sm uppercase font-bold flex items-center gap-2">
+<span class="material-symbols-outlined text-[18px]">shopping_cart</span>
+                            Beli
+                        </button>
+</div>
+</div>
+</article>
+<!-- Item Card 3 -->
+<article class="glass-card rounded-xl p-4 flex flex-col group relative overflow-hidden">
+<div class="w-full h-48 rounded-lg mb-4 overflow-hidden relative bg-surface-container-lowest flex items-center justify-center p-4">
+<div class="absolute inset-0 bg-gradient-to-t from-black/80 to-transparent z-0"></div>
+<img class="w-full h-full object-contain relative z-10 group-hover:scale-110 transition-transform duration-500" data-alt="A detailed 3D illustration of an 'Iron Suit Battery' (Baterai Iron Suit) crackling with blue electrical energy in a pitch-black setting. The metallic surface of the battery is scarred and rugged, illuminated by the internal glowing blue power core. The scene is cinematic, dark, and highly tactical." src="https://lh3.googleusercontent.com/aida-public/AB6AXuCsDzRcICWCXsAZdUCCP67vI6-dhzvDo83nzLzQcYMIg3qxPpSFF9EdBzwnUneeNF0PAxWQy9yPs-GNjHH4Yleg2lSe1UYq4ByboCU7dVhrTg1eNExKK4SqW7GTT4wbdknLQzvLGAe55x4IFALDcDiGXKiLDSxIneJhVewz0YBo9LTTQZ8znLuTble1CqFYQzqPR6khLyPjqCzoytK-196FXAKxxCSlqVGmvSkr39D_2ThRMnvlOu0"/>
+</div>
+<div class="flex-1 flex flex-col">
+<h3 class="font-headline-md text-on-surface mb-1 group-hover:text-primary transition-colors">Baterai Iron Suit</h3>
+<p class="font-body-md text-on-surface-variant text-sm mb-3 line-clamp-2">Inti tenaga kelas militer. Dibutuhkan untuk mengaktifkan pelindung eksoskeleton selama eksplorasi wilayah Android.</p>
+<div class="bg-surface-container-lowest/50 rounded p-2 mb-4 flex items-center gap-2 border border-glass-stroke">
+<span class="material-symbols-outlined text-[#4682B4] text-sm">bolt</span>
+<span class="font-label-sm text-[#4682B4] text-xs">Buff: +2hrs Shield Duration</span>
+</div>
+<div class="mt-auto pt-4 border-t border-glass-stroke flex items-center justify-between">
+<div class="flex flex-col">
+<span class="font-label-sm text-on-surface-variant text-[10px] uppercase">Harga</span>
+<div class="flex items-center gap-1">
+<span class="text-sm">🏆</span>
+<span class="font-headline-md text-primary text-lg">25 Emas</span>
+</div>
+</div>
+<button class="btn-treasure px-5 py-2 rounded-lg font-label-sm uppercase font-bold flex items-center gap-2">
+<span class="material-symbols-outlined text-[18px]">shopping_cart</span>
+                            Beli
+                        </button>
+</div>
+</div>
+</article>
+<!-- Extra Filler Item to complete grid row on large screens -->
+<article class="glass-card rounded-xl p-4 flex flex-col group relative overflow-hidden hidden lg:flex">
+<div class="absolute top-0 right-0 bg-secondary text-on-secondary font-label-sm px-3 py-1 rounded-bl-lg font-bold z-10">
+                    DISC 20%
+                </div>
+<div class="w-full h-48 rounded-lg mb-4 overflow-hidden relative bg-surface-container-lowest flex items-center justify-center p-4">
+<div class="absolute inset-0 bg-gradient-to-t from-black/80 to-transparent z-0"></div>
+<img class="w-full h-full object-contain relative z-10 group-hover:scale-110 transition-transform duration-500" data-alt="A mystical vial containing swirling, glowing red liquid (Elixir) resting on a dark obsidian pedestal. Deep shadows surround the vial, with the only light coming from the emissive potion itself. The aesthetic implies a rare, powerful consumable in a dark fantasy setting." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBsA2jgRpW6TUDXRy_UqzLnJeZJQvL-7HPR3gFX0qfsmSdpxoeB-Mrpv2gw9Swc_8w2rUFno_hY5OfPdr-MV1wb0sogW90xMb7NlSbLIB8GwV-KYPOJQYccM3KVDUms0DzQj8QdxLRr68CqYYlnziKK1-mrnRNjtgHX95z2RvU9qbYxXkhFQ4ZUh3xPmHkSM7HP_B4TC_LeRnLD1iSF-3QRttvnL86v07liiALfsZVOH2gxllpEGYU"/>
+</div>
+<div class="flex-1 flex flex-col">
+<h3 class="font-headline-md text-on-surface mb-1 group-hover:text-primary transition-colors">Ramuan Nisnas</h3>
+<p class="font-body-md text-on-surface-variant text-sm mb-3 line-clamp-2">Cairan penawar beracun yang disuling dari hutan fraksi Nisnas. Tahan terhadap racun level 2.</p>
+<div class="bg-surface-container-lowest/50 rounded p-2 mb-4 flex items-center gap-2 border border-glass-stroke">
+<span class="material-symbols-outlined text-faction-nisnas text-sm">science</span>
+<span class="font-label-sm text-faction-nisnas text-xs">Buff: Poison Resist (Lvl 2)</span>
+</div>
+<div class="mt-auto pt-4 border-t border-glass-stroke flex items-center justify-between">
+<div class="flex flex-col">
+<span class="font-label-sm text-on-surface-variant text-[10px] uppercase">Harga</span>
+<div class="flex items-center gap-2">
+<span class="font-body-md text-on-surface-variant line-through text-xs">3.000</span>
+<span class="font-headline-md text-primary text-lg">2.400 Perak</span>
+</div>
+</div>
+<button class="btn-treasure px-5 py-2 rounded-lg font-label-sm uppercase font-bold flex items-center gap-2">
+<span class="material-symbols-outlined text-[18px]">shopping_cart</span>
+                            Beli
+                        </button>
+</div>
+</div>
+</article>
+</div>
+</main>
+<!-- BottomNavBar (Visible only on Mobile) -->
+<nav class="md:hidden fixed bottom-0 left-0 w-full z-50 flex justify-around items-center px-4 pb-6 pt-3 bg-surface-container-lowest/80 backdrop-blur-2xl rounded-t-xl shadow-[0_-5px_20px_rgba(0,0,0,0.6)]">
+<a class="flex flex-col items-center justify-center text-on-surface-variant opacity-70 hover:opacity-100 transition-opacity active:scale-90 transition-all duration-150" href="#">
+<span class="material-symbols-outlined mb-1">account_balance_wallet</span>
+<span class="font-label-sm text-label-sm">Vault</span>
+</a>
+<a class="flex flex-col items-center justify-center text-primary filter drop-shadow-[0_0_8px_rgba(255,215,0,0.6)] hover:opacity-100 transition-opacity active:scale-90 transition-all duration-150" href="#">
+<span class="material-symbols-outlined mb-1" style="font-variation-settings: 'FILL' 1;">storefront</span>
+<span class="font-label-sm text-label-sm">Market</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant opacity-70 hover:opacity-100 transition-opacity active:scale-90 transition-all duration-150" href="#">
+<span class="material-symbols-outlined mb-1">military_tech</span>
+<span class="font-label-sm text-label-sm">Quests</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant opacity-70 hover:opacity-100 transition-opacity active:scale-90 transition-all duration-150" href="#">
+<span class="material-symbols-outlined mb-1">groups</span>
+<span class="font-label-sm text-label-sm">Guild</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant opacity-70 hover:opacity-100 transition-opacity active:scale-90 transition-all duration-150" href="#">
+<span class="material-symbols-outlined mb-1">person</span>
+<span class="font-label-sm text-label-sm">Profile</span>
+</a>
+</nav>
+</body></html>

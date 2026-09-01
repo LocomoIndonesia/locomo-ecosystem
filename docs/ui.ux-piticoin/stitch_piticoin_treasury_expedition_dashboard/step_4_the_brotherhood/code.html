@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>The Brotherhood - Scanner</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&amp;family=Inter:wght@400;600&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "tertiary": "#f1f6ff",
+                        "on-secondary": "#003919",
+                        "inverse-surface": "#e5e2e1",
+                        "surface-tint": "#e9c400",
+                        "secondary-container": "#25a55a",
+                        "faction-nisnas": "#50C878",
+                        "on-secondary-fixed": "#00210c",
+                        "error": "#ffb4ab",
+                        "gold-glow": "rgba(255, 215, 0, 0.4)",
+                        "on-secondary-fixed-variant": "#005227",
+                        "error-container": "#93000a",
+                        "on-primary-fixed": "#221b00",
+                        "on-error": "#690005",
+                        "obsidian-surface": "#1A1A1A",
+                        "on-primary": "#3a3000",
+                        "secondary-fixed-dim": "#66dd8b",
+                        "secondary": "#66dd8b",
+                        "inverse-primary": "#705d00",
+                        "on-primary-container": "#705e00",
+                        "surface-bright": "#393939",
+                        "surface-container-low": "#1c1b1b",
+                        "primary": "#fff6df",
+                        "glass-stroke": "rgba(255, 255, 255, 0.1)",
+                        "on-tertiary-fixed": "#001d32",
+                        "on-surface-variant": "#d0c6ab",
+                        "outline": "#999077",
+                        "surface-variant": "#353534",
+                        "on-error-container": "#ffdad6",
+                        "on-tertiary": "#003353",
+                        "on-surface": "#e5e2e1",
+                        "surface-dim": "#131313",
+                        "surface-container-lowest": "#0e0e0e",
+                        "primary-container": "#ffd700",
+                        "faction-human": "#4682B4",
+                        "primary-fixed-dim": "#e9c400",
+                        "faction-android": "#DC143C",
+                        "outline-variant": "#4d4732",
+                        "tertiary-fixed-dim": "#96ccff",
+                        "on-background": "#e5e2e1",
+                        "primary-fixed": "#ffe16d",
+                        "tertiary-fixed": "#cee5ff",
+                        "surface": "#131313",
+                        "on-secondary-container": "#003115",
+                        "secondary-fixed": "#83fba5",
+                        "background": "#131313",
+                        "on-tertiary-fixed-variant": "#004a75",
+                        "surface-container-high": "#2a2a2a",
+                        "surface-container": "#201f1f",
+                        "inverse-on-surface": "#313030",
+                        "surface-container-highest": "#353534",
+                        "tertiary-container": "#bdddff",
+                        "on-tertiary-container": "#206393",
+                        "on-primary-fixed-variant": "#544600"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.125rem",
+                        "lg": "0.25rem",
+                        "xl": "0.5rem",
+                        "full": "0.75rem"
+                    },
+                    "spacing": {
+                        "margin-mobile": "16px",
+                        "gutter": "24px",
+                        "stack-md": "16px",
+                        "stack-sm": "8px",
+                        "stack-lg": "32px",
+                        "margin-desktop": "48px",
+                        "container-max": "1200px"
+                    },
+                    "fontFamily": {
+                        "headline-lg": ["Playfair Display"],
+                        "body-md": ["Inter"],
+                        "body-lg": ["Inter"],
+                        "headline-lg-mobile": ["Playfair Display"],
+                        "label-sm": ["Inter"],
+                        "headline-md": ["Playfair Display"],
+                        "display-hero": ["Playfair Display"]
+                    },
+                    "fontSize": {
+                        "headline-lg": ["32px", { "lineHeight": "1.3", "fontWeight": "600" }],
+                        "body-md": ["16px", { "lineHeight": "1.6", "fontWeight": "400" }],
+                        "body-lg": ["18px", { "lineHeight": "1.6", "fontWeight": "400" }],
+                        "headline-lg-mobile": ["28px", { "lineHeight": "1.2", "fontWeight": "700" }],
+                        "label-sm": ["12px", { "lineHeight": "1", "letterSpacing": "0.05em", "fontWeight": "600" }],
+                        "headline-md": ["24px", { "lineHeight": "1.4", "fontWeight": "600" }],
+                        "display-hero": ["48px", { "lineHeight": "1.2", "letterSpacing": "-0.02em", "fontWeight": "700" }]
+                    }
+                }
+            }
+        }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        
+        /* Holographic Grid Background */
+        .hologram-grid {
+            background-size: 50px 50px;
+            background-image: 
+                linear-gradient(to right, rgba(255, 255, 255, 0.03) 1px, transparent 1px),
+                linear-gradient(to bottom, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
+            position: absolute;
+            inset: 0;
+            z-index: 0;
+            pointer-events: none;
+        }
+
+        /* Scanning Light Line */
+        .scanner-beam {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 4px;
+            background: linear-gradient(90deg, transparent, rgba(80, 200, 120, 0.8), transparent);
+            box-shadow: 0 0 20px rgba(80, 200, 120, 0.6);
+            animation: scan 4s ease-in-out infinite;
+            z-index: 10;
+            pointer-events: none;
+        }
+
+        @keyframes scan {
+            0% { transform: translateY(-20vh); opacity: 0; }
+            15% { opacity: 1; }
+            85% { opacity: 1; }
+            100% { transform: translateY(120vh); opacity: 0; }
+        }
+
+        /* Ambient Glow */
+        .ambient-glow {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 80vw;
+            height: 80vw;
+            max-width: 600px;
+            max-height: 600px;
+            background: radial-gradient(circle, rgba(80, 200, 120, 0.08) 0%, transparent 70%);
+            z-index: 0;
+            pointer-events: none;
+        }
+
+        /* Valid Input Glow Animation */
+        @keyframes pulse-glow {
+            0% { box-shadow: 0 0 15px rgba(80, 200, 120, 0.3), inset 0 0 10px rgba(80, 200, 120, 0.1); }
+            50% { box-shadow: 0 0 25px rgba(80, 200, 120, 0.6), inset 0 0 15px rgba(80, 200, 120, 0.2); }
+            100% { box-shadow: 0 0 15px rgba(80, 200, 120, 0.3), inset 0 0 10px rgba(80, 200, 120, 0.1); }
+        }
+        
+        .valid-input-glow {
+            animation: pulse-glow 2s infinite;
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background text-on-background font-body-md text-body-md min-h-screen overflow-hidden relative flex flex-col">
+<!-- Environmental Effects -->
+<div class="hologram-grid"></div>
+<div class="scanner-beam"></div>
+<div class="ambient-glow"></div>
+<!-- TopAppBar (From JSON) -->
+<header class="relative z-50 flex justify-between items-center w-full px-margin-mobile pt-stack-md h-16 bg-transparent">
+<button class="text-primary-container hover:text-primary-fixed-dim transition-colors flex items-center justify-center p-2 rounded-full hover:bg-white/5">
+<span class="material-symbols-outlined text-2xl" data-icon="menu">menu</span>
+</button>
+<div class="font-headline-lg-mobile text-headline-lg-mobile font-bold text-primary-container tracking-widest text-center">
+            PITICOIN.ID
+        </div>
+<button class="text-primary-container hover:text-primary-fixed-dim transition-colors flex items-center justify-center">
+<span class="material-symbols-outlined text-3xl" data-icon="account_circle">account_circle</span>
+</button>
+</header>
+<!-- Main Content Area: Center Focused Scanner -->
+<main class="flex-1 relative z-10 flex flex-col items-center justify-center px-margin-mobile md:px-margin-desktop w-full max-w-container-max mx-auto">
+<!-- Scanner Interface Wrapper -->
+<div class="relative w-full max-w-md group">
+<!-- Target Reticle Decoration (Corners) -->
+<div class="absolute -inset-4 border-2 border-transparent border-t-faction-nisnas/40 border-l-faction-nisnas/40 rounded-tl-xl w-8 h-8 pointer-events-none transition-colors duration-500"></div>
+<div class="absolute -inset-4 border-2 border-transparent border-t-faction-nisnas/40 border-r-faction-nisnas/40 rounded-tr-xl w-8 h-8 right-0 left-auto pointer-events-none transition-colors duration-500"></div>
+<div class="absolute -inset-4 border-2 border-transparent border-b-faction-nisnas/40 border-l-faction-nisnas/40 rounded-bl-xl w-8 h-8 bottom-0 top-auto pointer-events-none transition-colors duration-500"></div>
+<div class="absolute -inset-4 border-2 border-transparent border-b-faction-nisnas/40 border-r-faction-nisnas/40 rounded-br-xl w-8 h-8 bottom-0 top-auto right-0 left-auto pointer-events-none transition-colors duration-500"></div>
+<!-- Glass Panel -->
+<div class="bg-obsidian-surface/80 backdrop-blur-2xl border border-faction-nisnas/30 rounded-xl p-8 shadow-[0_8px_32px_rgba(0,0,0,0.5)] flex flex-col items-center text-center relative overflow-hidden">
+<!-- Internal Scan Line Effect -->
+<div class="absolute inset-0 bg-gradient-to-b from-transparent via-faction-nisnas/5 to-transparent h-[200%] w-full -translate-y-full animate-[scan_3s_linear_infinite] pointer-events-none"></div>
+<!-- Header -->
+<div class="mb-8 relative z-10">
+<span class="material-symbols-outlined text-5xl text-faction-nisnas mb-2 block" data-icon="radar">radar</span>
+<h1 class="font-headline-md text-headline-md text-on-background">The Brotherhood</h1>
+<p class="font-body-md text-body-md text-on-surface-variant mt-2">Identifikasi Jaringan Karavan</p>
+</div>
+<!-- Validated Input Field -->
+<div class="w-full relative mb-4 z-10">
+<input class="w-full bg-surface-dim border-2 border-faction-nisnas text-faction-nisnas font-headline-md text-headline-md text-center py-4 rounded-lg focus:outline-none valid-input-glow uppercase tracking-widest placeholder:text-on-surface-variant/50" placeholder="Masukkan Kode Panji Karavan Anda" readonly="" type="text" value="KRVN-ALPH-77X"/>
+<div class="absolute right-4 top-1/2 -translate-y-1/2 flex items-center justify-center bg-faction-nisnas/20 rounded-full p-1">
+<span class="material-symbols-outlined text-faction-nisnas" data-icon="check_circle">check_circle</span>
+</div>
+</div>
+<!-- Validation Message -->
+<div class="flex items-center gap-2 mb-8 text-faction-nisnas bg-faction-nisnas/10 px-4 py-2 rounded-full border border-faction-nisnas/20 z-10">
+<span class="material-symbols-outlined text-lg" data-icon="verified">verified</span>
+<span class="font-label-sm text-label-sm tracking-wide">Panji Ditemukan: Karavan Orion</span>
+</div>
+<!-- Primary Action Button -->
+<button class="w-full bg-primary-container text-on-primary-container font-label-sm text-label-sm py-4 rounded-xl shadow-[0_0_15px_rgba(255,215,0,0.4)] hover:bg-primary-fixed hover:scale-[1.02] active:scale-95 transition-all duration-300 z-10 flex items-center justify-center gap-2">
+<span class="material-symbols-outlined" data-icon="login">login</span>
+                    GABUNG KARAVAN
+                </button>
+</div>
+</div>
+<!-- Contextual Help Text -->
+<p class="font-body-md text-body-md text-on-surface-variant mt-8 text-center max-w-sm opacity-70">
+            Pastikan kode panji yang Anda masukkan benar. Bergabung dengan karavan tidak dapat dibatalkan selama siklus saat ini.
+        </p>
+</main>
+</body></html>

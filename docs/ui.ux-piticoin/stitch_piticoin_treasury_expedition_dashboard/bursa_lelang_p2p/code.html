@@ -1,0 +1,359 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>PitiCoin.id - Bursa Lelang</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&amp;family=Inter:wght@400;600&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "on-error-container": "#ffdad6",
+                        "surface-bright": "#393939",
+                        "on-primary-container": "#705e00",
+                        "surface-container-highest": "#353534",
+                        "outline-variant": "#4d4732",
+                        "faction-nisnas": "#50C878",
+                        "surface-container-high": "#2a2a2a",
+                        "on-error": "#690005",
+                        "primary": "#fff6df",
+                        "tertiary": "#f1f6ff",
+                        "on-primary-fixed-variant": "#544600",
+                        "on-tertiary-fixed": "#001d32",
+                        "primary-fixed": "#ffe16d",
+                        "faction-android": "#DC143C",
+                        "primary-container": "#ffd700",
+                        "on-tertiary": "#003353",
+                        "inverse-surface": "#e5e2e1",
+                        "error": "#ffb4ab",
+                        "surface-dim": "#131313",
+                        "on-background": "#e5e2e1",
+                        "on-tertiary-fixed-variant": "#004a75",
+                        "surface-container": "#201f1f",
+                        "secondary-fixed-dim": "#66dd8b",
+                        "error-container": "#93000a",
+                        "secondary-fixed": "#83fba5",
+                        "on-tertiary-container": "#206393",
+                        "on-secondary": "#003919",
+                        "inverse-primary": "#705d00",
+                        "outline": "#999077",
+                        "inverse-on-surface": "#313030",
+                        "glass-stroke": "rgba(255, 255, 255, 0.1)",
+                        "tertiary-fixed-dim": "#96ccff",
+                        "primary-fixed-dim": "#e9c400",
+                        "surface-container-low": "#1c1b1b",
+                        "surface-container-lowest": "#0e0e0e",
+                        "on-primary": "#3a3000",
+                        "tertiary-container": "#bdddff",
+                        "surface-tint": "#e9c400",
+                        "on-surface": "#e5e2e1",
+                        "secondary": "#66dd8b",
+                        "obsidian-surface": "#1A1A1A",
+                        "on-primary-fixed": "#221b00",
+                        "tertiary-fixed": "#cee5ff",
+                        "gold-glow": "rgba(255, 215, 0, 0.4)",
+                        "faction-human": "#4682B4",
+                        "on-secondary-container": "#003115",
+                        "on-surface-variant": "#d0c6ab",
+                        "on-secondary-fixed": "#00210c",
+                        "surface-variant": "#353534",
+                        "on-secondary-fixed-variant": "#005227",
+                        "surface": "#131313",
+                        "secondary-container": "#25a55a",
+                        "background": "#131313",
+                        "mystic-purple": "#4B0082" // Added mystic purple to match prompt
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.125rem",
+                        "lg": "0.25rem",
+                        "xl": "0.5rem",
+                        "full": "0.75rem"
+                    },
+                    "spacing": {
+                        "margin-desktop": "48px",
+                        "stack-sm": "8px",
+                        "margin-mobile": "16px",
+                        "stack-lg": "32px",
+                        "gutter": "24px",
+                        "container-max": "1200px",
+                        "stack-md": "16px"
+                    },
+                    "fontFamily": {
+                        "headline-md": ["Playfair Display"],
+                        "display-hero": ["Playfair Display"],
+                        "headline-lg-mobile": ["Playfair Display"],
+                        "body-lg": ["Inter"],
+                        "label-sm": ["Inter"],
+                        "headline-lg": ["Playfair Display"],
+                        "body-md": ["Inter"]
+                    },
+                    "fontSize": {
+                        "headline-md": ["24px", { "lineHeight": "1.4", "fontWeight": "600" }],
+                        "display-hero": ["48px", { "lineHeight": "1.2", "letterSpacing": "-0.02em", "fontWeight": "700" }],
+                        "headline-lg-mobile": ["28px", { "lineHeight": "1.2", "fontWeight": "700" }],
+                        "body-lg": ["18px", { "lineHeight": "1.6", "fontWeight": "400" }],
+                        "label-sm": ["12px", { "lineHeight": "1", "letterSpacing": "0.05em", "fontWeight": "600" }],
+                        "headline-lg": ["32px", { "lineHeight": "1.3", "fontWeight": "600" }],
+                        "body-md": ["16px", { "lineHeight": "1.6", "fontWeight": "400" }]
+                    }
+                }
+            }
+        }
+    </script>
+<style>
+        .gold-bloom { box-shadow: 0 0 15px rgba(255, 215, 0, 0.3); }
+        .glass-panel {
+            background: rgba(26, 26, 26, 0.6);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border-top: 1px solid rgba(255,255,255,0.2);
+            border-bottom: 1px solid transparent;
+            border-left: 1px solid rgba(255,255,255,0.1);
+            border-right: 1px solid rgba(255,255,255,0.1);
+        }
+        .neumorphic-inset {
+            box-shadow: inset 2px 2px 5px rgba(0,0,0,0.5), inset -2px -2px 5px rgba(255,255,255,0.05);
+        }
+        /* Custom animated gradient background */
+        .bg-mystic-gradient {
+            background: radial-gradient(circle at top right, #4B0082 0%, #121212 50%);
+        }
+        /* Marquee Animation */
+        @keyframes marquee {
+            0% { transform: translateX(100%); }
+            100% { transform: translateX(-100%); }
+        }
+        .animate-marquee {
+            animation: marquee 15s linear infinite;
+        }
+        /* Flashing Animation */
+        @keyframes flash {
+            0%, 100% { opacity: 1; color: #ffb4ab; }
+            50% { opacity: 0.5; color: #DC143C; }
+        }
+        .animate-flash {
+            animation: flash 1s ease-in-out infinite;
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-surface text-on-surface bg-mystic-gradient min-h-screen pb-24 md:pb-0 overflow-x-hidden font-body-md relative">
+<!-- Dust Particles Overlay -->
+<div class="fixed inset-0 pointer-events-none z-0" style="background-image: radial-gradient(rgba(255, 215, 0, 0.1) 1px, transparent 1px); background-size: 20px 20px; opacity: 0.3;"></div>
+<!-- TopAppBar -->
+<header class="fixed top-0 w-full z-50 flex items-center px-margin-mobile md:px-margin-desktop h-20 bg-surface/60 backdrop-blur-xl border-b border-glass-stroke shadow-[0_4_15px_rgba(0,0,0,0.5)]">
+<div class="flex items-center justify-between w-full max-w-container-max mx-auto">
+<div class="flex items-center gap-4">
+<div class="w-10 h-10 rounded-full overflow-hidden border-2 border-primary-container shadow-[0_0_10px_rgba(255,215,0,0.4)]">
+<img class="w-full h-full object-cover" data-alt="A highly detailed close-up portrait avatar of an elite MMORPG adventurer character. The style is dark fantasy with cinematic lighting, glowing gold accents on obsidian armor, reflecting a high-stakes competitive environment." src="https://lh3.googleusercontent.com/aida-public/AB6AXuCyyqL8KV1lpPYFrcKOcyzFAyVcqcTdNAOsjVMGa8yBry6FVuBGZMZxdcL091o-beZphAZiRCxOymyLPdES8nJ25cVnO2j3LDADTjulYOymSgqpToc003CDHRA1iELfyt51WKSt-SimZRp6n5GvpyXqPzBukdAKigKNm3k9WfO8Q7jGsU3Og1hpzOwjZvFGzf6wP4hIzeXVwJtFTRdrdbbJwWE9J46mM-HqX3nkF3TyhvmagkRZOvw"/>
+</div>
+<h1 class="font-display-hero text-headline-md text-primary drop-shadow-[0_0_10px_rgba(255,215,0,0.4)]">PitiCoin.id</h1>
+</div>
+<button aria-label="Settings" class="text-on-surface-variant hover:text-primary transition-colors scale-95 transition-transform">
+<span class="material-symbols-outlined" style="font-size: 28px;">settings</span>
+</button>
+</div>
+</header>
+<!-- Main Content Canvas -->
+<main class="pt-24 px-margin-mobile md:px-margin-desktop max-w-container-max mx-auto relative z-10 flex flex-col md:flex-row gap-gutter">
+<!-- Desktop SideNav (Hidden on Mobile) -->
+<nav class="hidden md:flex flex-col w-64 shrink-0 gap-2 sticky top-28 self-start glass-panel rounded-xl p-4">
+<h2 class="font-label-sm text-label-sm text-on-surface-variant uppercase mb-4 px-2 tracking-widest">Navigation</h2>
+<a class="flex items-center gap-3 px-4 py-3 rounded-lg text-on-surface-variant hover:text-primary hover:bg-white/5 transition-colors group" href="#">
+<span class="material-symbols-outlined group-hover:scale-110 transition-transform">account_balance_wallet</span>
+<span class="font-body-md text-body-md">Vault</span>
+</a>
+<!-- Active Tab: Market / Bursa Lelang -->
+<a class="flex items-center gap-3 px-4 py-3 rounded-lg bg-primary-container/20 text-primary border-l-4 border-primary filter drop-shadow-[0_0_8px_rgba(255,215,0,0.6)] group" href="#">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">storefront</span>
+<span class="font-body-md text-body-md font-bold">Market</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 rounded-lg text-on-surface-variant hover:text-primary hover:bg-white/5 transition-colors group" href="#">
+<span class="material-symbols-outlined group-hover:scale-110 transition-transform">military_tech</span>
+<span class="font-body-md text-body-md">Quests</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 rounded-lg text-on-surface-variant hover:text-primary hover:bg-white/5 transition-colors group" href="#">
+<span class="material-symbols-outlined group-hover:scale-110 transition-transform">groups</span>
+<span class="font-body-md text-body-md">Guild</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 rounded-lg text-on-surface-variant hover:text-primary hover:bg-white/5 transition-colors group" href="#">
+<span class="material-symbols-outlined group-hover:scale-110 transition-transform">person</span>
+<span class="font-body-md text-body-md">Profile</span>
+</a>
+</nav>
+<!-- Center Stage -->
+<div class="flex-1 flex flex-col gap-stack-md w-full min-w-0">
+<!-- Sticky Sub-Header -->
+<div class="sticky top-20 z-40 pt-4 pb-2 bg-surface/80 backdrop-blur-md -mx-margin-mobile px-margin-mobile md:mx-0 md:px-0">
+<div class="glass-panel rounded-xl p-4 flex flex-col md:flex-row justify-between items-center gap-4 relative overflow-hidden">
+<!-- Mystic glow accent -->
+<div class="absolute -right-10 -top-10 w-32 h-32 bg-mystic-purple rounded-full blur-[50px] opacity-30"></div>
+<div class="flex items-center gap-4 z-10 w-full md:w-auto">
+<div class="neumorphic-inset bg-surface-container p-3 rounded-lg flex items-center gap-2 border border-glass-stroke">
+<span class="material-symbols-outlined text-primary-container" style="font-variation-settings: 'FILL' 1;">monetization_on</span>
+<div class="flex flex-col">
+<span class="font-label-sm text-label-sm text-on-surface-variant">Saldo Dompet</span>
+<span class="font-headline-md text-headline-md text-primary font-bold tracking-tight">1,250 Emas</span>
+</div>
+</div>
+</div>
+<!-- Marquee Banner -->
+<div class="flex-1 w-full overflow-hidden border border-faction-android/30 bg-faction-android/10 rounded-lg p-2 flex items-center z-10 whitespace-nowrap">
+<span class="material-symbols-outlined text-faction-android mr-2 text-sm">warning</span>
+<div class="relative w-full overflow-hidden h-6">
+<p class="absolute font-label-sm text-label-sm text-error animate-marquee w-full">
+                                PAJAK LELANG SAAT INI: 5% — TRANSAKSI DI ATAS 100 EMAS DIKENAKAN BIAYA TAMBAHAN. PERDAGANGAN BERISIKO TINGGI.
+                            </p>
+</div>
+</div>
+</div>
+</div>
+<!-- Page Title -->
+<div class="flex items-center justify-between mt-stack-sm mb-stack-sm">
+<div>
+<h2 class="font-headline-lg-mobile md:font-headline-lg text-headline-lg-mobile md:text-headline-lg text-primary mb-1">Bursa Lelang</h2>
+<p class="font-body-md text-body-md text-on-surface-variant">Rebut harta karun sebelum waktu habis.</p>
+</div>
+<div class="flex gap-2">
+<button class="p-2 rounded-lg border border-glass-stroke text-on-surface-variant hover:text-primary hover:border-primary transition-all glass-panel">
+<span class="material-symbols-outlined">filter_list</span>
+</button>
+<button class="p-2 rounded-lg border border-glass-stroke text-on-surface-variant hover:text-primary hover:border-primary transition-all glass-panel">
+<span class="material-symbols-outlined">sort</span>
+</button>
+</div>
+</div>
+<!-- Auction List View -->
+<div class="flex flex-col gap-stack-md">
+<!-- Auction Item 1 -->
+<article class="glass-panel rounded-xl overflow-hidden group hover:border-primary-container/50 transition-colors duration-300 relative">
+<!-- Glow effect on hover -->
+<div class="absolute inset-0 bg-primary-container/0 group-hover:bg-primary-container/5 transition-colors duration-300 pointer-events-none"></div>
+<div class="flex flex-col md:flex-row">
+<!-- Thumbnail -->
+<div class="w-full md:w-48 h-48 md:h-auto shrink-0 relative bg-obsidian-surface border-b md:border-b-0 md:border-r border-glass-stroke">
+<img class="w-full h-full object-cover p-2 rounded-lg drop-shadow-[0_0_15px_rgba(255,69,0,0.5)]" data-alt="A glowing, mythical phoenix egg resting on a dark obsidian pedestal. The egg is covered in intricate, molten gold veins that pulse with fiery energy. Dark fantasy MMORPG style, high contrast, cinematic lighting, deep shadows." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDQioKOxOpAQK31Nqy8r0bTXtjS4LiBfkGZOLeoFND6ZyT1GamAppIwZtNa1KXLixUm639_C_VDuxEgE1jJgrjR7L3PO9qAJhP_5aNHjPGMU5oGI3hI841j9dwU_8LOG9NwdCTQ2vKRpRJCNj7SWEU6CyGMZuBv-z2nfodYwGi0sZZQMzQk4EHwVDcdAr0leuknCJ91faW1jtP5fkpnLroj077qAXZdSrm4uabxokxPnRZSZy8TmNo"/>
+<div class="absolute top-2 left-2 bg-faction-android text-on-error px-2 py-1 rounded font-label-sm text-[10px] uppercase font-bold tracking-wider shadow-lg backdrop-blur-md bg-opacity-80">Legendary</div>
+</div>
+<!-- Details -->
+<div class="p-4 md:p-6 flex-1 flex flex-col justify-between z-10">
+<div>
+<div class="flex justify-between items-start mb-2">
+<h3 class="font-headline-md text-headline-md text-primary group-hover:text-primary-container transition-colors">Telur Nisnas Phoenix</h3>
+<div class="flex items-center gap-1 bg-surface-container-highest px-3 py-1 rounded-full border border-error-container">
+<span class="material-symbols-outlined text-[16px] text-error animate-flash">timer</span>
+<span class="font-label-sm text-label-sm text-error animate-flash font-mono">00:59:00</span>
+</div>
+</div>
+<p class="font-label-sm text-label-sm text-on-surface-variant mb-4 flex items-center gap-2">
+<span class="material-symbols-outlined text-[14px]">person</span>
+                                    Dijual oleh: <span class="text-secondary font-bold">Zul Penambang Cilik - Lv. 8</span>
+</p>
+<!-- Price Info -->
+<div class="bg-surface-container-lowest/50 p-3 rounded-lg border border-glass-stroke mb-4 flex items-center justify-between">
+<div>
+<p class="font-label-sm text-label-sm text-on-surface-variant mb-1 uppercase tracking-wider">Bid Tertinggi</p>
+<p class="font-headline-md text-headline-md text-primary font-bold">45 Emas</p>
+</div>
+<div class="text-right">
+<p class="font-label-sm text-label-sm text-on-surface-variant mb-1 uppercase tracking-wider">Total Bids</p>
+<p class="font-body-md text-body-md text-primary-fixed-dim">12</p>
+</div>
+</div>
+</div>
+<!-- Actions -->
+<div class="flex flex-col sm:flex-row gap-3 mt-auto">
+<button class="flex-1 py-3 px-4 rounded-lg bg-surface-variant text-on-surface font-label-sm text-label-sm hover:bg-surface-container-highest transition-colors border border-outline-variant hover:border-outline flex items-center justify-center gap-2 group/btn">
+<span class="material-symbols-outlined text-[18px] group-hover/btn:-translate-y-0.5 transition-transform">gavel</span>
+                                    BID (+100 Perak)
+                                </button>
+<button class="flex-1 py-3 px-4 rounded-lg bg-primary-container text-on-primary-container font-label-sm text-label-sm font-bold uppercase tracking-wide hover:bg-primary transition-colors border border-primary-fixed gold-bloom flex items-center justify-center gap-2 group/btn">
+<span class="material-symbols-outlined text-[18px] group-hover/btn:scale-110 transition-transform">shopping_cart</span>
+                                    BELI LANGSUNG (60 Emas)
+                                </button>
+</div>
+</div>
+</div>
+</article>
+<!-- Auction Item 2 (Placeholder to show list nature) -->
+<article class="glass-panel rounded-xl overflow-hidden group hover:border-primary-container/50 transition-colors duration-300 relative opacity-80 hover:opacity-100">
+<div class="flex flex-col md:flex-row">
+<div class="w-full md:w-48 h-48 md:h-auto shrink-0 relative bg-obsidian-surface border-b md:border-b-0 md:border-r border-glass-stroke">
+<img class="w-full h-full object-cover p-4 drop-shadow-[0_0_10px_rgba(70,130,180,0.5)]" data-alt="A glowing blue crystalline sword hovering above a dark obsidian altar. The blade emits a faint frost aura, illuminated by dramatic blue rim lighting in a moody, dark fantasy cavern environment." src="https://lh3.googleusercontent.com/aida-public/AB6AXuCtYX69R0CkbHD6pAYTZCm5U6fcBDxlMwhLjzjlsBWRELmN8aerh_9wW5ht7bOBcieNH9N1Z242lnrMoBu2yo9Z6xcIEocXtY1yaciYCNyp07SIX6kb_BUTa46k7OkZqADLd0PTy2dZIT0nl3-JJzDoAi3BXmKF5T9kQ6IfItaavrjT9KpYgvkUunEado4BRzd8XQl2ofOKUzauT2AXB7b9cO3j1Gi0vmwm-Kt9GgEfGsnZQ7XBHS8"/>
+<div class="absolute top-2 left-2 bg-faction-human text-white px-2 py-1 rounded font-label-sm text-[10px] uppercase font-bold tracking-wider shadow-lg backdrop-blur-md bg-opacity-80">Epic</div>
+</div>
+<div class="p-4 md:p-6 flex-1 flex flex-col justify-between z-10">
+<div>
+<div class="flex justify-between items-start mb-2">
+<h3 class="font-headline-md text-headline-md text-primary group-hover:text-primary-container transition-colors">Pedang Es Abadi</h3>
+<div class="flex items-center gap-1 bg-surface-container-highest px-3 py-1 rounded-full border border-glass-stroke">
+<span class="material-symbols-outlined text-[16px] text-on-surface-variant">timer</span>
+<span class="font-label-sm text-label-sm text-on-surface-variant font-mono">03:15:22</span>
+</div>
+</div>
+<p class="font-label-sm text-label-sm text-on-surface-variant mb-4 flex items-center gap-2">
+<span class="material-symbols-outlined text-[14px]">person</span>
+                                    Dijual oleh: <span class="text-secondary font-bold">Ksatria Biru - Lv. 12</span>
+</p>
+<div class="bg-surface-container-lowest/50 p-3 rounded-lg border border-glass-stroke mb-4 flex items-center justify-between">
+<div>
+<p class="font-label-sm text-label-sm text-on-surface-variant mb-1 uppercase tracking-wider">Bid Tertinggi</p>
+<p class="font-headline-md text-headline-md text-primary font-bold">12 Emas</p>
+</div>
+<div class="text-right">
+<p class="font-label-sm text-label-sm text-on-surface-variant mb-1 uppercase tracking-wider">Total Bids</p>
+<p class="font-body-md text-body-md text-primary-fixed-dim">3</p>
+</div>
+</div>
+</div>
+<div class="flex flex-col sm:flex-row gap-3 mt-auto">
+<button class="flex-1 py-3 px-4 rounded-lg bg-surface-variant text-on-surface font-label-sm text-label-sm hover:bg-surface-container-highest transition-colors border border-outline-variant hover:border-outline flex items-center justify-center gap-2">
+<span class="material-symbols-outlined text-[18px]">gavel</span>
+                                    BID (+50 Perak)
+                                </button>
+<button class="flex-1 py-3 px-4 rounded-lg bg-primary-container/20 text-primary-container font-label-sm text-label-sm font-bold uppercase tracking-wide hover:bg-primary-container/30 transition-colors border border-primary-container/50 flex items-center justify-center gap-2">
+<span class="material-symbols-outlined text-[18px]">shopping_cart</span>
+                                    BELI LANGSUNG (25 Emas)
+                                </button>
+</div>
+</div>
+</div>
+</article>
+</div>
+</div>
+</main>
+<!-- BottomNavBar (Mobile Only) -->
+<nav class="fixed bottom-0 left-0 w-full z-50 flex justify-around items-center px-4 pb-6 pt-3 bg-surface-container-lowest/80 backdrop-blur-2xl border-t border-glass-stroke shadow-[0_-5px_20px_rgba(0,0,0,0.6)] md:hidden rounded-t-xl">
+<a class="flex flex-col items-center justify-center text-on-surface-variant opacity-70 hover:opacity-100 transition-opacity active:scale-90 duration-150 group" href="#">
+<span class="material-symbols-outlined text-[24px] mb-1 group-hover:text-primary transition-colors">account_balance_wallet</span>
+<span class="font-label-sm text-[10px] group-hover:text-primary transition-colors">Vault</span>
+</a>
+<!-- Active Tab -->
+<a class="flex flex-col items-center justify-center text-primary filter drop-shadow-[0_0_8px_rgba(255,215,0,0.6)] active:scale-90 transition-all duration-150" href="#">
+<span class="material-symbols-outlined text-[24px] mb-1" style="font-variation-settings: 'FILL' 1;">storefront</span>
+<span class="font-label-sm text-[10px] font-bold">Market</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant opacity-70 hover:opacity-100 transition-opacity active:scale-90 duration-150 group" href="#">
+<span class="material-symbols-outlined text-[24px] mb-1 group-hover:text-primary transition-colors">military_tech</span>
+<span class="font-label-sm text-[10px] group-hover:text-primary transition-colors">Quests</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant opacity-70 hover:opacity-100 transition-opacity active:scale-90 duration-150 group" href="#">
+<span class="material-symbols-outlined text-[24px] mb-1 group-hover:text-primary transition-colors">groups</span>
+<span class="font-label-sm text-[10px] group-hover:text-primary transition-colors">Guild</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant opacity-70 hover:opacity-100 transition-opacity active:scale-90 duration-150 group" href="#">
+<span class="material-symbols-outlined text-[24px] mb-1 group-hover:text-primary transition-colors">person</span>
+<span class="font-label-sm text-[10px] group-hover:text-primary transition-colors">Profile</span>
+</a>
+</nav>
+</body></html>

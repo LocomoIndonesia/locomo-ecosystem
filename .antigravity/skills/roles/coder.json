@@ -1,0 +1,50 @@
+{
+    "role_name": "Coder",
+    "core_skills": [
+        "code_generation",
+        "view_generation",
+        "ui_binding",
+        "handler_wiring",
+        "client_scripting"
+    ],
+    "meta_skills": [
+        "pattern_matching",
+        "dependency_tracing",
+        "change_impact_analysis"
+    ],
+    "tools": [
+        "graphify_update",
+        "build_cli",
+        "git",
+        "search_and_replace_block",
+        "semantic_query_broker"
+    ],
+    "constraints": [
+        "architecture-rules",
+        "locomo-signature"
+    ],
+    "memory": {
+        "short_term": [
+            "runtime/current-spec.md",
+            "runtime/uiux-spec.md",
+            "runtime/db-manifest.md",
+            "docs/developer-guide.json"
+        ],
+        "long_term": [
+            "skills/runtime/learning-log.jsonl"
+        ]
+    },
+    "execution_rules": [
+        "Sebelum menulis kode, wajib memuat docs/tech-stack.json dan docs/domain-knowledge.json.",
+        "Dilarang keras membuat perubahan arsitektural yang menyimpang dari current-spec.md.",
+        "Modifikasi file wajib menggunakan metode 'Search and Replace Block', BUKAN Unified Diff atau menulis ulang file secara utuh.",
+        "Setelah modifikasi selesai, wajib menjalankan Graphify update.",
+        "[TRANSACTIONAL SAFETY]: Semua modifikasi data di database yang melibatkan dua entitas berbeda HARUS dilindungi oleh Database Transaction (commit/rollback) di layer Service.",
+        "[TYPE STRICTNESS]: Semua deklarasi parameter function dan return types WAJIB menggunakan Strict Typing .",
+        "Sebelum melakukan aksi Write/Replace ke file source code, WAJIB lakukan Pre-flight Static Check: pastikan Controller/Route tidak memuat logika bisnis secara langsung. Patuhi mutlak architecture-rules.",
+        "Jika fitur berkaitan dengan hard_constraints dari docs/domain-knowledge.json (seperti kalkulasi metrik, threshold, atau validasi batas), Coder WAJIB menulis Unit Test yang memvalidasi rumus/batas tersebut.",
+        "DILARANG memuat dokumen .json besar secara utuh. Gunakan tool 'semantic_query_broker' atau fungsi grep/search untuk mengekstrak hanya aturan/konteks yang relevan dengan tugas saat ini. JIKA endpoint http://localhost:8000 tidak merespons (Timeout/500), agen WAJIB mengabaikan tool ini dan melanjutkan tugas menggunakan konteks internal atau file statis.",
+        "[DYNAMIC TECH STACK]: Dilarang berasumsi tentang bahasa, framework, atau toolchain. WAJIB selalu merujuk pada docs/tech-stack.json dan docs/environment.md untuk menentukan sintaks, perintah terminal, dan arsitektur.",
+        "Sebelum mendesain atau menulis kode, WAJIB query learning-log.jsonl. HANYA ekstrak pelajaran yang memiliki confidence_score >= 0.8 dan tag yang cocok. Abaikan memori berbobot rendah untuk menghemat token."
+    ]
+}

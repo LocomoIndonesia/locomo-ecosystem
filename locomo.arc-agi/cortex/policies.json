@@ -1,0 +1,14 @@
+{
+  "rules": [
+    {
+      "id": "POL-001",
+      "rule": "max_retry <= 3",
+      "action": "stop_and_escalate"
+    },
+    {
+      "id": "POL-002",
+      "rule": "high_risk_change requires HITL",
+      "action": "block_execution"
+    }
+  ]
+}

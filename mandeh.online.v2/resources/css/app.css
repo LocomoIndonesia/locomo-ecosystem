@@ -1,0 +1,48 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+    :root {
+        --primary: 0 30 64; /* #001e40 */
+        --secondary: 0 109 67; /* #006d43 */
+    }
+
+    body {
+        @apply font-sans antialiased bg-background text-on-surface;
+        min-height: 100dvh;
+    }
+
+    /* Material Symbols Fill State */
+    .material-symbols-outlined {
+        font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        @apply transition-all duration-200;
+    }
+
+    .material-symbols-fill {
+        font-variation-settings: 'FILL' 1;
+    }
+}
+
+@layer components {
+    .btn-premium {
+        @apply bg-[#00A86B] hover:bg-[#008f5a] text-white px-8 py-4 rounded-full flex items-center gap-xs shadow-[0_4px_14px_0_rgba(0,168,107,0.39)] transition-all transform hover:-translate-y-1 active:scale-95;
+    }
+
+    .card-premium {
+        @apply bg-surface-container-lowest rounded-xl p-md flex flex-col gap-sm shadow-premium hover:shadow-premium-hover hover:-translate-y-1 transition-all border border-outline-variant/20;
+    }
+
+    .glass-premium {
+        @apply bg-surface/80 backdrop-blur-xl border border-outline-variant/30 shadow-modal;
+    }
+}
+
+/* Custom Scrollbar */
+.scrollbar-hide::-webkit-scrollbar {
+    display: none;
+}
+.scrollbar-hide {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+}

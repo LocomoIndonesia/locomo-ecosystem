@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="id"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>The Initiation - Identitas Penjelajah</title>
+<!-- Fonts -->
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&amp;family=Playfair+Display:wght@600;700&amp;display=swap" rel="stylesheet"/>
+<!-- Material Symbols -->
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<!-- Tailwind CSS -->
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<!-- Tailwind Configuration -->
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "tertiary": "#f1f6ff",
+                    "on-secondary": "#003919",
+                    "inverse-surface": "#e5e2e1",
+                    "surface-tint": "#e9c400",
+                    "secondary-container": "#25a55a",
+                    "faction-nisnas": "#50C878",
+                    "on-secondary-fixed": "#00210c",
+                    "error": "#ffb4ab",
+                    "gold-glow": "rgba(255, 215, 0, 0.4)",
+                    "on-secondary-fixed-variant": "#005227",
+                    "error-container": "#93000a",
+                    "on-primary-fixed": "#221b00",
+                    "on-error": "#690005",
+                    "obsidian-surface": "#1A1A1A",
+                    "on-primary": "#3a3000",
+                    "secondary-fixed-dim": "#66dd8b",
+                    "secondary": "#66dd8b",
+                    "inverse-primary": "#705d00",
+                    "on-primary-container": "#705e00",
+                    "surface-bright": "#393939",
+                    "surface-container-low": "#1c1b1b",
+                    "primary": "#fff6df",
+                    "glass-stroke": "rgba(255, 255, 255, 0.1)",
+                    "on-tertiary-fixed": "#001d32",
+                    "on-surface-variant": "#d0c6ab",
+                    "outline": "#999077",
+                    "surface-variant": "#353534",
+                    "on-error-container": "#ffdad6",
+                    "on-tertiary": "#003353",
+                    "on-surface": "#e5e2e1",
+                    "surface-dim": "#131313",
+                    "surface-container-lowest": "#0e0e0e",
+                    "primary-container": "#ffd700",
+                    "faction-human": "#4682B4",
+                    "primary-fixed-dim": "#e9c400",
+                    "faction-android": "#DC143C",
+                    "outline-variant": "#4d4732",
+                    "tertiary-fixed-dim": "#96ccff",
+                    "on-background": "#e5e2e1",
+                    "primary-fixed": "#ffe16d",
+                    "tertiary-fixed": "#cee5ff",
+                    "surface": "#131313",
+                    "on-secondary-container": "#003115",
+                    "secondary-fixed": "#83fba5",
+                    "background": "#131313",
+                    "on-tertiary-fixed-variant": "#004a75",
+                    "surface-container-high": "#2a2a2a",
+                    "surface-container": "#201f1f",
+                    "inverse-on-surface": "#313030",
+                    "surface-container-highest": "#353534",
+                    "tertiary-container": "#bdddff",
+                    "on-tertiary-container": "#206393",
+                    "on-primary-fixed-variant": "#544600"
+            },
+            "borderRadius": {
+                    "DEFAULT": "0.125rem",
+                    "lg": "0.25rem",
+                    "xl": "0.5rem",
+                    "full": "0.75rem"
+            },
+            "spacing": {
+                    "margin-mobile": "16px",
+                    "gutter": "24px",
+                    "stack-md": "16px",
+                    "stack-sm": "8px",
+                    "stack-lg": "32px",
+                    "margin-desktop": "48px",
+                    "container-max": "1200px"
+            },
+            "fontFamily": {
+                    "headline-lg": ["Playfair Display"],
+                    "body-md": ["Inter"],
+                    "body-lg": ["Inter"],
+                    "headline-lg-mobile": ["Playfair Display"],
+                    "label-sm": ["Inter"],
+                    "headline-md": ["Playfair Display"],
+                    "display-hero": ["Playfair Display"]
+            },
+            "fontSize": {
+                    "headline-lg": ["32px", { "lineHeight": "1.3", "fontWeight": "600" }],
+                    "body-md": ["16px", { "lineHeight": "1.6", "fontWeight": "400" }],
+                    "body-lg": ["18px", { "lineHeight": "1.6", "fontWeight": "400" }],
+                    "headline-lg-mobile": ["28px", { "lineHeight": "1.2", "fontWeight": "700" }],
+                    "label-sm": ["12px", { "lineHeight": "1", "letterSpacing": "0.05em", "fontWeight": "600" }],
+                    "headline-md": ["24px", { "lineHeight": "1.4", "fontWeight": "600" }],
+                    "display-hero": ["48px", { "lineHeight": "1.2", "letterSpacing": "-0.02em", "fontWeight": "700" }]
+            }
+          }
+        }
+      }
+    </script>
+<style>
+        /* Custom Gold Dust Particle Animation */
+        @keyframes floatUp {
+            0% { transform: translateY(110vh) scale(0.5); opacity: 0; }
+            20% { opacity: 0.8; }
+            80% { opacity: 0.8; }
+            100% { transform: translateY(-10vh) scale(1.5); opacity: 0; }
+        }
+        .particle {
+            position: absolute;
+            background: rgba(255, 215, 0, 0.6);
+            border-radius: 50%;
+            pointer-events: none;
+            box-shadow: 0 0 8px rgba(255, 215, 0, 0.8);
+        }
+        
+        /* Neumorphic Input Inner Shadow */
+        .shadow-inner-obsidian {
+            box-shadow: inset 2px 2px 5px rgba(0,0,0,0.7), inset -1px -1px 3px rgba(255,255,255,0.05);
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background text-on-background min-h-screen relative overflow-x-hidden font-body-md flex flex-col antialiased selection:bg-primary-container selection:text-on-primary-container">
+<!-- Background Particles Container -->
+<div class="fixed inset-0 z-0 pointer-events-none overflow-hidden" id="particle-container"></div>
+<!-- Header Visual: Giant Mining Gate -->
+<header class="relative w-full h-[397px] md:h-[486px] flex-shrink-0 z-10">
+<div class="absolute inset-0 bg-cover bg-center" data-alt="A cinematic, highly detailed 3D rendering of a colossal, ancient mining gate made of dark stone and tarnished metal, slightly cracked open. Brilliant, ethereal golden light pours out from the crack, illuminating the surrounding dark, misty environment. The scene feels mysterious, premium, and adventurous, bridging high-end fantasy with dark obsidian and glowing gold aesthetics. The atmosphere is tense with the promise of hidden treasure." style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuBd9Wr_Ass8bbN3Z0i3167gF1UfYvotCi5bVu9r983nIcGqdfr2lKsL6vlDSTFgsLf3f3OIzNJVYjOYh0zomfYRpMtOJPHUo02PVhzNPnMIiKo-A7P633ojaUmzVaqhi41X1fPYSoPXtF1Jae_L8G5HeOiCmlgSHYDN_rbSTj9FoarqMOZiA7M7Mqxf_-j7uY5jKaKm7EIUXhy589Ba4WKL8D0AzNbOhvrqUqhaiSR9qBA59Doe0QY')">
+<!-- Gradient Overlay for smooth transition into the dark background -->
+<div class="absolute inset-0 bg-gradient-to-t from-background via-background/60 to-transparent"></div>
+<div class="absolute inset-0 bg-gradient-to-r from-background/80 via-transparent to-background/80 md:hidden"></div>
+</div>
+</header>
+<!-- Main Content: The Initiation Form -->
+<main class="relative z-20 flex-grow container mx-auto px-margin-mobile md:px-margin-desktop max-w-container-max flex flex-col items-center justify-start -mt-20 md:-mt-32 pb-stack-lg">
+<!-- Glassmorphic Panel -->
+<div class="w-full max-w-lg bg-obsidian-surface/60 backdrop-blur-xl border border-glass-stroke rounded-2xl p-6 md:p-10 shadow-[0_8px_32px_rgba(0,0,0,0.6)] relative overflow-hidden">
+<!-- Subtle Top Highlight for Glass Effect -->
+<div class="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-white/20 to-transparent"></div>
+<!-- Header Titles -->
+<div class="text-center mb-stack-lg relative z-10">
+<h1 class="font-headline-lg-mobile text-headline-lg-mobile md:font-headline-lg md:text-headline-lg text-primary-container mb-stack-sm drop-shadow-[0_0_10px_rgba(255,215,0,0.3)]">
+                    Gerbang Gunung Mas Terbuka
+                </h1>
+<p class="font-body-md text-body-md text-on-surface-variant">
+                    Identifikasi diri Anda untuk memasuki arena perburuan.
+                </p>
+</div>
+<!-- Form -->
+<form class="flex flex-col gap-stack-md relative z-10">
+<!-- Input: Nama Penjelajah -->
+<div class="flex flex-col gap-2">
+<label class="font-label-sm text-label-sm text-on-surface-variant tracking-widest uppercase">Nama Penjelajah</label>
+<div class="relative flex items-center bg-surface-container-lowest border border-glass-stroke rounded-lg focus-within:border-primary-container focus-within:shadow-[0_0_12px_rgba(255,215,0,0.15)] transition-all duration-300 shadow-inner-obsidian overflow-hidden group">
+<span class="material-symbols-outlined text-on-surface-variant ml-4 group-focus-within:text-primary-container transition-colors" style="font-variation-settings: 'FILL' 0;">shield</span>
+<input class="bg-transparent border-none w-full text-on-surface font-body-md text-body-md py-4 px-4 focus:ring-0 placeholder-on-surface-variant/40" placeholder="Masukkan nama panggilan..." type="text"/>
+</div>
+</div>
+<!-- Input: Transmisi Email -->
+<div class="flex flex-col gap-2">
+<label class="font-label-sm text-label-sm text-on-surface-variant tracking-widest uppercase">Transmisi Email</label>
+<div class="relative flex items-center bg-surface-container-lowest border border-glass-stroke rounded-lg focus-within:border-primary-container focus-within:shadow-[0_0_12px_rgba(255,215,0,0.15)] transition-all duration-300 shadow-inner-obsidian overflow-hidden group">
+<span class="material-symbols-outlined text-on-surface-variant ml-4 group-focus-within:text-primary-container transition-colors" style="font-variation-settings: 'FILL' 0;">mail</span>
+<input class="bg-transparent border-none w-full text-on-surface font-body-md text-body-md py-4 px-4 focus:ring-0 placeholder-on-surface-variant/40" placeholder="koordinat@email.com" type="email"/>
+</div>
+</div>
+<!-- Input: Frekuensi Komunikasi -->
+<div class="flex flex-col gap-2">
+<label class="font-label-sm text-label-sm text-on-surface-variant tracking-widest uppercase">Frekuensi Komunikasi (WhatsApp)</label>
+<div class="relative flex items-center bg-surface-container-lowest border border-glass-stroke rounded-lg focus-within:border-primary-container focus-within:shadow-[0_0_12px_rgba(255,215,0,0.15)] transition-all duration-300 shadow-inner-obsidian overflow-hidden group">
+<span class="material-symbols-outlined text-on-surface-variant ml-4 group-focus-within:text-primary-container transition-colors" style="font-variation-settings: 'FILL' 0;">smartphone</span>
+<input class="bg-transparent border-none w-full text-on-surface font-body-md text-body-md py-4 px-4 focus:ring-0 placeholder-on-surface-variant/40" placeholder="+62..." type="tel"/>
+</div>
+</div>
+<!-- Spacer -->
+<div class="h-2"></div>
+<!-- Footer Action: Lanjutkan Perjalanan -->
+<button class="group relative w-full bg-primary-container text-on-primary-container font-label-sm text-label-sm py-4 rounded-lg shadow-[0_0_15px_rgba(255,215,0,0.3)] hover:shadow-[0_0_25px_rgba(255,215,0,0.5)] transition-all duration-300 overflow-hidden flex justify-center items-center gap-3 mt-2 border border-transparent hover:border-white/40" type="button">
+<!-- Glow effect inside button -->
+<div class="absolute inset-0 bg-white/20 translate-y-full group-hover:translate-y-0 transition-transform duration-300 ease-out"></div>
+<span class="relative z-10 uppercase tracking-widest font-bold">Lanjutkan Perjalanan</span>
+<span class="material-symbols-outlined relative z-10 transition-transform duration-300 group-hover:translate-x-1" style="font-variation-settings: 'FILL' 1;">arrow_forward</span>
+</button>
+</form>
+</div>
+</main>
+<!-- Inline Script for Particle Generation -->
+<script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const container = document.getElementById('particle-container');
+            const particleCount = 30;
+
+            for (let i = 0; i < particleCount; i++) {
+                const particle = document.createElement('div');
+                particle.classList.add('particle');
+                
+                // Randomize properties
+                const size = Math.random() * 4 + 2; // 2px to 6px
+                const left = Math.random() * 100; // 0% to 100%
+                const duration = Math.random() * 10 + 10; // 10s to 20s
+                const delay = Math.random() * 10; // 0s to 10s
+
+                particle.style.width = `${size}px`;
+                particle.style.height = `${size}px`;
+                particle.style.left = `${left}vw`;
+                particle.style.animationDuration = `${duration}s`;
+                particle.style.animationDelay = `-${delay}s`; // Start some mid-animation
+
+                container.appendChild(particle);
+            }
+        });
+    </script>
+</body></html>

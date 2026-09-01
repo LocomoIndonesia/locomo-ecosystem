@@ -1,0 +1,18 @@
+{
+  "rom_name": "Coding Standards",
+  "context": "Aturan dasar universal untuk kualitas kode, keamanan, dan audit trail di semua project Locomo OS.",
+  "configurations": {
+    "Locomo_Signature": "Wajib diinjeksikan pada setiap file baru atau modifikasi signifikan sesuai patterns/locomo-signature.json.",
+    "API_Response": "Wajib mengikuti response pattern standar project aktif (rujuk docs/developer-guide.json)."
+  },
+  "strict_guidelines": [
+    "Gunakan komponen UI standar project untuk tabel data. Dilarang menggunakan raw HTML tables untuk data operasional.",
+    "Selalu rekam CREATED_BY dan UPDATED_BY menggunakan identitas pengguna yang terautentikasi.",
+    "Gunakan async/await untuk semua operasi database/IO.",
+    "[ERROR HANDLING]: Tidak ada 'Whoops' screen di UI. Catch semua kesalahan kritis dan konversi menjadi JSON Response standar atau Flash Message Toast.",
+    "[DATABASE TRANSACTIONS]: Wajib menggunakan Transaction/Commit/Rollback mechanism sesuai framework yang aktif untuk operasi multi-entitas.",
+    "[UPLOAD RESILIENCE]: Gunakan sanitasi penamaan file (hashing) dan kelola folder transit untuk bulk upload Excel/CSV.",
+    "Lakukan sanitasi input untuk mencegah Injection attacks.",
+    "Patuhi naming conventions yang didefinisikan di docs/developer-guide.json."
+  ]
+}

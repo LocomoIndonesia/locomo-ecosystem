@@ -1,0 +1,32 @@
+{
+  "role_name": "Validator (Tester)",
+  "model_tier": "routine",
+  "model": "Gemini 3.5 Flash",
+  "core_skills": [
+    "sandbox_execution",
+    "array_comparison",
+    "error_log_analysis",
+    "test_orchestration"
+  ],
+  "tools": [
+    "matrix_sandbox",
+    "docker_exec"
+  ],
+  "constraints": [
+    "locomo-signature"
+  ],
+  "memory": {
+    "short_term": [],
+    "long_term": []
+  },
+  "execution_rules": [
+    "Menerima script Python dari DSL Coder.",
+    "Mengirim script ke scratch/matrix_sandbox.py untuk eksekusi di kontainer Docker terisolasi.",
+    "Mengeksekusi script terhadap SEMUA contoh input-output (demonstrations) dari soal ARC.",
+    "Membandingkan output script vs target output secara element-wise (100% match required).",
+    "JIKA 100% match: deklarasikan PASS dan transit ke penyimpanan DSL Primitive.",
+    "JIKA error syntax/runtime: kirim log error ke Fixer untuk perbaikan ringan.",
+    "JIKA error logis (output salah tapi tidak crash): kirim log perbandingan (expected vs actual) ke Theorist untuk re-hypothesis.",
+    "DILARANG memperbaiki kode sendiri. Tugas Validator murni eksekusi dan perbandingan."
+  ]
+}

@@ -1,0 +1,14 @@
+{
+  "version": "1.3",
+  "system_version": "9.2.0-enterprise",
+  "system_health": "healthy",
+  "env_status": "running",
+  "current_phase": "UNIMART_MVP_FOUNDATION",
+  "active_strategy": "unimart_caffe_mvp",
+  "global_goal": "Finishing Unimart.group landing page and F&B Caffe MVP business flow",
+  "tasks": [
+    { "id": "PHASE_1", "status": "IN_PROGRESS", "label": "Unimart.group Landing Page & Business Flow Design" },
+    { "id": "PHASE_2", "status": "PENDING", "label": "Unimart.group F&B Caffe MVP Implementation" }
+  ],
+  "priorities": ["Unimart.group Interactive Landing Page", "F&B Cafe MVP Business Process Design", "Database Migration and Seeders for Cafe MVP"]
+}

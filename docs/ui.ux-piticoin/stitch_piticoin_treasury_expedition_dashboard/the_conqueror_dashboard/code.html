@@ -1,0 +1,415 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="id"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>The Conqueror - Dashboard</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&amp;family=Playfair+Display:wght@600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "outline-variant": "#4d4732",
+                        "faction-nisnas": "#50C878",
+                        "primary-fixed": "#ffe16d",
+                        "on-primary": "#3a3000",
+                        "surface-container-lowest": "#0e0e0e",
+                        "tertiary-container": "#bdddff",
+                        "primary-fixed-dim": "#e9c400",
+                        "on-error": "#690005",
+                        "glass-stroke": "rgba(255, 255, 255, 0.1)",
+                        "surface-container": "#201f1f",
+                        "surface": "#131313",
+                        "on-background": "#e5e2e1",
+                        "outline": "#999077",
+                        "inverse-on-surface": "#313030",
+                        "faction-android": "#DC143C",
+                        "on-tertiary": "#003353",
+                        "on-primary-fixed": "#221b00",
+                        "error-container": "#93000a",
+                        "on-surface": "#e5e2e1",
+                        "surface-tint": "#e9c400",
+                        "tertiary": "#f1f6ff",
+                        "secondary": "#66dd8b",
+                        "surface-container-low": "#1c1b1b",
+                        "on-primary-container": "#705e00",
+                        "inverse-surface": "#e5e2e1",
+                        "tertiary-fixed": "#cee5ff",
+                        "primary": "#fff6df",
+                        "surface-container-high": "#2a2a2a",
+                        "on-tertiary-container": "#206393",
+                        "tertiary-fixed-dim": "#96ccff",
+                        "secondary-container": "#25a55a",
+                        "on-secondary-container": "#003115",
+                        "secondary-fixed-dim": "#66dd8b",
+                        "on-secondary-fixed-variant": "#005227",
+                        "inverse-primary": "#705d00",
+                        "surface-variant": "#353534",
+                        "primary-container": "#ffd700",
+                        "on-secondary": "#003919",
+                        "on-tertiary-fixed": "#001d32",
+                        "surface-container-highest": "#353534",
+                        "secondary-fixed": "#83fba5",
+                        "on-error-container": "#ffdad6",
+                        "on-primary-fixed-variant": "#544600",
+                        "error": "#ffb4ab",
+                        "background": "#131313",
+                        "surface-dim": "#131313",
+                        "on-surface-variant": "#d0c6ab",
+                        "on-tertiary-fixed-variant": "#004a75",
+                        "gold-glow": "rgba(255, 215, 0, 0.4)",
+                        "obsidian-surface": "#1A1A1A",
+                        "on-secondary-fixed": "#00210c",
+                        "surface-bright": "#393939",
+                        "faction-human": "#4682B4"
+                    },
+                    borderRadius: {
+                        "DEFAULT": "0.125rem",
+                        "lg": "0.25rem",
+                        "xl": "0.5rem",
+                        "full": "0.75rem"
+                    },
+                    spacing: {
+                        "stack-lg": "32px",
+                        "stack-sm": "8px",
+                        "margin-mobile": "16px",
+                        "container-max": "1200px",
+                        "margin-desktop": "48px",
+                        "gutter": "24px",
+                        "stack-md": "16px"
+                    },
+                    fontFamily: {
+                        "body-md": ["Inter"],
+                        "headline-md": ["Playfair Display"],
+                        "headline-lg": ["Playfair Display"],
+                        "display-hero": ["Playfair Display"],
+                        "body-lg": ["Inter"],
+                        "label-sm": ["Inter"],
+                        "headline-lg-mobile": ["Playfair Display"]
+                    },
+                    fontSize: {
+                        "body-md": ["16px", { lineHeight: "1.6", fontWeight: "400" }],
+                        "headline-md": ["24px", { lineHeight: "1.4", fontWeight: "600" }],
+                        "headline-lg": ["32px", { lineHeight: "1.3", fontWeight: "600" }],
+                        "display-hero": ["48px", { lineHeight: "1.2", letterSpacing: "-0.02em", fontWeight: "700" }],
+                        "body-lg": ["18px", { lineHeight: "1.6", fontWeight: "400" }],
+                        "label-sm": ["12px", { lineHeight: "1", letterSpacing: "0.05em", fontWeight: "600" }],
+                        "headline-lg-mobile": ["28px", { lineHeight: "1.2", fontWeight: "700" }]
+                    }
+                }
+            }
+        }
+    </script>
+<style>
+        .glass-panel {
+            backdrop-filter: blur(20px);
+            background-color: rgba(26, 26, 26, 0.6);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        .neumorphic-inset {
+            box-shadow: inset 4px 4px 8px rgba(0, 0, 0, 0.6), inset -4px -4px 8px rgba(255, 255, 255, 0.05);
+            background-color: #131313;
+        }
+        .bloom-gold {
+            box-shadow: 0 0 15px rgba(255, 215, 0, 0.3);
+        }
+        .bloom-gold-intense {
+            box-shadow: 0 0 25px rgba(255, 215, 0, 0.5), inset 0 0 10px rgba(255, 215, 0, 0.2);
+        }
+        .bloom-emerald {
+            box-shadow: 0 0 15px rgba(80, 200, 120, 0.3);
+        }
+        @keyframes pulse-fast {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.8; transform: scale(1.02); }
+        }
+        @keyframes blink-red {
+            0%, 100% { color: #DC143C; text-shadow: 0 0 5px rgba(220, 20, 60, 0.5); }
+            50% { color: #ffb4ab; text-shadow: 0 0 15px rgba(220, 20, 60, 0.9); }
+        }
+        .animate-blink-red {
+            animation: blink-red 1.5s infinite;
+        }
+        .animate-pulse-fast {
+            animation: pulse-fast 2s infinite ease-in-out;
+        }
+        
+        /* Hide scrollbar for clean UI */
+        ::-webkit-scrollbar { display: none; }
+        * { -ms-overflow-style: none; scrollbar-width: none; }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+</head>
+<body class="bg-background text-on-background min-h-screen relative overflow-x-hidden font-body-md text-body-md">
+<!-- Background Shader -->
+
+<!-- Shared Component: TopAppBar -->
+<header class="fixed bg-transparent text-primary-container docked full-width top-0 bg-transparent flat no shadows flex justify-between items-center w-full px-margin-mobile pt-stack-md h-16 z-50 transition-colors">
+<button class="text-on-surface-variant hover:text-primary-fixed-dim transition-colors flex items-center justify-center p-2 rounded-full hover:bg-white/5 active:scale-95 duration-200">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">menu</span>
+</button>
+<h1 class="font-headline-lg-mobile text-headline-lg-mobile md:font-headline-md md:text-headline-md font-bold text-primary-container tracking-widest text-center flex-1">
+            PITICOIN.ID
+        </h1>
+<button class="text-on-surface-variant hover:text-primary-fixed-dim transition-colors w-10 h-10 rounded-full overflow-hidden border-2 border-glass-stroke active:scale-95 duration-200">
+<img alt="Explorer Rank Icon" class="w-full h-full object-cover" data-alt="A small circular avatar portrait of an elite treasure hunter. The character has a mysterious, stoic expression, wearing dark obsidian combat gear with subtle golden neon outlines. The background of the portrait is a dark, moody grey with a faint golden glow. The overall style is high-end digital art suitable for an MMORPG UI." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDtnNnM6GYAk06weL4J1x3GacDiwegweSKP84SJLeHNza0vvwlFwOUmt95Zp-S_X6zG6qkVVm-b90g6cINFPfuTa-nBO-3nCvwowsn452NwPmp6pNvXqVPhxwzPz2t4xwLoiP_EH1vm9bu1Q57t2jjgzGpaiXRk_NOuzg4GfBJ4rpt0dZrV5lN1gNXxvmoF9bCGXy8lMrSt6FfvwopiDszDU135FTdSvBO4XcYORkyfoUAviuDfWCA"/>
+</button>
+</header>
+<!-- Main Canvas -->
+<main class="relative z-10 w-full max-w-container-max mx-auto pt-24 pb-40 px-margin-mobile md:px-margin-desktop flex flex-col gap-stack-lg">
+<!-- Header (The Ledger Pool) -->
+<section class="flex flex-col items-center justify-center text-center mt-stack-md">
+<p class="font-label-sm text-label-sm text-on-surface-variant uppercase tracking-widest mb-2 flex items-center gap-2">
+<span class="w-2 h-2 rounded-full bg-primary-container animate-pulse"></span>
+                The Ledger Pool
+            </p>
+<h2 class="font-display-hero text-display-hero text-primary-fixed-dim drop-shadow-[0_0_15px_rgba(233,196,0,0.4)] md:text-[64px] transition-all duration-300" id="ledger-counter">
+                Rp 45.230.500
+            </h2>
+<div class="mt-4 glass-panel rounded-full px-6 py-2 inline-flex items-center gap-2 border-t-primary-container/30">
+<span class="material-symbols-outlined text-secondary-fixed-dim text-sm" style="font-variation-settings: 'FILL' 1;">trending_up</span>
+<p class="font-label-sm text-label-sm text-secondary-fixed-dim">
+                    Omset Pasukan Anda Hari Ini: +1.250 Koin
+                </p>
+</div>
+</section>
+<!-- Core Object: The Golden Mountain & Menus (Bento Grid) -->
+<section class="grid grid-cols-2 md:grid-cols-4 gap-4 mt-stack-sm">
+<!-- Centerpiece: Golden Mountain -->
+<div class="col-span-2 md:col-span-2 row-span-2 glass-panel rounded-xl overflow-hidden relative group cursor-pointer border-t-[1px] border-t-primary-container/40 bloom-gold transition-all duration-500 hover:border-primary-container">
+<div class="absolute inset-0 bg-cover bg-center transition-transform duration-700 group-hover:scale-105 opacity-80 mix-blend-luminosity group-hover:mix-blend-normal" data-alt="A highly detailed, cinematic 3D render of a glowing, golden treasure mountain rising from a dark, obsidian digital landscape. The mountain is constructed of intricate metallic geometric facets, pulsating with a warm, high-contrast golden neon aura. The surrounding environment is submerged in deep charcoal tones with subtle glassmorphic floating panels and golden dust particles floating in the air. The mood is triumphant, wealthy, and mysterious, resembling a high-stakes strategy game interface." style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuBomh5nZA8r1Hn37i86UlZRJTJTTqOgkVNgNClIrvnNsVm4FLdwG9A0BDaTt6JAO5HC40cuBByuI0cZIKQlibhdE-wSEcUYxFpIVpnIE5oluyoS6p2D2oVA-bhdf7xwLMViQqzNhFLLWoMm1QYKM9ewl_zkzE9_BOmajzRCLR0LcohF_qm9Y0-9T2CHRM1TDxtTVc4bsCxF6IjL5tC0gVPDIoJPeWDOiCMaDwJIR03J4opa5EOpKgk')"></div>
+<!-- Overlay Gradient -->
+<div class="absolute inset-0 bg-gradient-to-t from-obsidian-surface via-transparent to-transparent"></div>
+<div class="absolute bottom-0 left-0 w-full p-6 flex flex-col items-start z-10">
+<div class="bg-primary-container/20 backdrop-blur-md rounded-full px-3 py-1 border border-primary-container/30 mb-2">
+<span class="font-label-sm text-label-sm text-primary-container">MARKAS BESAR</span>
+</div>
+<h3 class="font-headline-md text-headline-md text-on-background font-bold mb-1 group-hover:text-primary-container transition-colors">The Golden Vault</h3>
+<p class="font-body-md text-body-md text-on-surface-variant/80 text-sm">Pusat komando kekayaan Anda.</p>
+</div>
+<!-- Animated Glint -->
+<div class="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent -translate-x-full group-hover:animate-[shimmer_1.5s_infinite] pointer-events-none"></div>
+</div>
+<!-- Menu 1 -->
+<button class="glass-panel rounded-xl p-4 flex flex-col items-center justify-center gap-3 relative hover:border-primary-container/50 hover:bg-surface-container-high/50 transition-all active:scale-95 group">
+<div class="absolute -top-2 -right-2 bg-error text-on-error font-label-sm text-[10px] px-2 py-1 rounded-full border border-surface shadow-[0_0_10px_rgba(255,180,171,0.5)] z-10">
+                    12 New
+                </div>
+<div class="w-12 h-12 rounded-full neumorphic-inset flex items-center justify-center group-hover:shadow-[inset_0_0_10px_rgba(255,215,0,0.2)] transition-shadow">
+<span class="material-symbols-outlined text-on-surface-variant group-hover:text-primary-container" style="font-variation-settings: 'FILL' 1;">campaign</span>
+</div>
+<span class="font-label-sm text-label-sm text-on-surface text-center">Ruang Informasi</span>
+</button>
+<!-- Menu 2 -->
+<button class="glass-panel rounded-xl p-4 flex flex-col items-center justify-center gap-3 hover:border-primary-container/50 hover:bg-surface-container-high/50 transition-all active:scale-95 group">
+<div class="w-12 h-12 rounded-full neumorphic-inset flex items-center justify-center group-hover:shadow-[inset_0_0_10px_rgba(255,215,0,0.2)] transition-shadow">
+<span class="material-symbols-outlined text-on-surface-variant group-hover:text-primary-container" style="font-variation-settings: 'FILL' 1;">groups</span>
+</div>
+<span class="font-label-sm text-label-sm text-on-surface text-center">Pasukan Saya</span>
+</button>
+<!-- Menu 3 -->
+<button class="glass-panel rounded-xl p-4 flex flex-col items-center justify-center gap-3 hover:border-primary-container/50 hover:bg-surface-container-high/50 transition-all active:scale-95 group">
+<div class="absolute -top-2 -right-2 bg-primary-container text-on-primary-container font-label-sm text-[10px] w-5 h-5 flex items-center justify-center rounded-full border border-surface shadow-[0_0_10px_rgba(255,215,0,0.5)] z-10">
+                    !
+                </div>
+<div class="w-12 h-12 rounded-full neumorphic-inset flex items-center justify-center group-hover:shadow-[inset_0_0_10px_rgba(255,215,0,0.2)] transition-shadow">
+<span class="material-symbols-outlined text-on-surface-variant group-hover:text-primary-container" style="font-variation-settings: 'FILL' 1;">inventory_2</span>
+</div>
+<span class="font-label-sm text-label-sm text-on-surface text-center">Gudang Loot</span>
+</button>
+<!-- Menu 4 -->
+<button class="glass-panel rounded-xl p-4 flex flex-col items-center justify-center gap-3 hover:border-primary-container/50 hover:bg-surface-container-high/50 transition-all active:scale-95 group">
+<div class="w-12 h-12 rounded-full neumorphic-inset flex items-center justify-center group-hover:shadow-[inset_0_0_10px_rgba(255,215,0,0.2)] transition-shadow">
+<span class="material-symbols-outlined text-on-surface-variant group-hover:text-primary-container" style="font-variation-settings: 'FILL' 1;">military_tech</span>
+</div>
+<span class="font-label-sm text-label-sm text-on-surface text-center">Pencapaian</span>
+</button>
+</section>
+<!-- Campaign Board -->
+<section class="mt-stack-md flex flex-col gap-4">
+<div class="flex justify-between items-end border-b border-glass-stroke pb-2">
+<h3 class="font-headline-md text-headline-md text-on-surface flex items-center gap-2">
+<span class="material-symbols-outlined text-faction-nisnas" style="font-variation-settings: 'FILL' 1;">explore</span>
+                    Campaign Board
+                </h3>
+<span class="font-label-sm text-label-sm text-faction-nisnas border border-faction-nisnas/30 bg-faction-nisnas/10 px-2 py-1 rounded">AKTIF &amp; MENDESAK</span>
+</div>
+<!-- Expedition Card -->
+<div class="relative glass-panel rounded-xl overflow-hidden border-faction-nisnas/50 bloom-emerald p-1">
+<!-- Background Map image -->
+<div class="absolute inset-0 bg-cover bg-center opacity-20" data-alt="A dark, textured background representing a tactical map of a cyberpunk marketplace. The map is primarily deep obsidian and charcoal, crisscrossed with glowing emerald green neon grid lines and data nodes. Subtle holographic projections hover above the surface, illuminating the dark scene with a cool, vibrant green light. The overall aesthetic feels like a high-stakes, elite command center for planning a corporate takeover." style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuCIOydMCIt9iFaAtXxV3L1XRjCJpm6wYNae7NplRSqtjhwfxVQFycTahm1vcMZgqfliwLkYtWP69XnaoeKAoH6VW6JTm8OrNx-gFItdnAGgBaxIdbf09D8_6vd0GMAhWk1A29mTDDqHOWH-23zsNzGYj-cA-0TmTU1C4xbyVCNa9Ek_R05OtihKnVUM8fQV1OnekAFuMi45hR2yXUnMnS4gRUfez1LqvreSTfmezU2n4ZQ9yQXNW8Q')"></div>
+<div class="relative z-10 bg-surface-container-lowest/80 backdrop-blur-md rounded-lg p-5 flex flex-col gap-4">
+<div class="flex justify-between items-start">
+<div>
+<h4 class="font-headline-lg-mobile text-headline-lg-mobile md:font-headline-lg md:text-headline-lg text-on-background font-bold mb-1">Penaklukan Pasar Unimart</h4>
+<p class="font-body-md text-body-md text-on-surface-variant flex items-center gap-1 text-sm">
+<span class="material-symbols-outlined text-sm">location_on</span> Zona Sektor 7 - Emerald
+                            </p>
+</div>
+<div class="text-right">
+<p class="font-label-sm text-label-sm text-on-surface-variant mb-1">Requirements</p>
+<p class="font-label-sm text-label-sm text-primary-container bg-primary-container/10 px-3 py-1 rounded border border-primary-container/20 inline-block">STAKE 2.500 Perak</p>
+</div>
+</div>
+<div class="bg-surface/50 rounded-lg p-3 border border-glass-stroke flex justify-between items-center">
+<span class="font-label-sm text-label-sm text-on-surface-variant">Status Ekspedisi</span>
+<span class="font-label-sm text-label-sm animate-blink-red font-bold tracking-wider flex items-center gap-1">
+<span class="material-symbols-outlined text-sm">timer</span>
+                            Sisa Waktu: 04:12:00
+                        </span>
+</div>
+<button class="w-full py-4 rounded-lg bg-primary-container text-on-primary font-label-sm text-label-sm font-bold tracking-widest bloom-gold-intense hover:bg-primary-fixed-dim hover:scale-[1.02] transition-all active:scale-95 animate-pulse-fast">
+                        [STAKE &amp; MULAI EKSPEDISI]
+                    </button>
+</div>
+</div>
+</section>
+<!-- Processing Deep (Mini-games / Features) -->
+<section class="mt-stack-sm grid grid-cols-1 md:grid-cols-2 gap-4">
+<div class="glass-panel rounded-xl p-5 border-l-4 border-l-faction-human">
+<div class="flex items-center gap-3 mb-4">
+<div class="w-10 h-10 rounded-full bg-faction-human/20 flex items-center justify-center text-faction-human border border-faction-human/30">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">hub</span>
+</div>
+<div>
+<h4 class="font-body-lg text-body-lg font-bold text-on-surface">Jaringan Afiliasi</h4>
+<p class="font-label-sm text-label-sm text-on-surface-variant">Sistem stabil.</p>
+</div>
+</div>
+<div class="w-full h-2 bg-surface-container-highest rounded-full overflow-hidden">
+<div class="h-full bg-faction-human w-[85%] relative">
+<div class="absolute inset-0 bg-white/20 animate-[shimmer_2s_infinite]"></div>
+</div>
+</div>
+</div>
+<div class="glass-panel rounded-xl p-5 border-l-4 border-l-surface-variant opacity-80">
+<div class="flex items-center gap-3 mb-4">
+<div class="w-10 h-10 rounded-full bg-surface-variant/50 flex items-center justify-center text-on-surface-variant border border-glass-stroke">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 0;">lock</span>
+</div>
+<div class="flex-1">
+<h4 class="font-body-lg text-body-lg font-bold text-on-surface-variant flex items-center gap-2">
+                            Fitur Transfer <span class="font-label-sm text-[10px] text-error bg-error/10 px-2 py-0.5 rounded border border-error/20">Terkunci</span>
+</h4>
+<p class="font-label-sm text-[10px] text-on-surface-variant/70 mt-1">Butuh 2 Downline lagi</p>
+</div>
+</div>
+<!-- Progress Bar -->
+<div class="w-full flex flex-col gap-1">
+<div class="flex justify-between font-label-sm text-[10px] text-on-surface-variant">
+<span>Progress</span>
+<span>3/5</span>
+</div>
+<div class="w-full h-2 bg-surface-container-highest rounded-full overflow-hidden flex gap-1 p-[1px]">
+<div class="h-full flex-1 bg-primary-fixed/50 rounded-sm"></div>
+<div class="h-full flex-1 bg-primary-fixed/50 rounded-sm"></div>
+<div class="h-full flex-1 bg-primary-fixed/50 rounded-sm shadow-[0_0_5px_rgba(255,225,109,0.5)]"></div>
+<div class="h-full flex-1 bg-transparent rounded-sm border border-glass-stroke"></div>
+<div class="h-full flex-1 bg-transparent rounded-sm border border-glass-stroke"></div>
+</div>
+</div>
+</div>
+</section>
+</main>
+<!-- Footer Status (User Info) - Sticky above nav -->
+<section class="fixed bottom-[72px] md:bottom-[88px] left-0 w-full z-40 px-margin-mobile md:px-margin-desktop pointer-events-none">
+<div class="max-w-container-max mx-auto pointer-events-auto">
+<div class="glass-panel rounded-xl p-3 md:p-4 flex items-center justify-between border-t border-t-primary-container/20 shadow-[0_-10px_30px_rgba(0,0,0,0.5)] bg-obsidian-surface/90">
+<div class="flex items-center gap-3 md:gap-4">
+<!-- Avatar with glowing frame -->
+<div class="relative w-12 h-12 md:w-14 md:h-14 rounded-lg border-2 border-primary-container p-0.5 bloom-gold bg-surface">
+<img alt="Pemburu Veteran Avatar" class="w-full h-full object-cover rounded-md grayscale-[20%]" data-alt="A premium, stylized portrait of a veteran treasure hunter in a dark fantasy cyberpunk setting. The character wears sleek, obsidian armor accented with subtle glowing neon gold circuitry. The background is a blurred, dark cavern environment with floating digital UI elements and golden light bleeding from the edges. The lighting is dramatic, casting deep shadows that contrast sharply with the vibrant gold highlights on the armor, conveying power and experience." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDi47Slkw4S4Y_KgVtZ0EISwFfTSIkSG4_2UXNIGz_TUpZPGsvQ9quu9zXxMlopsBUFeZOhn_yxJcMebklLuAHrdJXZOTxaanMZVSTn0-ghrNi4-HZtK5ZxRZPonkQg3bipaDJJjt0ghwB5GswyeN8IpGyxjzOyGGh3P6dz6mRoq-anKb_pf5frN99lP138Yfr7ElxVoaIt9Mds_TGIwKPmRA516YI1zc5MLi_Su07Z9ZLoMFO-KEQ"/>
+<div class="absolute -bottom-2 -right-2 bg-obsidian-surface border border-primary-container text-primary-container font-label-sm text-[10px] w-6 h-6 flex items-center justify-center rounded-full shadow-[0_0_5px_rgba(255,215,0,0.5)] z-10">
+                            14
+                        </div>
+</div>
+<div class="flex flex-col">
+<h3 class="font-headline-md text-[16px] md:text-headline-md text-primary-container font-bold leading-tight">Pemburu Veteran</h3>
+<p class="font-label-sm text-[10px] md:text-label-sm text-on-surface-variant/80">Penggerak Nagari</p>
+<!-- EXP Bar (Zeigarnik effect) -->
+<div class="mt-1 w-32 md:w-48 h-1.5 bg-surface-container-highest rounded-full overflow-hidden relative">
+<div class="h-full bg-secondary w-[78%] relative shadow-[0_0_5px_rgba(102,221,139,0.5)]">
+<div class="absolute inset-0 bg-gradient-to-r from-transparent to-white/30"></div>
+</div>
+</div>
+<p class="font-label-sm text-[8px] md:text-[10px] text-on-surface-variant mt-0.5 text-right w-32 md:w-48">EXP: 780/1000</p>
+</div>
+</div>
+<!-- Balances -->
+<div class="flex flex-col gap-2 items-end">
+<div class="bg-surface-container-lowest/80 border border-glass-stroke rounded px-2 py-1 flex items-center gap-1 min-w-[100px] justify-end">
+<span class="font-label-sm text-label-sm text-on-surface">14.200</span>
+<span class="material-symbols-outlined text-surface-variant text-[14px]" style="font-variation-settings: 'FILL' 1;">circle</span> <!-- Silver icon approximation -->
+</div>
+<div class="bg-primary-container/10 border border-primary-container/30 rounded px-2 py-1 flex items-center gap-1 min-w-[100px] justify-end shadow-[inset_0_0_5px_rgba(255,215,0,0.1)]">
+<span class="font-label-sm text-label-sm text-primary-fixed-dim font-bold">85</span>
+<span class="material-symbols-outlined text-primary-fixed text-[14px]" style="font-variation-settings: 'FILL' 1;">monetization_on</span> <!-- Gold icon -->
+</div>
+</div>
+</div>
+</div>
+</section>
+<!-- Shared Component: BottomNavBar -->
+<nav class="bg-obsidian-surface/60 backdrop-blur-xl text-primary-container font-label-sm text-label-sm docked full-width bottom-0 rounded-t-xl border-t border-glass-stroke shadow-[0_-4px_20px_rgba(255,215,0,0.1)] fixed bottom-0 left-0 w-full z-50 flex justify-around items-center px-4 pb-6 pt-2">
+<!-- Tab 1: Quest (Active based on context 'Home / Markas Besar' and campaign board) -->
+<a class="flex flex-col items-center justify-center text-primary-container scale-110 transition-transform hover:text-primary active:scale-95 duration-300 ease-out" href="#">
+<span class="material-symbols-outlined mb-1" style="font-variation-settings: 'FILL' 1;">explore</span>
+<span>Quest</span>
+</a>
+<!-- Tab 2: Vault (Inactive) -->
+<a class="flex flex-col items-center justify-center text-on-surface-variant/70 hover:text-primary active:scale-95 duration-300 ease-out transition-all" href="#">
+<span class="material-symbols-outlined mb-1">payments</span>
+<span>Vault</span>
+</a>
+<!-- Tab 3: Map (Inactive) -->
+<a class="flex flex-col items-center justify-center text-on-surface-variant/70 hover:text-primary active:scale-95 duration-300 ease-out transition-all" href="#">
+<span class="material-symbols-outlined mb-1">map</span>
+<span>Map</span>
+</a>
+<!-- Tab 4: Profile (Inactive) -->
+<a class="flex flex-col items-center justify-center text-on-surface-variant/70 hover:text-primary active:scale-95 duration-300 ease-out transition-all" href="#">
+<span class="material-symbols-outlined mb-1">person</span>
+<span>Profile</span>
+</a>
+</nav>
+<script>
+        // Micro-interaction: Ticking Ledger Counter
+        document.addEventListener('DOMContentLoaded', () => {
+            const counterEl = document.getElementById('ledger-counter');
+            let baseValue = 45230500;
+            
+            setInterval(() => {
+                // Add a small random amount to simulate live ticking
+                const increment = Math.floor(Math.random() * 5) * 500; 
+                baseValue += increment;
+                
+                // Format as Rupiah
+                const formatted = new Intl.NumberFormat('id-ID', {
+                    style: 'currency',
+                    currency: 'IDR',
+                    minimumFractionDigits: 0,
+                    maximumFractionDigits: 0
+                }).format(baseValue);
+                
+                counterEl.textContent = formatted;
+                
+                // Add a slight text-shadow flash when updating
+                if(increment > 0) {
+                    counterEl.style.textShadow = '0 0 25px rgba(255, 215, 0, 0.8)';
+                    setTimeout(() => {
+                        counterEl.style.textShadow = '0 0 15px rgba(233,196,0,0.4)';
+                    }, 200);
+                }
+            }, 3500); // Tick every 3.5 seconds
+        });
+    </script>
+</body></html>

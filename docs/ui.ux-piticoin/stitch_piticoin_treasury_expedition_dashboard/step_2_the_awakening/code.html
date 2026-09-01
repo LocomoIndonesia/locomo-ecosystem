@@ -1,0 +1,334 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>The Awakening - Faction Selection</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&amp;family=Playfair+Display:wght@600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+          darkMode: "class",
+          theme: {
+            extend: {
+              "colors": {
+                      "tertiary": "#f1f6ff",
+                      "on-secondary": "#003919",
+                      "inverse-surface": "#e5e2e1",
+                      "surface-tint": "#e9c400",
+                      "secondary-container": "#25a55a",
+                      "faction-nisnas": "#50C878",
+                      "on-secondary-fixed": "#00210c",
+                      "error": "#ffb4ab",
+                      "gold-glow": "rgba(255, 215, 0, 0.4)",
+                      "on-secondary-fixed-variant": "#005227",
+                      "error-container": "#93000a",
+                      "on-primary-fixed": "#221b00",
+                      "on-error": "#690005",
+                      "obsidian-surface": "#1A1A1A",
+                      "on-primary": "#3a3000",
+                      "secondary-fixed-dim": "#66dd8b",
+                      "secondary": "#66dd8b",
+                      "inverse-primary": "#705d00",
+                      "on-primary-container": "#705e00",
+                      "surface-bright": "#393939",
+                      "surface-container-low": "#1c1b1b",
+                      "primary": "#fff6df",
+                      "glass-stroke": "rgba(255, 255, 255, 0.1)",
+                      "on-tertiary-fixed": "#001d32",
+                      "on-surface-variant": "#d0c6ab",
+                      "outline": "#999077",
+                      "surface-variant": "#353534",
+                      "on-error-container": "#ffdad6",
+                      "on-tertiary": "#003353",
+                      "on-surface": "#e5e2e1",
+                      "surface-dim": "#131313",
+                      "surface-container-lowest": "#0e0e0e",
+                      "primary-container": "#ffd700",
+                      "faction-human": "#4682B4",
+                      "primary-fixed-dim": "#e9c400",
+                      "faction-android": "#DC143C",
+                      "outline-variant": "#4d4732",
+                      "tertiary-fixed-dim": "#96ccff",
+                      "on-background": "#e5e2e1",
+                      "primary-fixed": "#ffe16d",
+                      "tertiary-fixed": "#cee5ff",
+                      "surface": "#131313",
+                      "on-secondary-container": "#003115",
+                      "secondary-fixed": "#83fba5",
+                      "background": "#131313",
+                      "on-tertiary-fixed-variant": "#004a75",
+                      "surface-container-high": "#2a2a2a",
+                      "surface-container": "#201f1f",
+                      "inverse-on-surface": "#313030",
+                      "surface-container-highest": "#353534",
+                      "tertiary-container": "#bdddff",
+                      "on-tertiary-container": "#206393",
+                      "on-primary-fixed-variant": "#544600"
+              },
+              "borderRadius": {
+                      "DEFAULT": "0.125rem",
+                      "lg": "0.25rem",
+                      "xl": "0.5rem",
+                      "full": "0.75rem"
+              },
+              "spacing": {
+                      "margin-mobile": "16px",
+                      "gutter": "24px",
+                      "stack-md": "16px",
+                      "stack-sm": "8px",
+                      "stack-lg": "32px",
+                      "margin-desktop": "48px",
+                      "container-max": "1200px"
+              },
+              "fontFamily": {
+                      "headline-lg": [
+                              "Playfair Display"
+                      ],
+                      "body-md": [
+                              "Inter"
+                      ],
+                      "body-lg": [
+                              "Inter"
+                      ],
+                      "headline-lg-mobile": [
+                              "Playfair Display"
+                      ],
+                      "label-sm": [
+                              "Inter"
+                      ],
+                      "headline-md": [
+                              "Playfair Display"
+                      ],
+                      "display-hero": [
+                              "Playfair Display"
+                      ]
+              },
+              "fontSize": {
+                      "headline-lg": [
+                              "32px",
+                              {
+                                      "lineHeight": "1.3",
+                                      "fontWeight": "600"
+                              }
+                      ],
+                      "body-md": [
+                              "16px",
+                              {
+                                      "lineHeight": "1.6",
+                                      "fontWeight": "400"
+                              }
+                      ],
+                      "body-lg": [
+                              "18px",
+                              {
+                                      "lineHeight": "1.6",
+                                      "fontWeight": "400"
+                              }
+                      ],
+                      "headline-lg-mobile": [
+                              "28px",
+                              {
+                                      "lineHeight": "1.2",
+                                      "fontWeight": "700"
+                              }
+                      ],
+                      "label-sm": [
+                              "12px",
+                              {
+                                      "lineHeight": "1",
+                                      "letterSpacing": "0.05em",
+                                      "fontWeight": "600"
+                              }
+                      ],
+                      "headline-md": [
+                              "24px",
+                              {
+                                      "lineHeight": "1.4",
+                                      "fontWeight": "600"
+                              }
+                      ],
+                      "display-hero": [
+                              "48px",
+                              {
+                                      "lineHeight": "1.2",
+                                      "letterSpacing": "-0.02em",
+                                      "fontWeight": "700"
+                              }
+                      ]
+              }
+      },
+          },
+        }
+      </script>
+<style>
+        .no-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+        .no-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+        .glass-panel {
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            background: rgba(26, 26, 26, 0.6);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        .snap-x-mandatory {
+            scroll-snap-type: x mandatory;
+        }
+        .snap-center {
+            scroll-snap-align: center;
+        }
+        
+        #ambient-bg {
+            transition: background 0.8s ease;
+        }
+      </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-obsidian-surface text-on-surface min-h-screen relative overflow-hidden font-body-md text-body-md">
+<!-- Ambient Background Layer -->
+<div class="absolute inset-0 z-0 opacity-30 pointer-events-none" id="ambient-bg" style="background: radial-gradient(circle at center, #50C878 0%, transparent 60%);"></div>
+<div class="absolute inset-0 z-0 bg-[url('placeholder')] opacity-20 pointer-events-none mix-blend-overlay" data-alt="Dark abstract texture, fine gold dust particles scattered across an obsidian surface, mysterious, cinematic financial dark mode aesthetic, deep shadows."></div>
+<!-- Header / Title Area -->
+<header class="relative z-10 pt-16 px-margin-mobile md:px-margin-desktop text-center">
+<h1 class="font-display-hero text-display-hero text-primary-container tracking-widest mb-stack-sm md:hidden font-headline-lg-mobile text-headline-lg-mobile">THE AWAKENING</h1>
+<h1 class="hidden md:block font-display-hero text-display-hero text-primary-container tracking-widest mb-stack-sm">THE AWAKENING</h1>
+<p class="font-body-lg text-body-lg text-on-surface-variant max-w-2xl mx-auto">Tentukan jalur strategimu. Pilihan faksi ini akan mengubah permainan finansialmu selamanya.</p>
+</header>
+<!-- Faction Selection Carousel -->
+<main class="relative z-10 mt-stack-lg flex-1 flex flex-col justify-center h-[calc(100vh-200px)]">
+<div class="flex overflow-x-auto snap-x-mandatory no-scrollbar gap-gutter px-margin-mobile md:px-margin-desktop pb-stack-lg h-[574px] items-center" id="carousel">
+<!-- Card 1: Bangsa Nisnas -->
+<article class="faction-card snap-center shrink-0 w-[85vw] max-w-[400px] h-full rounded-xl glass-panel relative overflow-hidden flex flex-col group transition-all duration-300 transform scale-100 opacity-100 hover:border-faction-nisnas/50" data-faction="nisnas">
+<div class="absolute inset-0 bg-gradient-to-b from-[rgba(255,255,255,0.2)] to-transparent opacity-50 pointer-events-none"></div>
+<div class="absolute inset-0 bg-faction-nisnas/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300 rounded-xl shadow-[0_0_20px_rgba(80,200,120,0.2)]"></div>
+<div class="flex-1 relative overflow-hidden rounded-t-xl">
+<img class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" data-alt="A striking character illustration of an organic, nature-inspired mystic warrior. Dark cinematic lighting, glowing emerald green accents, mysterious aesthetic, MMORPG concept art, dark obsidian background, high quality." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDkEGKpgd5NffNYnYFsTMmxzzLH5saRUFzBA6rBhHm1T0C9SXOuFf34tYwDDhzcPxq0Y8kDvFKabLswxdUnnEgVzKguGj4QtA2tNjsS8OCTU47bEmanaZunrrHCAp1MDyeigECBsHw58b-s9wDl65Fqbm8pNvWIkHoTs9GjeUog8iRXoHGmONDhMzpFbHDtZk9Dk3TeCePBhAPFsPhiwHxlW5sui0na9si9uJK5lzkxs_iNzKb2W94"/>
+<div class="absolute inset-0 bg-gradient-to-t from-obsidian-surface to-transparent"></div>
+</div>
+<div class="p-6 relative z-10 flex flex-col items-center text-center">
+<h2 class="font-headline-md text-headline-md text-faction-nisnas mb-2">Bangsa Nisnas</h2>
+<p class="font-body-md text-body-md text-on-surface-variant mb-4">Organic • Nature</p>
+<div class="bg-surface-container-low px-4 py-2 rounded-full border border-glass-stroke shadow-inner mb-6">
+<span class="font-label-sm text-label-sm text-faction-nisnas">+5% Drop Rate Telur Langka</span>
+</div>
+<button class="w-full py-3 rounded-lg border-2 border-faction-nisnas text-faction-nisnas font-label-sm text-label-sm uppercase tracking-wider hover:bg-faction-nisnas/10 transition-colors shadow-[0_0_15px_rgba(80,200,120,0.1)] group-hover:shadow-[0_0_20px_rgba(80,200,120,0.3)]">
+                        Pilih Kesetiaan
+                    </button>
+</div>
+</article>
+<!-- Card 2: Bangsa Manusia -->
+<article class="faction-card snap-center shrink-0 w-[85vw] max-w-[400px] h-full rounded-xl glass-panel relative overflow-hidden flex flex-col group transition-all duration-300 transform scale-95 opacity-50 hover:border-faction-human/50" data-faction="human">
+<div class="absolute inset-0 bg-gradient-to-b from-[rgba(255,255,255,0.2)] to-transparent opacity-50 pointer-events-none"></div>
+<div class="absolute inset-0 bg-faction-human/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300 rounded-xl shadow-[0_0_20px_rgba(70,130,180,0.2)]"></div>
+<div class="flex-1 relative overflow-hidden rounded-t-xl">
+<img class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" data-alt="A striking character illustration of a strategic mecha pilot human. Dark cinematic lighting, glowing steel blue accents, tactical sci-fi aesthetic, MMORPG concept art, dark obsidian background, high quality." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDkvonJ1ptpKnsPz6eCQ9kGzsduUxThajP6v4A-Y6PzEmWLm90NJsfjb6233KLo366OMqdHmkJLHYOYK6CzKyfpXhnnUgmHR5tgYQFeOqzW9Bq6ImdeURfdLK_l7NDZ5bsaQ19n8eRMXZv-Uxi8Ko8sxAKf50e-3jfiVNlTLMkCoB9BuMptrXEGW-8g1S4J3ALC4tKOAYju5aevEGMA9gBEkLtD5v02iccc7Q42owuVSZTghMcM3jg"/>
+<div class="absolute inset-0 bg-gradient-to-t from-obsidian-surface to-transparent"></div>
+</div>
+<div class="p-6 relative z-10 flex flex-col items-center text-center">
+<h2 class="font-headline-md text-headline-md text-faction-human mb-2">Bangsa Manusia</h2>
+<p class="font-body-md text-body-md text-on-surface-variant mb-4">Strategy • Mecha</p>
+<div class="bg-surface-container-low px-4 py-2 rounded-full border border-glass-stroke shadow-inner mb-6">
+<span class="font-label-sm text-label-sm text-faction-human">-5% Biaya Upgrade Iron Suit</span>
+</div>
+<button class="w-full py-3 rounded-lg border-2 border-faction-human text-faction-human font-label-sm text-label-sm uppercase tracking-wider hover:bg-faction-human/10 transition-colors shadow-[0_0_15px_rgba(70,130,180,0.1)] group-hover:shadow-[0_0_20px_rgba(70,130,180,0.3)]">
+                        Pilih Kesetiaan
+                    </button>
+</div>
+</article>
+<!-- Card 3: Bangsa Android -->
+<article class="faction-card snap-center shrink-0 w-[85vw] max-w-[400px] h-full rounded-xl glass-panel relative overflow-hidden flex flex-col group transition-all duration-300 transform scale-95 opacity-50 hover:border-faction-android/50" data-faction="android">
+<div class="absolute inset-0 bg-gradient-to-b from-[rgba(255,255,255,0.2)] to-transparent opacity-50 pointer-events-none"></div>
+<div class="absolute inset-0 bg-faction-android/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300 rounded-xl shadow-[0_0_20px_rgba(220,20,60,0.2)]"></div>
+<div class="flex-1 relative overflow-hidden rounded-t-xl">
+<img class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" data-alt="A striking character illustration of an advanced synthetic android entity. Dark cinematic lighting, glowing crimson red accents, cybernetic tech aesthetic, MMORPG concept art, dark obsidian background, high quality." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDLFk2gBY9Jj9ZCztkpzlURL34laQBFevBy_v6MTEfIjteEdu0zbB5bKGGkzBe4HYO-6Lx_b3SwzZugnckOMOhsmqPriHk1EVCOkEdYMPk_bs54niXO-sxT2mvioOOMGDCWMIYdop4HDR7XF3_k87BdxhS9hLoqLWvu2-45d-Uc3wg8YvlVnYiDRhhQIhO2r_DKOSW6-jpdtNl_l1aE13J-PExThA7KmAMV_8Y8Y8C5Qatsj5_3zt8"/>
+<div class="absolute inset-0 bg-gradient-to-t from-obsidian-surface to-transparent"></div>
+</div>
+<div class="p-6 relative z-10 flex flex-col items-center text-center">
+<h2 class="font-headline-md text-headline-md text-faction-android mb-2">Bangsa Android</h2>
+<p class="font-body-md text-body-md text-on-surface-variant mb-4">Cyber • Tech</p>
+<div class="bg-surface-container-low px-4 py-2 rounded-full border border-glass-stroke shadow-inner mb-6">
+<span class="font-label-sm text-label-sm text-faction-android">+2% Kecepatan Pemrosesan Modal</span>
+</div>
+<button class="w-full py-3 rounded-lg border-2 border-faction-android text-faction-android font-label-sm text-label-sm uppercase tracking-wider hover:bg-faction-android/10 transition-colors shadow-[0_0_15px_rgba(220,20,60,0.1)] group-hover:shadow-[0_0_20px_rgba(220,20,60,0.3)]">
+                        Pilih Kesetiaan
+                    </button>
+</div>
+</article>
+<!-- Spacer for mobile scrolling -->
+<div class="shrink-0 w-margin-mobile md:w-margin-desktop"></div>
+</div>
+<!-- Indicators -->
+<div class="flex justify-center gap-2 mt-4">
+<div class="w-2 h-2 rounded-full bg-faction-nisnas transition-all duration-300 w-8 indicator" data-index="0"></div>
+<div class="w-2 h-2 rounded-full bg-surface-variant transition-all duration-300 indicator" data-index="1"></div>
+<div class="w-2 h-2 rounded-full bg-surface-variant transition-all duration-300 indicator" data-index="2"></div>
+</div>
+</main>
+<script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const carousel = document.getElementById('carousel');
+            const cards = document.querySelectorAll('.faction-card');
+            const indicators = document.querySelectorAll('.indicator');
+            const ambientBg = document.getElementById('ambient-bg');
+            
+            const factionColors = {
+                'nisnas': '#50C878',
+                'human': '#4682B4',
+                'android': '#DC143C'
+            };
+
+            const updateActiveState = () => {
+                let centerPoint = carousel.scrollLeft + (carousel.clientWidth / 2);
+                let closestIndex = 0;
+                let minDistance = Infinity;
+
+                cards.forEach((card, index) => {
+                    const cardCenter = card.offsetLeft + (card.clientWidth / 2) - carousel.offsetLeft;
+                    const distance = Math.abs(centerPoint - cardCenter);
+                    
+                    if (distance < minDistance) {
+                        minDistance = distance;
+                        closestIndex = index;
+                    }
+                });
+
+                cards.forEach((card, index) => {
+                    if (index === closestIndex) {
+                        card.classList.remove('scale-95', 'opacity-50');
+                        card.classList.add('scale-100', 'opacity-100');
+                        
+                        const faction = card.getAttribute('data-faction');
+                        ambientBg.style.background = `radial-gradient(circle at center, ${factionColors[faction]} 0%, transparent 60%)`;
+                        
+                        indicators.forEach((ind, i) => {
+                            if (i === index) {
+                                ind.classList.add('w-8');
+                                ind.style.backgroundColor = factionColors[faction];
+                            } else {
+                                ind.classList.remove('w-8');
+                                ind.style.backgroundColor = '#353534'; // surface-variant
+                            }
+                        });
+                    } else {
+                        card.classList.add('scale-95', 'opacity-50');
+                        card.classList.remove('scale-100', 'opacity-100');
+                    }
+                });
+            };
+
+            carousel.addEventListener('scroll', updateActiveState);
+            // Initialize
+            updateActiveState();
+        });
+    </script>
+</body></html>

@@ -1,0 +1,42 @@
+[
+    {
+        "id": "PSB-B49AA5",
+        "nama": "Uda Ronald Poetra",
+        "no_hp": "081260731173",
+        "jumlah": 250000,
+        "pesan": "Semoga Aksi Sosial HUT RI 81 & 10 Tahun PSB sukses dan berkah!",
+        "tanggal": "2026-08-13 21:43:23",
+        "is_anonim": false,
+        "status": "terverifikasi"
+    },
+    {
+        "id": "PSB-8101",
+        "nama": "Hamba Allah",
+        "no_hp": "081267891234",
+        "jumlah": 500000,
+        "pesan": "Semoga berkah untuk adik-adik dan saudara kita di Pesisir Selatan.",
+        "tanggal": "2026-08-13 14:20:10",
+        "is_anonim": true,
+        "status": "terverifikasi"
+    },
+    {
+        "id": "PSB-8102",
+        "nama": "Keluarga Rantau Minang",
+        "no_hp": "082188990011",
+        "jumlah": 1000000,
+        "pesan": "Salam dari perantauan untuk kemajuan kampung halaman tercinta.",
+        "tanggal": "2026-08-13 18:45:00",
+        "is_anonim": false,
+        "status": "terverifikasi"
+    },
+    {
+        "id": "PSB-8103",
+        "nama": "Alumni PSB Angkatan I",
+        "no_hp": "089532942911",
+        "jumlah": 350000,
+        "pesan": "Semangat 10 tahun mengabdi PSB!",
+        "tanggal": "2026-08-14 01:10:25",
+        "is_anonim": false,
+        "status": "terverifikasi"
+    }
+]

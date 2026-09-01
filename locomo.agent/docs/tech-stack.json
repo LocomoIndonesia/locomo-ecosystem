@@ -1,0 +1,19 @@
+{
+  "schema_version": "1.0",
+  "last_updated": "2026-06-10",
+  "runtime_environment": "Docker-Only (All tools executed inside containers)",
+  "frameworks": {
+    "locomo-web": "Laravel 13",
+    "mandeh.online": "Laravel 11",
+    "semantic-api": "Python FastAPI",
+    "frontend_canvas": "Next.js, Vercel AI SDK"
+  },
+  "architecture_pattern": "Federated Micro Frontends & Modular Monoliths",
+  "databases": ["PostgreSQL (pgvector)", "Ollama (local qwen model)"],
+  "docker_services": ["pgvector-db", "ollama-local", "semantic-api", "laravel.test"],
+  "build_commands": {
+    "setup": "docker compose build && docker compose run --rm semantic-api pip install -r requirements.txt",
+    "dev": "docker compose up -d",
+    "test": "docker compose exec -w /var/www/html/locomo-web laravel.test ./vendor/bin/sail test"
+  }
+}

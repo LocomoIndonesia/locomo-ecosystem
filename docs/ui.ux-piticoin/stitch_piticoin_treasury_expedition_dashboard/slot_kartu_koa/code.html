@@ -1,0 +1,354 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en" style=""><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" name="viewport"/>
+<title>Slot KOA (Ceki)</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&amp;family=Playfair+Display:wght@600;700&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary-fixed": "#ffe16d",
+                        "surface-bright": "#393939",
+                        "surface-container-high": "#2a2a2a",
+                        "on-tertiary": "#003353",
+                        "on-secondary": "#003919",
+                        "tertiary-fixed": "#cee5ff",
+                        "on-primary-fixed-variant": "#544600",
+                        "on-secondary-container": "#003115",
+                        "surface": "#131313",
+                        "secondary": "#66dd8b",
+                        "on-error-container": "#ffdad6",
+                        "tertiary-fixed-dim": "#96ccff",
+                        "error": "#ffb4ab",
+                        "surface-container": "#201f1f",
+                        "on-surface": "#e5e2e1",
+                        "background": "#131313",
+                        "outline-variant": "#4d4732",
+                        "on-secondary-fixed-variant": "#005227",
+                        "on-surface-variant": "#d0c6ab",
+                        "primary-fixed-dim": "#e9c400",
+                        "primary-container": "#ffd700",
+                        "on-secondary-fixed": "#00210c",
+                        "on-primary-container": "#705e00",
+                        "on-error": "#690005",
+                        "inverse-primary": "#705d00",
+                        "tertiary-container": "#bdddff",
+                        "on-primary-fixed": "#221b00",
+                        "inverse-surface": "#e5e2e1",
+                        "on-tertiary-fixed": "#001d32",
+                        "faction-android": "#DC143C",
+                        "error-container": "#93000a",
+                        "on-tertiary-container": "#206393",
+                        "faction-human": "#4682B4",
+                        "secondary-fixed-dim": "#66dd8b",
+                        "surface-tint": "#e9c400",
+                        "obsidian-surface": "#1A1A1A",
+                        "gold-glow": "rgba(255, 215, 0, 0.4)",
+                        "glass-stroke": "rgba(255, 255, 255, 0.1)",
+                        "tertiary": "#f1f6ff",
+                        "secondary-fixed": "#83fba5",
+                        "on-tertiary-fixed-variant": "#004a75",
+                        "on-background": "#e5e2e1",
+                        "surface-container-highest": "#353534",
+                        "primary": "#fff6df",
+                        "surface-variant": "#353534",
+                        "inverse-on-surface": "#313030",
+                        "on-primary": "#3a3000",
+                        "surface-dim": "#131313",
+                        "secondary-container": "#25a55a",
+                        "surface-container-low": "#1c1b1b",
+                        "surface-container-lowest": "#0e0e0e",
+                        "faction-nisnas": "#50C878",
+                        "outline": "#999077"
+                    },
+                    borderRadius: {
+                        DEFAULT: "0.125rem",
+                        lg: "0.25rem",
+                        xl: "0.5rem",
+                        full: "0.75rem"
+                    },
+                    spacing: {
+                        "margin-mobile": "16px",
+                        "margin-desktop": "48px",
+                        "container-max": "1200px",
+                        "stack-sm": "8px",
+                        "stack-lg": "32px",
+                        "gutter": "24px",
+                        "stack-md": "16px"
+                    },
+                    fontFamily: {
+                        "body-lg": ["Inter"],
+                        "headline-md": ["Playfair Display"],
+                        "label-sm": ["Inter"],
+                        "headline-lg-mobile": ["Playfair Display"],
+                        "display-hero": ["Playfair Display"],
+                        "headline-lg": ["Playfair Display"],
+                        "body-md": ["Inter"]
+                    },
+                    fontSize: {
+                        "body-lg": ["18px", { lineHeight: "1.6", fontWeight: "400" }],
+                        "headline-md": ["24px", { lineHeight: "1.4", fontWeight: "600" }],
+                        "label-sm": ["12px", { lineHeight: "1", letterSpacing: "0.05em", fontWeight: "600" }],
+                        "headline-lg-mobile": ["28px", { lineHeight: "1.2", fontWeight: "700" }],
+                        "display-hero": ["48px", { lineHeight: "1.2", letterSpacing: "-0.02em", fontWeight: "700" }],
+                        "headline-lg": ["32px", { lineHeight: "1.3", fontWeight: "600" }],
+                        "body-md": ["16px", { lineHeight: "1.6", fontWeight: "400" }]
+                    }
+                }
+            }
+        }
+    </script>
+<style>
+        /* Custom Styles for Glow and Animations */
+        .gold-border {
+            border: 1px solid rgba(255, 215, 0, 0.5);
+            box-shadow: 0 0 10px rgba(255, 215, 0, 0.2), inset 0 0 10px rgba(255, 215, 0, 0.1);
+        }
+        .text-gold-gradient {
+            background: linear-gradient(to bottom, #fff6df, #ffd700, #e9c400);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            text-shadow: 0 0 20px rgba(255, 215, 0, 0.3);
+        }
+        .bg-gold-gradient {
+            background: linear-gradient(to bottom, #ffd700, #705d00);
+        }
+        .shine-effect {
+            position: relative;
+            overflow: hidden;
+        }
+        .shine-effect::after {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: linear-gradient(to right, rgba(255,255,255,0) 0%, rgba(255,255,255,0.3) 50%, rgba(255,255,255,0) 100%);
+            transform: rotate(30deg);
+            animation: shine 4s infinite;
+        }
+        @keyframes shine {
+            0% { transform: translateX(-100%) rotate(30deg); }
+            20% { transform: translateX(100%) rotate(30deg); }
+            100% { transform: translateX(100%) rotate(30deg); }
+        }
+        @keyframes pulse-glow {
+            0%, 100% { filter: drop-shadow(0 0 15px rgba(255, 215, 0, 0.6)); }
+            50% { filter: drop-shadow(0 0 30px rgba(255, 215, 0, 0.9)); }
+        }
+        .pulse-gold {
+            animation: pulse-glow 2s ease-in-out infinite;
+        }
+        @keyframes spin-anim {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+        .spinning {
+            animation: spin-anim 1s linear infinite;
+        }
+
+        /* Card Animation Styles */
+        @keyframes fall-in {
+            0% { transform: translateY(-100%); opacity: 0; }
+            70% { transform: translateY(10%); opacity: 1; }
+            100% { transform: translateY(0); opacity: 1; }
+        }
+        .card-spin-anim {
+            animation: fall-in 0.5s cubic-bezier(0.25, 1, 0.5, 1) forwards;
+        }
+        
+        .card-premium {
+            box-shadow: inset 0 0 10px rgba(255,255,255,0.1), 0 4px 6px rgba(0,0,0,0.8);
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        .card-premium:hover {
+            transform: translateY(-2px);
+            box-shadow: inset 0 0 15px rgba(255,215,0,0.2), 0 6px 12px rgba(0,0,0,0.9);
+        }
+        
+        /* Spin Button specific styles */
+        .spin-btn-wrapper {
+            background: radial-gradient(circle, #ffd700 0%, #705d00 70%, #221b00 100%);
+            box-shadow: 0 0 20px rgba(255, 215, 0, 0.6), inset 0 0 15px rgba(255,255,255,0.6);
+            border: 2px solid #fff6df;
+        }
+        
+        /* Layout specific adjustments */
+        body {
+            height: 100dvh;
+            overflow: hidden;
+        }
+    </style>
+</head>
+<body class="bg-surface text-on-surface flex flex-col md:flex-row font-body-lg">
+<!-- Header / Global Pool (Top in Mobile, Top Left in Landscape) -->
+<header class="w-full z-20 flex flex-col">
+<!-- Primary Header: User Profile & Global Balance -->
+<div class="w-full bg-surface-container-lowest border-b border-outline-variant/30 px-4 py-3 flex items-center justify-between shadow-[0_4px_20px_rgba(0,0,0,0.5)]">
+<div class="flex items-center gap-3">
+<!-- Profile Section -->
+<div class="relative">
+<div class="w-12 h-12 rounded-full border-2 border-primary-fixed p-0.5 bg-surface-container-high overflow-hidden">
+<img alt="Profile" class="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuA9BlwXdbnx3bsb2QIDywqF9TxxqOJXIqHcU2sQ7RQOk6L10zoovKODHWsa6YbGrT9w5opd1hW7h37SP8uRMsoOIBsZ_dYbyjlK0O4o0-t9MBp07WnIyKZa6BE997eyq1TUXF_ivPA6IOTj5Jmx9Us_zYzo76Is8BuDNmd8Iibf4SrpZnRf6MPPmeGkBDZKKK4sW3JWiG5-zaoZzZl0u71Oq1dgqIGuMmfn7ZvDr7OJrTltFxdGEkt8D0_VUUevrrlT"/>
+</div>
+<div class="absolute -bottom-1 -right-1 bg-gold-gradient text-[8px] font-bold px-1.5 py-0.5 rounded border border-white/20 text-white">VIP 5</div>
+</div>
+<div class="flex flex-col">
+<span class="font-label-sm text-on-surface tracking-wider">PANDAWA88</span>
+<!-- Global Balance (PitiCoin) -->
+<div class="flex items-center gap-1.5 bg-black/40 rounded-full pl-1 pr-2 py-0.5 border border-outline-variant/30">
+<span class="text-primary-fixed text-sm">🪙</span>
+<span class="font-headline-md text-primary-fixed text-lg leading-none">2,456</span>
+<button class="w-5 h-5 rounded-full bg-secondary flex items-center justify-center ml-1 active:scale-90 transition-transform shadow-[0_0_10px_rgba(255,215,0,0.6)]" title="Claim Gold">
+<span class="material-symbols-outlined text-[14px] text-on-secondary font-bold">payments</span>
+</button>
+</div>
+</div>
+</div>
+<!-- Menu Icon -->
+<button class="w-10 h-10 rounded-lg bg-surface-container-high border border-outline-variant/50 flex items-center justify-center active:scale-95 transition-all">
+<span class="material-symbols-outlined text-on-surface-variant">menu</span>
+</button>
+</div>
+<!-- Secondary Header: Liquidity Pool -->
+<div class="w-full bg-surface/80 backdrop-blur-md py-2 flex flex-col items-center justify-center border-b border-outline-variant/20">
+<h2 class="font-label-sm text-on-surface-variant text-[10px] tracking-[0.3em] uppercase opacity-70">PITICOIN di Gunung Mas</h2>
+<div class="font-headline-md text-gold-gradient text-xl tracking-widest">42,892,007</div>
+</div>
+</header>
+<!-- Game Area (Center Mobile, Left Landscape) -->
+<main class="flex-1 w-full md:w-3/5 flex flex-col items-center justify-center relative z-0 overflow-hidden bg-surface p-4 pb-32">
+<!-- Slot Grid Container -->
+<div class="relative w-full max-w-md aspect-square bg-surface-container-low p-3 rounded-xl border-4 border-outline-variant shadow-[0_0_40px_rgba(0,0,0,0.9)_inset,0_0_20px_rgba(255,215,0,0.1)] mb-4">
+<!-- Grid lines overlay -->
+<div class="absolute inset-0 border border-outline-variant/50 grid grid-cols-5 grid-rows-5 pointer-events-none z-10">
+<!-- Generating vertical grid lines for visual effect -->
+<div class="border-r border-b border-outline-variant/30"></div><div class="border-r border-b border-outline-variant/30"></div><div class="border-r border-b border-outline-variant/30"></div><div class="border-r border-b border-outline-variant/30"></div><div class="border-b border-outline-variant/30"></div>
+<div class="border-r border-b border-outline-variant/30"></div><div class="border-r border-b border-outline-variant/30"></div><div class="border-r border-b border-outline-variant/30"></div><div class="border-r border-b border-outline-variant/30"></div><div class="border-b border-outline-variant/30"></div>
+<div class="border-r border-b border-outline-variant/30"></div><div class="border-r border-b border-outline-variant/30"></div><div class="border-r border-b border-outline-variant/30"></div><div class="border-r border-b border-outline-variant/30"></div><div class="border-b border-outline-variant/30"></div>
+<div class="border-r border-b border-outline-variant/30"></div><div class="border-r border-b border-outline-variant/30"></div><div class="border-r border-b border-outline-variant/30"></div><div class="border-r border-b border-outline-variant/30"></div><div class="border-b border-outline-variant/30"></div>
+<div class="border-r border-outline-variant/30"></div><div class="border-r border-outline-variant/30"></div><div class="border-r border-outline-variant/30"></div><div class="border-r border-outline-variant/30"></div><div></div>
+</div>
+<!-- Cards Grid -->
+<div class="grid grid-cols-5 grid-rows-5 gap-1.5 w-full h-full relative z-0" id="slot-grid">
+<!-- Row 1 -->
+<div class="bg-[#e8deb5] rounded border border-[#5a4a35] p-0.5 flex items-center justify-center relative card-premium"><img class="object-cover w-full h-full opacity-90" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAbI2RqAHRHpB7tYwxQo87HVLVQx-1yfpfQuO57-bXhLyjG7JjA9juj1g5QHPKQgX4UxHwuovyplak__wKiaO3mRWz0Bg6jcAPJXt9gScfelHKXPWUAEBHubuE4SwMyXaokKD63OriZudfA3pPsLpWQJtrhILV47e3ZICSnCkS7RtrrD0YVIM7m-NWLK1fQAGQuXZ4Vqdu8b7PrL8nokukdRm6WGJb1SYFG9Lj2HniMEygpDeHQtcQ5vhSZSZcoqzWXg0zxAO3DgIUM"/></div>
+<div class="bg-[#e8deb5] rounded border border-[#5a4a35] p-0.5 flex items-center justify-center relative card-premium"><img class="object-cover w-full h-full opacity-90" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDQptYEHOG2fNOWy5dr73CXRmLV2r8zKd_hiowlU__KDI9Sfx8KQI_yn6UsE_j3B2o_6MmsJW6eJjeaKDYdhSxXSSXSukaHzJ1AaoQmNJk45EWApxBFRIH60shPzXi5SRIPnRqgS4-daCzWDD7Ijh0SmD7nxt7Qxjr8jrHBr71ESxKhkMqFEqnwNaWWFzw5Hxal7YfzPS3moWSuTzkcH5akT5AfIk16f5pUCfzPzpz5_8ElpLo1ixs"/></div>
+<div class="bg-[#e8deb5] rounded border border-[#5a4a35] p-0.5 flex items-center justify-center relative card-premium"><img class="object-cover w-full h-full opacity-90" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDoIokeAzOJiJrWw_phDenSp8bnwtJRnoR0XPfl10csEiYAH4MQjqFH80kB-Xm70YuaauVjf7LFKYeYBU1ddmfc2zIhThlk16l2IIMXrdAUoqpAeOAtrG3zEsrtUQ8tDa_0iglvmnmw07Xq7P4nPva1iB5vbhPkTSJwkvhfszRpUP8hiSSS9k9ZAKllGBNd6_qYHj6fjnKOa7JNwfoBYbJlYCfKKCRMtFYBU60P4e_XDCZreS54WxE"/></div>
+<div class="bg-[#e8deb5] rounded border border-[#5a4a35] p-0.5 flex items-center justify-center relative card-premium"><img class="object-cover w-full h-full opacity-90" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAdH41F-_0t6X1_LkjvgtWL2vbgrJZ2BtKQTycLgGwoKeaH2kyLUEZ3WJc03gIRfyEsSVjPCKG1Mi9w2G7P0yxUGHb670e66YjQz_QdVbM-RB7dNcCnRow4oJ5p-hU0ju0rwaHcp6VrARuqXSpI6vdS02dGOJgD9dnsQn_pVULXu4fRy_6gxCJGosZp7h0rhA4uMxaApN_uOR0Ln4sBNeR8WyjfIVcOox-xJjXRQAzMBdDRXqw4y2s"/></div>
+<div class="bg-[#e8deb5] rounded border border-[#5a4a35] p-0.5 flex items-center justify-center relative card-premium"><img class="object-cover w-full h-full opacity-90" src="https://lh3.googleusercontent.com/aida-public/AB6AXuA6DxiT2H8O7DKMMKkEhJ0Agvai04VYNSz-X7YNFsqKl9cZyoKxkLi_jYYZ9WsNAAyYVBUttG9-M1rareSgLYiEhkeDAYE7M-yVoxLo1zQIj8jyEN2xK-XK3Wv5hNo7tXcAZKkuwZB2Fi9Ufc2ejP9DrF-fc4xkrGs8v9ADs3vvI4He8YvjDeHQju2xOxyH1EEG1lBN58jpW6uLqU-Fl0pGGU2ov7dqqTq2UPWDgEAo8b5CtC7wzDA"/></div>
+<!-- Row 2 -->
+<div class="bg-[#e8deb5] rounded border border-[#5a4a35] p-0.5 flex items-center justify-center relative card-premium"><img class="object-cover w-full h-full opacity-90" src="https://lh3.googleusercontent.com/aida-public/AB6AXuD5HcGBYilsw_oYfogXu9nAPsuN2Ba4ZjfWCfXeug-NK-Lndng0fuM-Zoa4dTWA_KHYU_a2-zVWWmkTdNBxzQN-KsmLJ9f1DEl8BZTcpxLmj7NTAL-RmGqVV7ktqCAiVK7DYLN9yS6mOXqC82svtKWTKX_Ar49TYAFyam1Si53qX9Evk8HK9Ire5WmdOJIzT1cKjYZhYu-y0Ve0Zqg10WufFynZEKxtzizXmJJ0FxevgkUk8BpccLs"/></div>
+<div class="bg-[#e8deb5] rounded border border-[#5a4a35] p-0.5 flex items-center justify-center relative card-premium"><img class="object-cover w-full h-full opacity-90" src="https://lh3.googleusercontent.com/aida-public/AB6AXuC8mItLXlajzPIM8Ud-dqDl1DrRSzWNyrcke76Dno0nmIVqTZjSP6NeH1x8w-N4x11nrr9g0EI3yj4P3kKriVvXznCV4p2YfigIwQd7o00nUXH18EtFaotYGN2Bioho4x20rXrRgCU3SXvOceXoY6d-U1Jl_maedxUnm0xI1SBf75aZ1z9y9ZGyfWzJspSLLaf5WkZH-6SEXZWOwBXxeG06c9iWTXtt3WrGoJJ_LqlGMkOAsW-zrJg"/></div>
+<!-- Center Highlight KOA -->
+<div class="bg-[#111] rounded border-2 border-primary-fixed shadow-[0_0_20px_rgba(255,215,0,0.6)] p-0 flex items-center justify-center relative z-20 scale-110 card-premium">
+<img class="object-contain w-full h-full" src="https://lh3.googleusercontent.com/aida-public/AB6AXuA9BlwXdbnx3bsb2QIDywqF9TxxqOJXIqHcU2sQ7RQOk6L10zoovKODHWsa6YbGrT9w5opd1hW7h37SP8uRMsoOIBsZ_dYbyjlK0O4o0-t9MBp07WnIyKZa6BE997eyq1TUXF_ivPA6IOTj5Jmx9Us_zYzo76Is8BuDNmd8Iibf4SrpZnRf6MPPmeGkBDZKKK4sW3JWiG5-zaoZzZl0u71Oq1dgqIGuMmfn7ZvDr7OJrTltFxdGEkt8D0_VUUevrrlT"/>
+</div>
+<div class="bg-[#e8deb5] rounded border border-[#5a4a35] p-0.5 flex items-center justify-center relative card-premium"><img class="object-cover w-full h-full opacity-90" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDy9CIO9BZDn9FMbY_5AfK2w1Mc1MPht_IRyTkvY-AbdvjIVBO19OL1Ssh6vTUuXzDnpBR_-B-1kMNnLC1A6snT9VG44zMTE62Z_tZTgrfCT4xbEc2PfdefCUkibplkDVrEh85CzQSTo9XEsR1oL-YKR8ySjtiSW3415t4Z0rvujTSySa2EZv6H1eMJP-c20E-B5kyuEukVuzCFaHEhtBfRXDxPdDOoad2J7EbsmZHv7hcDynFf5Uw"/></div>
+<div class="bg-[#e8deb5] rounded border border-[#5a4a35] p-0.5 flex items-center justify-center relative card-premium"><img class="object-cover w-full h-full opacity-90" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDZ2NqDUP81BCD7qsI9tc9vpF8o4D6g1QRp-7DjecUiq7JEKX0VozxWlC4lsLbiyaA9vubb3J8s4XyxNBsEFzOWlKtbPuFlP7U1AGayB0g8En80cxwP3xVF-Xvc_xqsaxQNIt2RfloerU04DgYjrG9nclr4SV5KW8KoWPhHJElg-lR0ydAIeci3YJ5kuqLh-hm8V2yYdL2q-0IFqc1i7buNQmEyLRSNrCwyIBJX1C6V4B9AxUkwzcU"/></div>
+<!-- Row 3 -->
+<div class="bg-[#e8deb5] rounded border border-[#5a4a35] p-0.5 flex items-center justify-center relative card-premium"><img class="object-cover w-full h-full opacity-90" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDJ349mJvc22bL7d95w-olFTrtEzZBZ0-zkE04xEc3_--HsmZcE93JE0MqCNDAHbdF7es48TkAmj1_Qj2WW1CrpgeyINUayKsNk4IXIILLdo935OOVvv9Nx0Y3AnS94p0h2vmYYF7KB9h4Kf15BvU7-BNowhlPtfwKko63l8-4yVyzO9uO5Z1HRiWVlc9wz8ZzH0yt_m2brNk61_wzKoGQb3iy3I51Dv9RR8hog7YcNR_P5sUoSkso"/></div>
+<div class="bg-[#e8deb5] rounded border border-[#5a4a35] p-0.5 flex items-center justify-center relative card-premium"><img class="object-cover w-full h-full opacity-90" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBWEMNhyg8Kp0Rq-SSc7JEzQwSsQqFEeMyRqyio-uXNytFqEHpI5Hau_0nIagjeLNLwCXgLuB9xrwV6nyNqR9xiO6LKuQKi6RyV5ZqOqx_63ocjSZycNnmxNj1ystw59KJf-VUwAfwt9043-9qtPpDl69ixrwk6No6DxPwbBepyTcce1d19p1MJ_rfYLXkxJPoIyjuG5EXi9U-bEpqki2cfBP4YnuUrmuZ5jEnHVE8ox-C9uQu9T6s"/></div>
+<!-- Center Wild -->
+<div class="bg-[#111] rounded border-2 border-[#a855f7] shadow-[0_0_20px_rgba(168,85,247,0.6)] p-0 flex items-center justify-center relative z-20 scale-110 card-premium">
+<img class="object-contain w-full h-full" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAAoB4NezrhQF5ogaJ64BqZzP6WIZ2yXlkFgWfLCwhW0zZeMNhxck9SwguaxYGHeg_ZWnqwIjXRr0XMX7ZN4O2M-4CUmZz3JmoNThf2Cp5nGDLZjwi4bEffe8e5mz8mmmiymX0Op9eULyK4K7j2NvfN8dXEZ5GsyqFfhSSXadAz9dkQ6Lw6WSko9D2ZjsLzaBVtZx-aneCXRrUEEfJ18S7SpxZWwGp6woa7T8ZPriRav3tYMbRZevkGDq4utDeHdFEL"/>
+</div>
+<div class="bg-[#e8deb5] rounded border border-[#5a4a35] p-0.5 flex items-center justify-center relative card-premium"><img class="object-cover w-full h-full opacity-90" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAU8yZOWm3_GC0R9KyTjfjtIBbwdngSf0i18kqKn63X_pEpdl1b5ekhb4bpuiObc1cbx-_kPkWdzWu4NO7pY_D7ooPqsE3NMUwHA2hjD7Ja6hz9rbIY9ULwcmSkVgYGCzzrwSbPuazvRNvzKPth0hGwUj3WiyNO58VUgbN_mxlJW7ODMPDqH1syzth38NbukYteaUQ1HqdbEVElPigjZcuctqNta54m8GRSNBGH3z5PWjTcvdUCo7M"/></div>
+<div class="bg-[#e8deb5] rounded border border-[#5a4a35] p-0.5 flex items-center justify-center relative card-premium"><img class="object-cover w-full h-full opacity-90" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBDy6TlIh1-HIcUY1BD5eCKjZv5D82E9_5t0Zgc32MrnPQvP9MzOC5g7eau8z6uOwcx4Z6xQ9tf52Tr7j5jGVsQRNgOUaZLiFfxPlnuyqmUdXvLuw18N-16JvbvufSTrvop9UKh1tZKVjcuAdCfDTIFNM4mkB_bydD3FX3KjfjbSfmbnAcatSYeIb49gDZnBeF6vmPb1HoXlsyabETS2qrLBWrYhpRrB-iXuEVHgCILfHi4QwQ7FqQ"/></div>
+<!-- Row 4 -->
+<div class="bg-[#e8deb5] rounded border border-[#5a4a35] p-0.5 flex items-center justify-center relative card-premium"><img class="object-cover w-full h-full opacity-90" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBxBPd9bclk2JIg-sXKh_FsrcX_SLrBmpmWv2SHlxsAgSkLaSJXRqHbDuAwafP7Pue1sUhOSdjDengq6Kn9B-YI0sPR9Y1L3LMbCZk2FTpG3el_E5JJGNkTt9snJfHp5De_tpAKd55vx70uQbjfHepMBxcIa1A39tYOLNGgpt2N45NJCcxuMvG1coqVJrjZUIER3OfG_zVPsws5KMu9mnzxCMawcjfGUCIbFRVdB6DVtS0lv0GhsNk"/></div>
+<div class="bg-[#e8deb5] rounded border border-[#5a4a35] p-0.5 flex items-center justify-center relative card-premium"><img class="object-cover w-full h-full opacity-90" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCVSXCz9WSXuBU9l9F7dDwhk04SG9_n_fDZp4cqXkWArLygQosQFweUYRSmYhouvUmMGI9mF3QYjSKm4eJZ28DOwJkBvCcSBBD-Cn-em2bznS7k0HvcQqYIK8G9Lv0TFtQaDSpROhf-dOGhZPgp--8UHDf7ZHp0v5jPovPoFkjiDNNSG2lcEw_TnqjxWYUsqCT0dQuftBP1J3QkR5yA1NA0Usrny8RuZ2ZOvGGoBM8UUBO7PRZov-Y"/></div>
+<div class="bg-[#e8deb5] rounded border border-[#5a4a35] p-0.5 flex items-center justify-center relative card-premium"><img class="object-cover w-full h-full opacity-90" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDJcDWewZxG17hMuDRZ0ItD5Dhx3oI_QlTh9Avh5k_gltJxhZDAEq7nzOtHJHShDGEDkJQFvC1kN1l1PR8UZba9MGUp9FtCxPo46U1wnxAgpp6zNyJrqMGXvnAb6xrg7YnMwio5Z_n9yUU3m0MIBKFZcLShxGRBziLO8fU4-_B_fQ10ywNlNH6sN9ED3LpzznE0XIW1xqiwUQC6Q_EtquCSjJFyc9uBB-_wD5snCxPnqGgmLcNuSME"/></div>
+<div class="bg-[#e8deb5] rounded border border-[#5a4a35] p-0.5 flex items-center justify-center relative card-premium"><img class="object-cover w-full h-full opacity-90" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDL8JE2L4ID9dyWctLi-jIwMRT2yk7rkZTTLLHbgoqASLs7YJrxGoCNrfaf9a0Ty2diVsnUub4YmgLOeNa6HHrGAPvDOWhPnDgT3lbnHvFbnaf3oIHMUPDuYwKwQVsSMn9oX-42H4_JrqduseZ35pefJTavxjmDlw2sIfd1nLRWqk3zMtGnsGUcoxb-NN3HGuUrGuB0bs_h78JCe-OeTA6PnS6i5NzRP6krElIvLf1gosE7USsnkPU"/></div>
+<div class="bg-[#e8deb5] rounded border border-[#5a4a35] p-0.5 flex items-center justify-center relative card-premium"><img class="object-cover w-full h-full opacity-90" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCMIX6qtlwSrlIRKQclAIuTUG8XCfkirX52Oc9qCLSJpQ3oAH80rAGCFi5rokvE7AxyyfPcS_PHPjQAHu6vzPbrqBxl2n_X4BeFbRWu0U98WqumlV5TznWfG2uftgNkGbmwhortYUV37wGuMAFt_qVVOkLjMZ8evC7jAv1bmcyhFSgx5EYBAx8CLE1SI8u8wW88GmknhVx-9TE5x74ANHoCRdJ-bDTJYSdP6xb5Q2bCF0fsNZj_l6Y"/></div>
+<!-- Row 5 (Player Area Focus) -->
+<div class="bg-[#e8deb5] rounded border border-[#5a4a35] p-0.5 flex items-center justify-center relative border-b-4 border-b-primary-fixed/50 card-premium"><img class="object-cover w-full h-full opacity-90" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAD4U4Evk1x3AVQKN-5pPVc5DYBbm5FXPwdpc19vkwH843coSFj26XiSZrnUKTJNwH3HlEfIc7GFVzhv1vNoe1Ct0ipjHfHnQSiR66f0OdxKMsGXzWuTZiCsiw71hWL37tacAzSioGZlsXLHeaqTmYLrZ7aijEApfjSl_gjEpsVSf7mvELcIuAe1wy6PoLcEJVpx3YoBCWueVuEbtfU1ACr6_9W7PiyIlxjgiJvieQVB5jFxLfIZHg"/></div>
+<div class="bg-[#e8deb5] rounded border border-[#5a4a35] p-0.5 flex items-center justify-center relative border-b-4 border-b-primary-fixed/50 card-premium"><img class="object-cover w-full h-full opacity-90" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCv9dHOu6o-zcutshKSUge9pfM5kvbISnJ1U6svIO3kxqddRt9uO3ZJp-sOXDgPuDO3ESzDiMT7z8xInnClVdYu3_TifJd_PWlICsE9k-5x5J2AwDskfqMQKf_NV6KQTp2_Zvf8eS-tdXW0xSSvbbQvzGtGRK77_Q_xlhSnC5iAedhAZwdtMdLhHcd94Gep1oLX194TmSyGdmtI_83BwQO69VrVn8fs--hMHJu1ChY-DfbN2vCgreY"/></div>
+<div class="bg-[#e8deb5] rounded border border-[#5a4a35] p-0.5 flex items-center justify-center relative border-b-4 border-b-primary-fixed/80 scale-105 shadow-[0_4px_10px_rgba(255,215,0,0.3)] card-premium"><img class="object-cover w-full h-full opacity-100" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAN7ddEAyLUcZg2BO5Uktbb7LHLBO8Jp591mxXy3nug0HQ19sJHPLpEsKQc-Ioykrfs2e57RNyNgPCEoFJQJrjEOfGg7npHn0Pi3Jsu0iVwxwhHahRr6bpAjI1R8g1Z4WKnKL6HcrVTwa4Jm2jVPPPWRdRL9whAGT1KEB5bW6wmNCNqh7GudConNkRtyZ_Q4TMPjHEaT5qARY5ndTv8T0-KcVdnoZoGAXev1mXbuGUyklXiUClg7lA"/></div>
+<div class="bg-[#e8deb5] rounded border border-[#5a4a35] p-0.5 flex items-center justify-center relative border-b-4 border-b-primary-fixed/50 card-premium"><img class="object-cover w-full h-full opacity-90" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCA13j3lMNm57cGfmOE6fNS50pkqSo1rbgZF7xwlshFidPladikDSGdEh9qNx_6ezvQJ-iqA2A-NYsueVerKsku_87XCjgF9ZkycpZemu2MdVuSpgUVbisCcueyhyBOOFiK_Halk1hCaXhb0S3fKcjRDA5UwAkFjOY1zn9Jpo_UCtrF_d8pHIunyr94x05VH_4DP95HakJoS4qibIFCh4VR_0iLcQ3M8dnHfnfpDWCrTcnO53_G9i4"/></div>
+<div class="bg-[#e8deb5] rounded border border-[#5a4a35] p-0.5 flex items-center justify-center relative border-b-4 border-b-primary-fixed/50 card-premium"><img class="object-cover w-full h-full opacity-90" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAdDRyiQvww1_qi04LVmtwgK1X-AcIa_utJzpD2mRkopme-gZ1yW_TS22Z_xqNqW1_MtMc7zLCjxHN1EUi6Aw9nxdrZfT-u3zOCBbWENnOpU7eijVCpywFRHWGWePo4cNStV9K6YiblJZ7D9LrqPfaHUeTeKajxOC_ZbOriBOeKY6i_fCdommsOXyznnoTLCdx5FdxiW2-4wb-e1Z750KwgPel3XQonbNmB62fr70vbZorytkNrXJU"/></div>
+</div>
+<!-- Highlight Overlay for Player Cards Area -->
+<div class="absolute bottom-0 left-0 w-full h-1/5 bg-gradient-to-t from-primary-fixed/10 to-transparent pointer-events-none rounded-b-lg"></div>
+</div>
+<!-- Reorganized Stats & Controls Below Grid -->
+<div class="w-full max-w-md flex flex-col gap-3 z-10">
+<!-- Compact Stats -->
+<div class="flex justify-between items-center bg-surface-container-low/80 backdrop-blur-md rounded-xl p-2 border border-outline-variant/50 shadow-md">
+<div class="flex flex-col items-center flex-1">
+<span class="font-label-sm text-on-surface-variant text-[10px] uppercase">Silver Balance</span>
+<div class="font-headline-md text-on-surface flex items-center gap-1 text-sm">
+<span class="">🥈</span> 5,000
+            </div>
+</div>
+<div class="w-px h-8 bg-outline-variant/50 mx-2"></div>
+<div class="flex flex-col items-center flex-1">
+<span class="font-label-sm text-on-surface-variant text-[10px] uppercase">Acc. Gold</span>
+<div class="font-headline-md text-primary-fixed flex items-center gap-1 text-sm">
+<span class="">🪙</span> 25.00
+            </div>
+</div>
+</div>
+<!-- Refined Bet Control -->
+<div class="flex justify-between items-center bg-surface-container-high/60 backdrop-blur-md rounded-full border border-outline-variant px-4 py-2 shadow-inner">
+<button class="w-8 h-8 rounded-full bg-surface-container-highest border border-outline flex items-center justify-center hover:bg-surface-bright active:scale-95 transition-all text-primary-fixed">
+<span class="material-symbols-outlined text-sm">remove</span>
+</button>
+<div class="flex flex-col items-center">
+<span class="font-label-sm text-on-surface-variant uppercase tracking-wider text-[9px]">Total Bet</span>
+<span class="font-headline-md text-primary-fixed text-lg leading-none">1,000</span>
+</div>
+<button class="w-8 h-8 rounded-full bg-surface-container-highest border border-outline flex items-center justify-center hover:bg-surface-bright active:scale-95 transition-all text-primary-fixed">
+<span class="material-symbols-outlined text-sm">add</span>
+</button>
+</div>
+</div>
+</main>
+<!-- Floating Spin Button -->
+<div class="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 flex items-center justify-center pointer-events-none">
+<button class="pointer-events-auto spin-btn-wrapper w-20 h-20 rounded-full flex items-center justify-center active:scale-95 transition-transform relative pulse-gold" id="spin-fab" onclick="triggerSpin()">
+<div class="absolute inset-1 rounded-full border border-primary-fixed/40 pointer-events-none"></div>
+<div class="absolute inset-2 rounded-full border-2 border-primary-container/30 pointer-events-none border-dashed"></div>
+<span class="material-symbols-outlined text-4xl text-primary-fixed drop-shadow-[0_2px_6px_rgba(0,0,0,0.9)]" style="font-variation-settings: 'FILL' 0, 'wght' 700;">sync</span>
+</button>
+</div>
+<script>
+    function triggerSpin() {
+        const grid = document.getElementById('slot-grid');
+        const cards = grid.querySelectorAll('.card-premium');
+        const fab = document.getElementById('spin-fab');
+        const icon = fab.querySelector('.material-symbols-outlined');
+        
+        // Add rotation animation to FAB icon
+        icon.classList.add('spinning');
+        fab.classList.remove('pulse-gold'); // temporarily disable pulse
+        
+        cards.forEach((card, index) => {
+            // Remove animation if exists
+            card.style.animation = 'none';
+            card.offsetHeight; // Trigger reflow
+            
+            // Add delay based on column/row for a falling effect
+            const col = index % 5;
+            const row = Math.floor(index / 5);
+            const delay = (col * 0.1) + (row * 0.05);
+            
+            card.style.animation = `fall-in 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275) ${delay}s forwards`;
+        });
+
+        // Remove spinning animation after cards finish falling (approx max delay + duration)
+        setTimeout(() => {
+            icon.classList.remove('spinning');
+            fab.classList.add('pulse-gold');
+        }, 1200);
+    }
+</script>
+</body></html>

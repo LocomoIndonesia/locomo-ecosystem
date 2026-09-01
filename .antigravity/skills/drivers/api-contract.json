@@ -1,0 +1,38 @@
+{
+  "contract_name": "Locomo Cognitive Driver API",
+  "version": "1.1.0",
+  "endpoints": {
+    "/project/init": {
+      "method": "POST",
+      "payload": {
+        "project_code": "string",
+        "project_name": "string"
+      }
+    },
+    "/memory/store": {
+      "method": "POST",
+      "payload": {
+        "project_code": "string",
+        "type": "string",
+        "content": "string",
+        "metadata": "object"
+      }
+    },
+    "/memory/query": {
+      "method": "POST",
+      "payload": {
+        "project_code": "string",
+        "query": "string",
+        "top_k": "integer"
+      }
+    },
+    "/agent/local-inference": {
+      "method": "POST",
+      "payload": {
+        "prompt": "string",
+        "system_prompt": "string",
+        "model": "qwen2.5:1.5b"
+      }
+    }
+  }
+}

@@ -1,0 +1,1006 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>Aksi Sosial PSB Merdeka 2026 — Pesisir Selatan Bersatu</title>
+<meta name="description" content="Kemitraan strategis & penggalangan dana untuk Sembako Merdeka dan Edu-Kit bagi keluarga pra-sejahtera di 15 kecamatan Pesisir Selatan. Merayakan 81 tahun Indonesia merdeka & 10 tahun PSB mengabdi.">
+<meta name="theme-color" content="#0B1620">
+<meta property="og:title" content="Aksi Sosial PSB Merdeka 2026">
+<meta property="og:description" content="Kemitraan strategis & penggalangan dana — Pesisir Selatan Bersatu, 10 Tahun Mengabdi & Bersatu.">
+<meta property="og:type" content="website">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,600;0,9..144,700;0,9..144,900;1,9..144,500&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  /* ============================================================
+     DESIGN TOKENS
+  ============================================================ */
+  :root{
+    --maroon:#5C0A16;
+    --maroon-2:#7A0F1F;
+    --red:#C4192F;
+    --gold:#C89B3C;
+    --gold-light:#E8CD7B;
+    --navy:#0B1620;
+    --navy-2:#132131;
+    --teal:#1E6E72;
+    --teal-light:#4FA8A0;
+    --cream:#F8F3E7;
+    --cream-2:#EFE6D2;
+    --ink:#241B14;
+    --ink-soft:#4A3D30;
+    --white:#FFFFFF;
+
+    --font-display:'Fraunces', serif;
+    --font-body:'Plus Jakarta Sans', sans-serif;
+
+    --radius-s:10px;
+    --radius-m:18px;
+    --radius-l:28px;
+
+    --shadow-card: 0 20px 45px -20px rgba(11,22,32,0.35);
+    --shadow-soft: 0 10px 30px -12px rgba(92,10,22,0.25);
+
+    --container-w: 1180px;
+  }
+
+  *,*::before,*::after{ box-sizing:border-box; }
+  html{ scroll-behavior:smooth; }
+  @media (prefers-reduced-motion: reduce){
+    html{ scroll-behavior:auto; }
+    *,*::before,*::after{ animation-duration:0.001ms !important; animation-iteration-count:1 !important; transition-duration:0.001ms !important; scroll-behavior:auto !important; }
+  }
+  body{
+    margin:0;
+    font-family:var(--font-body);
+    color:var(--ink);
+    background:var(--cream);
+    -webkit-font-smoothing:antialiased;
+    overflow-x:hidden;
+  }
+  img,svg{ display:block; max-width:100%; }
+  a{ color:inherit; text-decoration:none; }
+  button{ font-family:inherit; cursor:pointer; }
+  h1,h2,h3{ font-family:var(--font-display); margin:0; line-height:1.08; }
+  p{ margin:0; }
+  .container{ width:100%; max-width:var(--container-w); margin:0 auto; padding:0 22px; }
+  :focus-visible{ outline:3px solid var(--gold-light); outline-offset:3px; }
+
+  .eyebrow{
+    display:inline-flex; align-items:center; gap:8px;
+    font-size:12.5px; font-weight:700; letter-spacing:.14em; text-transform:uppercase;
+    padding:8px 16px; border-radius:999px;
+  }
+
+  /* ============================================================
+     BUTTONS & CHIPS
+  ============================================================ */
+  .btn{
+    display:inline-flex; align-items:center; justify-content:center; gap:8px;
+    padding:14px 26px; border-radius:999px; border:1px solid transparent;
+    font-weight:700; font-size:15px; letter-spacing:.01em;
+    transition:transform .18s ease, box-shadow .18s ease, background .18s ease;
+    white-space:nowrap;
+  }
+  .btn:active{ transform:translateY(1px) scale(.99); }
+  .btn--primary{
+    background:linear-gradient(135deg, var(--gold-light), var(--gold));
+    color:var(--maroon);
+    box-shadow:0 14px 30px -12px rgba(200,155,60,0.55);
+  }
+  .btn--primary:hover{ box-shadow:0 18px 36px -12px rgba(200,155,60,0.7); transform:translateY(-1px); }
+  .btn--outline{
+    background:transparent; border-color:rgba(248,243,231,0.55); color:var(--cream);
+  }
+  .btn--outline:hover{ background:rgba(248,243,231,0.1); }
+  .btn--dark{
+    background:var(--maroon); color:var(--cream);
+    box-shadow:0 14px 30px -14px rgba(92,10,22,0.6);
+  }
+  .btn--dark:hover{ background:var(--maroon-2); }
+  .btn--ghost{
+    background:rgba(92,10,22,0.06); color:var(--maroon);
+  }
+  .btn--ghost:hover{ background:rgba(92,10,22,0.12); }
+  .btn--block{ width:100%; }
+  .btn svg{ width:18px; height:18px; flex:none; }
+
+  /* ============================================================
+     ROOFLINE DIVIDER — signature Minangkabau gonjong motif
+  ============================================================ */
+  .roofline{ display:block; width:100%; height:34px; }
+  @media (min-width:720px){ .roofline{ height:46px; } }
+
+  /* ============================================================
+     HEADER
+  ============================================================ */
+  .site-header{
+    position:sticky; top:0; z-index:40;
+    background:rgba(11,22,32,0.86);
+    backdrop-filter:blur(10px);
+    -webkit-backdrop-filter:blur(10px);
+  }
+  .site-header__row{
+    display:flex; align-items:center; justify-content:space-between;
+    padding:12px 0;
+  }
+  .brand{ display:flex; align-items:center; gap:10px; color:var(--cream); }
+  .brand__mark{ width:38px; height:38px; flex:none; }
+  .brand__text{ display:flex; flex-direction:column; line-height:1.15; }
+  .brand__title{ font-family:var(--font-display); font-weight:700; font-size:15.5px; letter-spacing:.01em; }
+  .brand__sub{ font-size:10.5px; letter-spacing:.12em; text-transform:uppercase; color:var(--gold-light); }
+  .header-progress{ height:3px; width:100%; background:rgba(248,243,231,0.12); }
+  .header-progress__fill{ height:100%; background:linear-gradient(90deg, var(--gold), var(--red)); width:0%; transition:width .6s ease; }
+
+  /* ============================================================
+     HERO
+  ============================================================ */
+  .hero{
+    position:relative;
+    background:
+      radial-gradient(60% 55% at 82% 8%, rgba(78,168,160,0.28), transparent 60%),
+      radial-gradient(50% 45% at 8% 92%, rgba(200,155,60,0.16), transparent 60%),
+      linear-gradient(160deg, var(--navy) 0%, var(--navy-2) 55%, var(--maroon) 130%);
+    color:var(--cream);
+    padding:56px 0 0;
+    overflow:hidden;
+  }
+  .hero__badges{
+    position:absolute; top:22px; right:22px;
+    display:flex; flex-direction:column; align-items:center; gap:2px;
+    color:var(--gold-light); text-align:center;
+    font-family:var(--font-display);
+    opacity:.9;
+  }
+  .hero__badges .num{ font-size:30px; font-weight:900; line-height:1; }
+  .hero__badges .lbl{ font-family:var(--font-body); font-size:9px; letter-spacing:.14em; text-transform:uppercase; color:rgba(248,243,231,0.75); }
+  .hero__content{ position:relative; z-index:2; max-width:680px; }
+  .hero .eyebrow{ background:rgba(248,243,231,0.1); color:var(--gold-light); border:1px solid rgba(200,155,60,0.4); }
+  .hero h1{
+    margin-top:20px; font-size:clamp(34px, 7vw, 58px); font-weight:900; color:var(--cream);
+  }
+  .hero h1 em{ font-style:normal; color:var(--gold-light); }
+  .hero__lead{ margin-top:18px; font-size:16.5px; line-height:1.65; color:rgba(248,243,231,0.85); max-width:56ch; }
+
+  .countdown{
+    margin-top:34px;
+    background:rgba(11,22,32,0.55);
+    border:1px solid rgba(200,155,60,0.35);
+    border-radius:var(--radius-m);
+    padding:20px;
+    backdrop-filter:blur(6px);
+  }
+  .countdown__label{ font-size:12.5px; letter-spacing:.08em; text-transform:uppercase; color:var(--gold-light); font-weight:700; }
+  .countdown__grid{ display:grid; grid-template-columns:repeat(4,1fr); gap:10px; margin-top:14px; }
+  .countdown__unit{
+    background:rgba(248,243,231,0.06);
+    border:1px solid rgba(248,243,231,0.12);
+    border-radius:var(--radius-s);
+    padding:12px 4px;
+    text-align:center;
+  }
+  .countdown__value{
+    font-family:var(--font-body); font-variant-numeric:tabular-nums;
+    font-size:clamp(22px,5vw,32px); font-weight:800; color:var(--cream);
+  }
+  .countdown__unitlabel{ font-size:10px; letter-spacing:.1em; text-transform:uppercase; color:rgba(248,243,231,0.6); margin-top:4px; }
+  .countdown__date{ margin-top:12px; font-size:13px; color:rgba(248,243,231,0.65); }
+
+  .hero__cta{ display:flex; flex-wrap:wrap; gap:12px; margin-top:26px; }
+  .hero__trust{
+    margin-top:22px; display:flex; flex-wrap:wrap; gap:16px;
+    font-size:12.5px; color:rgba(248,243,231,0.65);
+  }
+  .hero__trust span{ display:inline-flex; align-items:center; gap:6px; }
+  .hero__trust svg{ width:14px; height:14px; color:var(--gold-light); }
+
+  .hero__roofline-wrap{ margin-top:48px; position:relative; z-index:2; }
+
+  /* ============================================================
+     PROGRESS CARD — overlaps hero/cream boundary
+  ============================================================ */
+  .progress-section{ background:var(--cream); padding:0 0 70px; margin-top:-46px; position:relative; z-index:3; }
+  .progress-card{
+    background:var(--white);
+    border-radius:var(--radius-l);
+    box-shadow:var(--shadow-card);
+    padding:28px 24px;
+    border:1px solid rgba(92,10,22,0.06);
+  }
+  .progress-card__top{ display:flex; flex-wrap:wrap; align-items:baseline; justify-content:space-between; gap:10px; }
+  .progress-card__collected{ font-family:var(--font-display); font-weight:800; font-size:clamp(26px,5vw,36px); color:var(--maroon); font-variant-numeric:tabular-nums; }
+  .progress-card__target{ font-size:14px; color:var(--ink-soft); }
+  .progress-bar{ margin-top:16px; height:14px; border-radius:999px; background:var(--cream-2); overflow:hidden; }
+  .progress-bar__fill{ height:100%; border-radius:999px; background:linear-gradient(90deg, var(--gold), var(--red)); width:0%; transition:width 1s cubic-bezier(.2,.7,.3,1); }
+  .progress-card__pct{ margin-top:8px; font-size:12.5px; font-weight:700; color:var(--maroon); }
+
+  .progress-stats{ margin-top:22px; display:grid; grid-template-columns:repeat(3,1fr); gap:10px; }
+  .progress-stat{ text-align:center; padding:14px 6px; border-radius:var(--radius-s); background:var(--cream); }
+  .progress-stat__num{ font-family:var(--font-display); font-weight:800; font-size:22px; color:var(--maroon); }
+  .progress-stat__lbl{ font-size:11px; color:var(--ink-soft); margin-top:2px; letter-spacing:.02em; }
+
+  /* ============================================================
+     SECTION HEADINGS (shared)
+  ============================================================ */
+  .section{ padding:70px 0; }
+  .section-head{ max-width:640px; }
+  .section-head .eyebrow{ background:rgba(92,10,22,0.07); color:var(--maroon); }
+  .section-head--dark .eyebrow{ background:rgba(200,155,60,0.14); color:var(--gold-light); }
+  .section-head h2{ margin-top:14px; font-size:clamp(26px,4.5vw,38px); color:var(--ink); font-weight:700; }
+  .section-head--dark h2{ color:var(--cream); }
+  .section-head p{ margin-top:12px; font-size:15.5px; line-height:1.65; color:var(--ink-soft); }
+  .section-head--dark p{ color:rgba(248,243,231,0.75); }
+
+  /* ============================================================
+     URGENCY CARDS
+  ============================================================ */
+  .urgency-grid{ margin-top:34px; display:grid; gap:16px; grid-template-columns:1fr; }
+  @media (min-width:720px){ .urgency-grid{ grid-template-columns:1fr 1fr; } }
+  .urgency-card{
+    background:var(--white); border-radius:var(--radius-m); padding:24px;
+    border:1px solid rgba(92,10,22,0.08); box-shadow:var(--shadow-soft);
+  }
+  .urgency-card__icon{
+    width:46px; height:46px; border-radius:12px; display:flex; align-items:center; justify-content:center;
+    background:rgba(200,155,60,0.15); color:var(--maroon); margin-bottom:14px;
+  }
+  .urgency-card__icon svg{ width:24px; height:24px; }
+  .urgency-card h3{ font-size:18px; font-weight:700; }
+  .urgency-card p{ margin-top:8px; font-size:14.5px; line-height:1.6; color:var(--ink-soft); }
+
+  /* ============================================================
+     PROGRAM CARDS
+  ============================================================ */
+  .program-grid{ margin-top:34px; display:grid; gap:18px; grid-template-columns:1fr; }
+  @media (min-width:820px){ .program-grid{ grid-template-columns:1fr 1fr; } }
+  .program-card{
+    border-radius:var(--radius-l); padding:26px; color:var(--cream);
+    position:relative; overflow:hidden; box-shadow:var(--shadow-card);
+  }
+  .program-card--sembako{ background:linear-gradient(155deg, var(--maroon) 0%, var(--maroon-2) 100%); }
+  .program-card--edukit{ background:linear-gradient(155deg, var(--teal) 0%, #123f42 100%); }
+  .program-card__tag{ font-size:11.5px; letter-spacing:.1em; text-transform:uppercase; color:var(--gold-light); font-weight:700; }
+  .program-card h3{ margin-top:10px; font-size:24px; font-weight:800; }
+  .program-card__meta{ margin-top:6px; font-size:13.5px; color:rgba(248,243,231,0.75); }
+  .program-card__list{ list-style:none; margin:18px 0 0; padding:0; display:grid; gap:10px; }
+  .program-card__list li{ display:flex; gap:10px; font-size:14px; align-items:flex-start; }
+  .program-card__list svg{ width:16px; height:16px; flex:none; margin-top:2px; color:var(--gold-light); }
+  .program-card__budget{
+    margin-top:20px; padding-top:16px; border-top:1px solid rgba(248,243,231,0.18);
+    display:flex; justify-content:space-between; align-items:baseline; font-size:13.5px;
+  }
+  .program-card__budget b{ font-family:var(--font-display); font-size:19px; }
+
+  .program-note{
+    margin-top:16px; display:flex; gap:12px; align-items:flex-start;
+    background:var(--white); border-radius:var(--radius-m); padding:18px 20px;
+    border:1px dashed rgba(92,10,22,0.25);
+  }
+  .program-note svg{ width:20px; height:20px; color:var(--maroon); flex:none; margin-top:2px; }
+  .program-note p{ font-size:13.5px; color:var(--ink-soft); line-height:1.55; }
+
+  /* ============================================================
+     TRANSPARENCY (dark)
+  ============================================================ */
+  .transparency-section{ background:var(--navy); position:relative; overflow:hidden; }
+  .transparency-grid{ margin-top:34px; display:grid; gap:34px; grid-template-columns:1fr; align-items:center; }
+  @media (min-width:840px){ .transparency-grid{ grid-template-columns:260px 1fr; } }
+  .donut-wrap{ display:flex; justify-content:center; }
+  .donut{
+    width:220px; height:220px; border-radius:50%; position:relative;
+    background:conic-gradient(var(--red) 0% 66.9%, var(--gold) 66.9% 85.5%, var(--teal-light) 85.5% 100%);
+  }
+  .donut::before{
+    content:''; position:absolute; inset:26px; border-radius:50%; background:var(--navy);
+    display:flex;
+  }
+  .donut__center{
+    position:absolute; inset:26px; border-radius:50%; display:flex; flex-direction:column;
+    align-items:center; justify-content:center; text-align:center; color:var(--cream);
+  }
+  .donut__center b{ font-family:var(--font-display); font-size:20px; }
+  .donut__center span{ font-size:10.5px; color:rgba(248,243,231,0.6); letter-spacing:.06em; text-transform:uppercase; margin-top:2px; }
+
+  .legend{ display:grid; gap:14px; }
+  .legend__row{ display:flex; align-items:center; justify-content:space-between; gap:14px; padding:14px 16px; background:rgba(248,243,231,0.05); border-radius:var(--radius-s); border:1px solid rgba(248,243,231,0.08); }
+  .legend__left{ display:flex; align-items:center; gap:12px; }
+  .legend__dot{ width:12px; height:12px; border-radius:4px; flex:none; }
+  .legend__name{ color:var(--cream); font-size:14.5px; font-weight:600; }
+  .legend__sub{ color:rgba(248,243,231,0.55); font-size:12px; margin-top:2px; }
+  .legend__amount{ color:var(--gold-light); font-family:var(--font-body); font-weight:800; font-variant-numeric:tabular-nums; white-space:nowrap; }
+
+  /* ============================================================
+     DISTRIBUTION
+  ============================================================ */
+  .kecamatan-grid{ margin-top:28px; display:grid; grid-template-columns:repeat(2,1fr); gap:10px; }
+  @media (min-width:640px){ .kecamatan-grid{ grid-template-columns:repeat(3,1fr); } }
+  @media (min-width:900px){ .kecamatan-grid{ grid-template-columns:repeat(5,1fr); } }
+  .kecamatan-chip{
+    display:flex; align-items:center; gap:9px; padding:11px 12px; background:var(--white);
+    border-radius:var(--radius-s); border:1px solid rgba(92,10,22,0.08); font-size:13px;
+  }
+  .kecamatan-chip__num{
+    width:22px; height:22px; border-radius:50%; background:var(--maroon); color:var(--cream);
+    font-size:10.5px; font-weight:800; display:flex; align-items:center; justify-content:center; flex:none;
+  }
+
+  .criteria-wrap{ margin-top:44px; display:grid; gap:14px; grid-template-columns:1fr; }
+  @media (min-width:720px){ .criteria-wrap{ grid-template-columns:repeat(3,1fr); } }
+  .criteria-card{ background:var(--white); border-radius:var(--radius-m); padding:20px; border:1px solid rgba(92,10,22,0.08); }
+  .criteria-card svg{ width:22px; height:22px; color:var(--maroon); margin-bottom:10px; }
+  .criteria-card p{ font-size:13.5px; line-height:1.55; color:var(--ink-soft); }
+
+  .distro-banner{
+    margin-top:30px; padding:16px 20px; border-radius:999px; background:var(--maroon); color:var(--cream);
+    text-align:center; font-size:13.5px; font-weight:700; letter-spacing:.02em;
+  }
+
+  /* ============================================================
+     ORG / TRUST
+  ============================================================ */
+  .org-section{ background:var(--cream-2); }
+  .org-wrap{ display:grid; gap:28px; grid-template-columns:1fr; align-items:center; }
+  @media (min-width:840px){ .org-wrap{ grid-template-columns:1.1fr .9fr; } }
+  .org-quote{ font-family:var(--font-display); font-style:italic; font-size:clamp(20px,3vw,26px); color:var(--maroon); line-height:1.45; }
+  .org-people{ margin-top:22px; display:flex; flex-wrap:wrap; gap:12px; }
+  .person-chip{ display:flex; align-items:center; gap:10px; background:var(--white); padding:10px 14px 10px 10px; border-radius:999px; border:1px solid rgba(92,10,22,0.08); }
+  .person-chip__avatar{ width:34px; height:34px; border-radius:50%; background:var(--maroon); color:var(--gold-light); display:flex; align-items:center; justify-content:center; font-family:var(--font-display); font-weight:700; font-size:13px; }
+  .person-chip__name{ font-size:13px; font-weight:700; line-height:1.2; }
+  .person-chip__role{ font-size:11px; color:var(--ink-soft); }
+  .org-side{ background:var(--white); border-radius:var(--radius-l); padding:26px; box-shadow:var(--shadow-soft); }
+  .org-side__stat{ display:flex; justify-content:space-between; padding:12px 0; border-bottom:1px dashed rgba(92,10,22,0.15); font-size:13.5px; }
+  .org-side__stat:last-child{ border-bottom:none; }
+  .org-side__stat b{ color:var(--maroon); }
+
+  /* ============================================================
+     DONATE SECTION
+  ============================================================ */
+  .donate-section{
+    background:linear-gradient(150deg, var(--maroon) 0%, var(--navy) 120%);
+    color:var(--cream); position:relative; overflow:hidden;
+  }
+  .donate-wrap{ display:grid; gap:20px; grid-template-columns:1fr; }
+  @media (min-width:860px){ .donate-wrap{ grid-template-columns:1fr 1fr; } }
+  .donate-card{ background:rgba(248,243,231,0.06); border:1px solid rgba(200,155,60,0.3); border-radius:var(--radius-l); padding:26px; backdrop-filter:blur(6px); }
+  .donate-card h3{ font-size:16px; font-weight:700; color:var(--gold-light); letter-spacing:.03em; }
+  .bank-row{ margin-top:18px; display:flex; align-items:center; justify-content:space-between; gap:12px; background:rgba(11,22,32,0.35); border-radius:var(--radius-s); padding:16px 18px; }
+  .bank-row__num{ font-family:var(--font-body); font-weight:800; font-size:20px; letter-spacing:.03em; font-variant-numeric:tabular-nums; }
+  .bank-row__meta{ font-size:12.5px; color:rgba(248,243,231,0.65); margin-top:3px; }
+  .copy-btn{ background:var(--gold); color:var(--maroon); border:none; border-radius:999px; padding:9px 16px; font-size:12.5px; font-weight:800; display:flex; align-items:center; gap:6px; flex:none; }
+  .copy-btn svg{ width:14px; height:14px; }
+  .donate-card__list{ list-style:none; margin:18px 0 0; padding:0; display:grid; gap:10px; }
+  .contact-link{ display:flex; align-items:center; gap:12px; background:rgba(11,22,32,0.35); border-radius:var(--radius-s); padding:13px 16px; font-size:14px; font-weight:600; }
+  .contact-link svg{ width:18px; height:18px; color:var(--gold-light); flex:none; }
+  .contact-link small{ display:block; font-weight:400; color:rgba(248,243,231,0.55); font-size:11.5px; margin-top:1px; }
+  .donate-card__download{ margin-top:20px; }
+  .toast{
+    position:fixed; left:50%; bottom:26px; transform:translate(-50%,140%);
+    background:var(--ink); color:var(--cream); padding:12px 20px; border-radius:999px;
+    font-size:13.5px; font-weight:600; z-index:80; transition:transform .3s ease; box-shadow:0 12px 30px rgba(0,0,0,.3);
+  }
+  .toast.is-visible{ transform:translate(-50%,0); }
+
+  /* ============================================================
+     FOOTER
+  ============================================================ */
+  .site-footer{ background:var(--navy); color:rgba(248,243,231,0.6); padding:36px 0 26px; }
+  .footer-top{ display:flex; flex-wrap:wrap; justify-content:space-between; gap:18px; align-items:center; }
+  .footer-quote{ margin-top:20px; font-family:var(--font-display); font-style:italic; font-size:15px; color:rgba(248,243,231,0.5); max-width:60ch; }
+  .footer-bottom{ margin-top:26px; padding-top:20px; border-top:1px solid rgba(248,243,231,0.1); display:flex; flex-wrap:wrap; justify-content:space-between; gap:10px; font-size:12px; }
+
+  /* ============================================================
+     MODAL — Daftar Donatur
+  ============================================================ */
+  .modal-overlay{
+    position:fixed; inset:0; background:rgba(11,22,32,0.6); backdrop-filter:blur(4px);
+    display:flex; align-items:flex-end; justify-content:center; z-index:100;
+    opacity:0; pointer-events:none; transition:opacity .25s ease;
+  }
+  @media (min-width:720px){ .modal-overlay{ align-items:center; } }
+  .modal-overlay.is-open{ opacity:1; pointer-events:auto; }
+  .modal{
+    background:var(--cream); width:100%; max-width:520px; max-height:80vh;
+    border-radius:24px 24px 0 0; padding:26px; overflow-y:auto;
+    transform:translateY(30px); transition:transform .3s ease;
+  }
+  @media (min-width:720px){ .modal{ border-radius:var(--radius-l); transform:translateY(0) scale(.96); } }
+  .modal-overlay.is-open .modal{ transform:translateY(0) scale(1); }
+  .modal__header{ display:flex; align-items:center; justify-content:space-between; }
+  .modal__header h3{ font-size:20px; font-weight:800; color:var(--maroon); }
+  .modal__close{ width:34px; height:34px; border-radius:50%; background:var(--cream-2); border:none; display:flex; align-items:center; justify-content:center; }
+  .modal__close svg{ width:16px; height:16px; }
+  .modal__sub{ margin-top:4px; font-size:13px; color:var(--ink-soft); }
+  .donor-list{ margin-top:18px; display:grid; gap:10px; }
+  .donor-row{ display:flex; align-items:center; justify-content:space-between; gap:10px; background:var(--white); border-radius:var(--radius-s); padding:13px 16px; border:1px solid rgba(92,10,22,0.06); }
+  .donor-row__name{ font-size:14px; font-weight:700; }
+  .donor-row__date{ font-size:11.5px; color:var(--ink-soft); margin-top:2px; }
+  .donor-row__amount{ font-weight:800; color:var(--maroon); font-size:14px; font-variant-numeric:tabular-nums; }
+  .donor-empty{ margin-top:22px; text-align:center; padding:30px 16px; }
+  .donor-empty svg{ width:44px; height:44px; color:var(--gold); margin:0 auto 12px; }
+  .donor-empty p{ font-size:14px; color:var(--ink-soft); line-height:1.5; }
+  .donor-empty .btn{ margin-top:16px; }
+
+  /* ============================================================
+     REVEAL ANIMATION
+  ============================================================ */
+  .reveal{ opacity:0; transform:translateY(18px); transition:opacity .7s ease, transform .7s ease; }
+  .reveal.is-visible{ opacity:1; transform:translateY(0); }
+
+  .visually-hidden{ position:absolute; width:1px; height:1px; overflow:hidden; clip:rect(0 0 0 0); white-space:nowrap; }
+</style>
+</head>
+<body>
+
+<!-- ============================================================
+     HEADER
+============================================================ -->
+<header class="site-header">
+  <div class="container site-header__row">
+    <a href="#beranda" class="brand" aria-label="Kembali ke atas">
+      <svg class="brand__mark" viewBox="0 0 48 48" fill="none" aria-hidden="true">
+        <circle cx="24" cy="24" r="22" stroke="#C89B3C" stroke-width="2"/>
+        <path d="M24 33c-6-4.2-10-7.8-10-12.4A5.6 5.6 0 0 1 24 17a5.6 5.6 0 0 1 10 3.6C34 25.2 30 28.8 24 33Z" fill="#C4192F"/>
+        <path d="M17 16.5 20.5 22h-3l3.5 6-6-6.5h3L14.5 16.5Z" fill="#F8F3E7"/>
+        <path d="M31 16.5 34.5 22h-3l3.5 6-6-6.5h3L28.5 16.5Z" fill="#F8F3E7"/>
+      </svg>
+      <span class="brand__text">
+        <span class="brand__title">PSB Merdeka 2026</span>
+        <span class="brand__sub">Pesisir Selatan Bersatu</span>
+      </span>
+    </a>
+    <a href="#donasi" class="btn btn--primary" style="padding:10px 20px; font-size:13.5px;">Donasi Sekarang</a>
+  </div>
+  <div class="header-progress"><div class="header-progress__fill" id="headerProgressFill"></div></div>
+</header>
+
+<!-- ============================================================
+     HERO
+============================================================ -->
+<section class="hero" id="beranda">
+  <div class="container" style="padding-top:6px; padding-bottom:0;">
+    <div class="hero__badges" aria-hidden="true">
+      <span class="num">81</span>
+      <span class="lbl">Tahun RI</span>
+    </div>
+
+    <div class="hero__content">
+      <span class="eyebrow">Pesisir Selatan Bersatu &middot; 10 Tahun Mengabdi &amp; Bersatu</span>
+      <h1>Aksi Sosial <em>PSB Merdeka</em> 2026</h1>
+      <p class="hero__lead">
+        Merayakan 81 tahun Indonesia merdeka dan satu dekade PSB mengabdi, kami menyalurkan
+        <strong>Sembako Merdeka</strong> dan <strong>Edu-Kit</strong> langsung ke tangan 81 keluarga
+        pra-sejahtera dan 45 pelajar di 15 kecamatan Pesisir Selatan &mdash; door-to-door, tepat sasaran.
+      </p>
+
+      <div class="countdown" role="timer" aria-live="off">
+        <p class="countdown__label" id="countdownLabel">Donasi ditutup dalam</p>
+        <div class="countdown__grid">
+          <div class="countdown__unit"><div class="countdown__value" id="cdDays">00</div><div class="countdown__unitlabel">Hari</div></div>
+          <div class="countdown__unit"><div class="countdown__value" id="cdHours">00</div><div class="countdown__unitlabel">Jam</div></div>
+          <div class="countdown__unit"><div class="countdown__value" id="cdMinutes">00</div><div class="countdown__unitlabel">Menit</div></div>
+          <div class="countdown__unit"><div class="countdown__value" id="cdSeconds">00</div><div class="countdown__unitlabel">Detik</div></div>
+        </div>
+        <p class="countdown__date">Batas akhir: 25 Agustus 2026, pukul 23.59 WIB</p>
+      </div>
+
+      <div class="hero__cta">
+        <a href="#donasi" class="btn btn--primary">Donasi Sekarang</a>
+        <button type="button" class="btn btn--outline" id="openDonaturBtn">Lihat Donatur</button>
+      </div>
+
+      <div class="hero__trust">
+        <span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 12l2 2 4-4"/><circle cx="12" cy="12" r="9"/></svg>Disahkan DPP PSB</span>
+        <span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 21s-7-4.5-7-11a7 7 0 0 1 14 0c0 6.5-7 11-7 11z"/><circle cx="12" cy="10" r="2.5"/></svg>Door-to-door, 15 kecamatan</span>
+        <span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12h18M3 6h18M3 18h18"/></svg>Alokasi dana transparan</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="hero__roofline-wrap">
+    <svg class="roofline" viewBox="0 0 1440 80" preserveAspectRatio="none" aria-hidden="true">
+      <defs>
+        <pattern id="gonjongHero" width="120" height="80" patternUnits="userSpaceOnUse">
+          <path d="M0,80 C10,22 30,2 60,2 C90,2 110,22 120,80 Z" fill="#C89B3C" opacity="0.16"/>
+          <path d="M0,80 C10,38 30,22 60,22 C90,22 110,38 120,80 Z" fill="#F8F3E7" opacity="1"/>
+        </pattern>
+      </defs>
+      <rect width="1440" height="80" fill="url(#gonjongHero)"/>
+    </svg>
+  </div>
+</section>
+
+<!-- ============================================================
+     PROGRESS CARD
+============================================================ -->
+<section class="progress-section">
+  <div class="container">
+    <div class="progress-card reveal">
+      <div class="progress-card__top">
+        <div>
+          <div class="progress-card__collected" id="collectedAmount">Rp0</div>
+          <div class="progress-card__target">terkumpul dari target <strong id="targetAmountInline">Rp10.890.000</strong></div>
+        </div>
+        <div class="progress-card__pct" id="progressPct">0% tercapai</div>
+      </div>
+      <div class="progress-bar"><div class="progress-bar__fill" id="progressFill"></div></div>
+
+      <div class="progress-stats">
+        <div class="progress-stat">
+          <div class="progress-stat__num" id="donorCount">0</div>
+          <div class="progress-stat__lbl">Donatur</div>
+        </div>
+        <div class="progress-stat">
+          <div class="progress-stat__num">126</div>
+          <div class="progress-stat__lbl">Penerima Manfaat</div>
+        </div>
+        <div class="progress-stat">
+          <div class="progress-stat__num" id="daysLeftStat">0</div>
+          <div class="progress-stat__lbl">Hari Tersisa</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================
+     URGENCY / LATAR BELAKANG
+============================================================ -->
+<section class="section" id="tentang-kegiatan">
+  <div class="container">
+    <div class="section-head reveal">
+      <span class="eyebrow">Latar Belakang</span>
+      <h2>Mengapa aksi ini penting</h2>
+      <p>Dua persoalan mendesak di akar rumput Pesisir Selatan menjadi dasar gerakan ini &mdash; kesiapan anak-anak memasuki tahun ajaran baru, dan ketahanan pangan keluarga pra-sejahtera.</p>
+    </div>
+
+    <div class="urgency-grid">
+      <div class="urgency-card reveal">
+        <div class="urgency-card__icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19V6a2 2 0 0 1 2-2h9l5 5v10a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2Z"/><path d="M14 4v5h5"/><path d="M8 13h8M8 17h5"/></svg></div>
+        <h3>Tantangan Tahun Ajaran Baru</h3>
+        <p>Banyak anak pra-sejahtera di Pesisir Selatan memasuki sekolah tanpa alat tulis yang memadai &mdash; menghambat semangat belajar dan kedaulatan intelektual mereka.</p>
+      </div>
+      <div class="urgency-card reveal">
+        <div class="urgency-card__icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 3v18M4 3c4 0 4 3 8 3s4-3 8-3M4 12c4 0 4 3 8 3s4-3 8-3"/></svg></div>
+        <h3>Tantangan Ketahanan Pangan</h3>
+        <p>Pemenuhan gizi dasar keluarga pra-sejahtera masih rentan di tengah fluktuasi ekonomi &mdash; mengancam kedaulatan fisik warga di kampung halaman.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================
+     PROGRAM
+============================================================ -->
+<section class="section" id="program" style="padding-top:0;">
+  <div class="container">
+    <div class="section-head reveal">
+      <span class="eyebrow">Bentuk Bantuan</span>
+      <h2>Dua paket, satu tujuan</h2>
+      <p>Setiap rupiah disalurkan menjadi bantuan konkret &mdash; bukan sekadar seremoni, tetapi jejak manfaat permanen bagi yang paling membutuhkan.</p>
+    </div>
+
+    <div class="program-grid">
+      <div class="program-card program-card--sembako reveal">
+        <span class="program-card__tag">Ketahanan Pangan</span>
+        <h3>PSB Sembako Merdeka</h3>
+        <p class="program-card__meta">Untuk 81 KK pra-sejahtera</p>
+        <ul class="program-card__list">
+          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M20 6 9 17l-5-5"/></svg>Beras kualitas baik, 5&nbsp;kg</li>
+          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M20 6 9 17l-5-5"/></svg>Minyak goreng, 2&nbsp;liter</li>
+          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M20 6 9 17l-5-5"/></svg>Gula pasir &amp; teh/kopi</li>
+          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M20 6 9 17l-5-5"/></svg>Sumber protein dasar (telur/sarden)</li>
+        </ul>
+        <div class="program-card__budget"><span>Alokasi &middot; 81 KK &times; Rp90.000</span><b>Rp7.290.000</b></div>
+      </div>
+
+      <div class="program-card program-card--edukit reveal">
+        <span class="program-card__tag">Pendidikan &amp; Literasi</span>
+        <h3>PSB Edu-Kit</h3>
+        <p class="program-card__meta">Untuk 45 pelajar prasejahtera</p>
+        <ul class="program-card__list">
+          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M20 6 9 17l-5-5"/></svg>Tas sekolah ergonomis</li>
+          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M20 6 9 17l-5-5"/></svg>1 set buku tulis premium</li>
+          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M20 6 9 17l-5-5"/></svg>Alat tulis dasar (pena, pensil, penghapus)</li>
+          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M20 6 9 17l-5-5"/></svg>Alat ukur (penggaris/jangka)</li>
+        </ul>
+        <div class="program-card__budget"><span>Alokasi &middot; 45 paket &times; Rp45.000</span><b>Rp2.025.000</b></div>
+      </div>
+    </div>
+
+    <div class="program-note reveal">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 8v5M12 16h.01"/></svg>
+      <p>Sisa dana teralokasikan untuk operasional &amp; distribusi (transportasi, akomodasi, dokumentasi, administrasi) sebesar <strong>Rp1.575.000</strong> &mdash; rincian lengkap ada di bagian transparansi anggaran di bawah.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================
+     TRANSPARENCY
+============================================================ -->
+<section class="section transparency-section" id="transparansi">
+  <div class="container">
+    <div class="section-head section-head--dark reveal">
+      <span class="eyebrow">Amanah</span>
+      <h2>Transparansi alokasi dana</h2>
+      <p>Program inti dijalankan swadaya oleh PSB; dukungan mitra dan donatur memperluas radius dampak nyata bagi lebih banyak keluarga di Pesisir Selatan.</p>
+    </div>
+
+    <div class="transparency-grid reveal">
+      <div class="donut-wrap">
+        <div class="donut">
+          <div class="donut__center">
+            <b>Rp10,89jt</b>
+            <span>Total Kebutuhan</span>
+          </div>
+        </div>
+      </div>
+      <div class="legend">
+        <div class="legend__row">
+          <div class="legend__left">
+            <span class="legend__dot" style="background:var(--red)"></span>
+            <div><div class="legend__name">Sembako Merdeka</div><div class="legend__sub">81 KK &middot; 67% dari total dana</div></div>
+          </div>
+          <div class="legend__amount">Rp7.290.000</div>
+        </div>
+        <div class="legend__row">
+          <div class="legend__left">
+            <span class="legend__dot" style="background:var(--gold)"></span>
+            <div><div class="legend__name">Edu-Kit</div><div class="legend__sub">45 paket &middot; 19% dari total dana</div></div>
+          </div>
+          <div class="legend__amount">Rp2.025.000</div>
+        </div>
+        <div class="legend__row">
+          <div class="legend__left">
+            <span class="legend__dot" style="background:var(--teal-light)"></span>
+            <div><div class="legend__name">Operasional &amp; Distribusi</div><div class="legend__sub">Transportasi, dokumentasi, administrasi &middot; 14%</div></div>
+          </div>
+          <div class="legend__amount">Rp1.575.000</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================
+     DISTRIBUSI
+============================================================ -->
+<section class="section" id="wilayah">
+  <div class="container">
+    <div class="section-head reveal">
+      <span class="eyebrow">Jangkauan</span>
+      <h2>Distribusi ke 15 kecamatan</h2>
+      <p>Puncak distribusi berlangsung serentak pada 17 Agustus 2026, langsung ke tangan penerima di seluruh wilayah strategis Kabupaten Pesisir Selatan.</p>
+    </div>
+
+    <div class="kecamatan-grid reveal">
+      <div class="kecamatan-chip"><span class="kecamatan-chip__num">1</span>Koto XI Tarusan</div>
+      <div class="kecamatan-chip"><span class="kecamatan-chip__num">2</span>Bayang</div>
+      <div class="kecamatan-chip"><span class="kecamatan-chip__num">3</span>IV Jurai</div>
+      <div class="kecamatan-chip"><span class="kecamatan-chip__num">4</span>Batang Kapas</div>
+      <div class="kecamatan-chip"><span class="kecamatan-chip__num">5</span>Sutera</div>
+      <div class="kecamatan-chip"><span class="kecamatan-chip__num">6</span>Lengayang</div>
+      <div class="kecamatan-chip"><span class="kecamatan-chip__num">7</span>Ranah Pesisir</div>
+      <div class="kecamatan-chip"><span class="kecamatan-chip__num">8</span>Linggo Sari Baganti</div>
+      <div class="kecamatan-chip"><span class="kecamatan-chip__num">9</span>Ranah Ampek Hulu Tapan</div>
+      <div class="kecamatan-chip"><span class="kecamatan-chip__num">10</span>Basa IV Balai Tapan</div>
+      <div class="kecamatan-chip"><span class="kecamatan-chip__num">11</span>Pancung Soal</div>
+      <div class="kecamatan-chip"><span class="kecamatan-chip__num">12</span>Air Pura</div>
+      <div class="kecamatan-chip"><span class="kecamatan-chip__num">13</span>Silaut</div>
+      <div class="kecamatan-chip"><span class="kecamatan-chip__num">14</span>Lunang</div>
+      <div class="kecamatan-chip"><span class="kecamatan-chip__num">15</span>Tarusan</div>
+    </div>
+
+    <div class="section-head reveal" style="margin-top:44px;">
+      <span class="eyebrow">Kriteria</span>
+      <h2 style="font-size:22px;">Sasaran prioritas</h2>
+    </div>
+    <div class="criteria-wrap reveal">
+      <div class="criteria-card">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 12l2 2 4-4"/><circle cx="12" cy="12" r="9"/></svg>
+        <p>Verifikasi silang dengan tokoh masyarakat dan perangkat nagari setempat.</p>
+      </div>
+      <div class="criteria-card">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+        <p>Anak yatim/piatu dan keluarga dengan lansia tanggungan.</p>
+      </div>
+      <div class="criteria-card">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3v18h18"/><path d="M7 15l4-4 4 4 5-6"/></svg>
+        <p>Pekerja harian lepas yang terdampak fluktuasi ekonomi.</p>
+      </div>
+    </div>
+
+    <p class="distro-banner reveal">Distribusi 100% tepat sasaran &mdash; langsung ke tangan penerima (door-to-door)</p>
+  </div>
+</section>
+
+<!-- ============================================================
+     ORG / TRUST
+============================================================ -->
+<section class="section org-section" id="tentang-psb">
+  <div class="container">
+    <div class="org-wrap reveal">
+      <div>
+        <span class="eyebrow" style="background:rgba(92,10,22,0.08); color:var(--maroon);">Tentang Kami</span>
+        <p class="org-quote" style="margin-top:16px;">&ldquo;Bersatu dalam perbedaan, bergerak dalam tujuan, mengabdi untuk kemajuan Pesisir Selatan.&rdquo;</p>
+        <p style="margin-top:16px; font-size:14.5px; line-height:1.65; color:var(--ink-soft); max-width:58ch;">
+          Pesisir Selatan Bersatu (PSB) adalah organisasi sosial kepemudaan yang lahir dari keresahan kolektif anak muda Pesisir Selatan terhadap kondisi sosial kampung halaman. Sejak 2016, PSB konsisten menjadi garda terdepan aksi sosial, pemberdayaan, dan kolaborasi lintas elemen masyarakat &mdash; kini genap 10 tahun mengabdi &amp; bersatu.
+        </p>
+        <div class="org-people">
+          <div class="person-chip">
+            <span class="person-chip__avatar">IM</span>
+            <span><span class="person-chip__name">Ilfan Maha Putra</span><br><span class="person-chip__role">Ketua Umum</span></span>
+          </div>
+          <div class="person-chip">
+            <span class="person-chip__avatar">PI</span>
+            <span><span class="person-chip__name">Pangeran Indra Sakti</span><br><span class="person-chip__role">Sekretaris Jenderal</span></span>
+          </div>
+        </div>
+      </div>
+      <div class="org-side">
+        <div class="org-side__stat"><span>Berdiri sejak</span><b>2016</b></div>
+        <div class="org-side__stat"><span>Wilayah dampingan</span><b>15 Kecamatan</b></div>
+        <div class="org-side__stat"><span>Target relawan 2026</span><b>1.000 relawan</b></div>
+        <div class="org-side__stat"><span>Target program 2026</span><b>20+ program</b></div>
+        <div class="org-side__stat"><span>Status proposal</span><b>Disahkan resmi</b></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================
+     DONATE
+============================================================ -->
+<section class="section donate-section" id="donasi">
+  <div class="container">
+    <div class="section-head section-head--dark reveal">
+      <span class="eyebrow">Uluran Tangan</span>
+      <h2>Salurkan donasi Anda</h2>
+      <p>Kemerdekaan sejati adalah ketika seluruh rakyat merasakan keadilan dan kesejahteraan. Mari jadi bagian dari solusi.</p>
+    </div>
+
+    <div class="donate-wrap reveal">
+      <div class="donate-card">
+        <h3>Transfer Bank</h3>
+        <div class="bank-row">
+          <div>
+            <div class="bank-row__num">1318662538</div>
+            <div class="bank-row__meta">Bank BNI &middot; a.n. Pesisir Selatan Bersatu</div>
+          </div>
+          <button type="button" class="copy-btn" id="copyRekBtn">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3"><rect x="9" y="9" width="12" height="12" rx="2"/><path d="M5 15V5a2 2 0 0 1 2-2h10"/></svg>
+            Salin
+          </button>
+        </div>
+        <p style="margin-top:14px; font-size:12.5px; color:rgba(248,243,231,0.6); line-height:1.6;">
+          Setelah transfer, mohon konfirmasi melalui WhatsApp narahubung di samping agar donasi Anda tercatat di daftar donatur.
+        </p>
+        <div class="donate-card__download">
+          <a class="btn btn--primary btn--block" href="https://drive.google.com/file/d/1rKeFFXhYeM6obEL8dVBao8zgdC9XIw3K/view?usp=drive_link" target="_blank" rel="noopener noreferrer">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3"><path d="M12 3v12m0 0-4-4m4 4 4-4"/><path d="M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2"/></svg>
+            Unduh Proposal Lengkap
+          </a>
+        </div>
+      </div>
+
+      <div class="donate-card">
+        <h3>Narahubung &amp; Konfirmasi</h3>
+        <ul class="donate-card__list">
+          <li>
+            <a class="contact-link" href="https://wa.me/6281260731173?text=Halo%2C%20saya%20ingin%20konfirmasi%20donasi%20untuk%20Aksi%20Sosial%20PSB%20Merdeka%202026." target="_blank" rel="noopener noreferrer">
+              <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2a10 10 0 0 0-8.6 15.1L2 22l5.1-1.3A10 10 0 1 0 12 2Zm0 18a8 8 0 0 1-4.1-1.1l-.3-.2-3 .8.8-2.9-.2-.3A8 8 0 1 1 12 20Zm4.4-5.9c-.2-.1-1.4-.7-1.6-.8s-.4-.1-.5.1-.5.7-.6.8-.2.1-.4 0a6.5 6.5 0 0 1-1.9-1.2 7.2 7.2 0 0 1-1.3-1.7c-.1-.2 0-.3.1-.4l.3-.4.2-.3v-.3c0-.1-.5-1.2-.7-1.6s-.4-.4-.5-.4h-.4a.9.9 0 0 0-.6.3 2.7 2.7 0 0 0-.8 2 4.6 4.6 0 0 0 1 2.5 10.6 10.6 0 0 0 4.1 3.6c.6.2 1 .4 1.4.5a3.3 3.3 0 0 0 1.5.1 2.5 2.5 0 0 0 1.6-1.1 2 2 0 0 0 .1-1.1c-.1-.1-.2-.1-.5-.2Z"/></svg>
+              Ilfan Maha Putra<small>WhatsApp &middot; +62 812-6073-1173</small>
+            </a>
+          </li>
+          <li>
+            <a class="contact-link" href="https://wa.me/62895329429118?text=Halo%2C%20saya%20ingin%20konfirmasi%20donasi%20untuk%20Aksi%20Sosial%20PSB%20Merdeka%202026." target="_blank" rel="noopener noreferrer">
+              <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2a10 10 0 0 0-8.6 15.1L2 22l5.1-1.3A10 10 0 1 0 12 2Zm0 18a8 8 0 0 1-4.1-1.1l-.3-.2-3 .8.8-2.9-.2-.3A8 8 0 1 1 12 20Zm4.4-5.9c-.2-.1-1.4-.7-1.6-.8s-.4-.1-.5.1-.5.7-.6.8-.2.1-.4 0a6.5 6.5 0 0 1-1.9-1.2 7.2 7.2 0 0 1-1.3-1.7c-.1-.2 0-.3.1-.4l.3-.4.2-.3v-.3c0-.1-.5-1.2-.7-1.6s-.4-.4-.5-.4h-.4a.9.9 0 0 0-.6.3 2.7 2.7 0 0 0-.8 2 4.6 4.6 0 0 0 1 2.5 10.6 10.6 0 0 0 4.1 3.6c.6.2 1 .4 1.4.5a3.3 3.3 0 0 0 1.5.1 2.5 2.5 0 0 0 1.6-1.1 2 2 0 0 0 .1-1.1c-.1-.1-.2-.1-.5-.2Z"/></svg>
+              Pangeran Indra Sakti<small>WhatsApp &middot; +62 895-3294-29118</small>
+            </a>
+          </li>
+          <li>
+            <a class="contact-link" href="mailto:pessel.bersatu@gmail.com?subject=Konfirmasi%20Donasi%20PSB%20Merdeka%202026">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="m3 7 9 6 9-6"/></svg>
+              pessel.bersatu@gmail.com<small>Email resmi PSB</small>
+            </a>
+          </li>
+        </ul>
+        <button type="button" class="btn btn--outline btn--block" style="margin-top:16px;" id="openDonaturBtn2">Lihat Daftar Donatur</button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================
+     FOOTER
+============================================================ -->
+<footer class="site-footer">
+  <div class="container">
+    <div class="footer-top">
+      <div class="brand" style="color:rgba(248,243,231,0.75);">
+        <svg class="brand__mark" viewBox="0 0 48 48" fill="none" aria-hidden="true">
+          <circle cx="24" cy="24" r="22" stroke="#C89B3C" stroke-width="2"/>
+          <path d="M24 33c-6-4.2-10-7.8-10-12.4A5.6 5.6 0 0 1 24 17a5.6 5.6 0 0 1 10 3.6C34 25.2 30 28.8 24 33Z" fill="#C4192F"/>
+        </svg>
+        <span class="brand__text">
+          <span class="brand__title" style="color:rgba(248,243,231,0.85);">Pesisir Selatan Bersatu</span>
+          <span class="brand__sub">Satu Hati, Satu Tujuan</span>
+        </span>
+      </div>
+      <a href="#donasi" class="btn btn--ghost" style="background:rgba(200,155,60,0.15); color:var(--gold-light);">Donasi Sekarang</a>
+    </div>
+    <p class="footer-quote">&ldquo;Bersatu dalam perbedaan, bergerak dalam tujuan, mengabdi untuk kemajuan Pesisir Selatan.&rdquo;</p>
+    <div class="footer-bottom">
+      <span>&copy; 2026 Pesisir Selatan Bersatu &middot; Aksi Sosial PSB Merdeka</span>
+      <span>pessel.bersatu@gmail.com</span>
+    </div>
+  </div>
+</footer>
+
+<!-- ============================================================
+     MODAL — DAFTAR DONATUR
+============================================================ -->
+<div class="modal-overlay" id="donaturModal" aria-hidden="true">
+  <div class="modal" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+    <div class="modal__header">
+      <div>
+        <h3 id="modalTitle">Daftar Donatur</h3>
+        <p class="modal__sub">Aksi Sosial PSB Merdeka 2026</p>
+      </div>
+      <button type="button" class="modal__close" id="closeDonaturBtn" aria-label="Tutup">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M6 6l12 12M18 6 6 18"/></svg>
+      </button>
+    </div>
+    <div id="donorListWrap"></div>
+  </div>
+</div>
+
+<div class="toast" id="toast">Nomor rekening disalin!</div>
+
+<script>
+/* ============================================================
+   KONFIGURASI KEGIATAN — EDIT NILAI DI BAWAH INI
+   Perbarui angka ini setiap kali bendahara melaporkan donasi baru.
+============================================================ */
+const CONFIG = {
+  targetDonasi: 10890000,     // Rp 10.890.000 — total kebutuhan dana (jangan diubah kecuali target berubah)
+  donasiTerkumpul: 0,         // <-- UBAH ANGKA INI sesuai laporan terbaru bendahara
+  deadline: '2026-08-25T23:59:59+07:00',
+  proposalUrl: 'https://drive.google.com/file/d/1rKeFFXhYeM6obEL8dVBao8zgdC9XIw3K/view?usp=drive_link'
+};
+
+/* Tambahkan donatur di sini agar muncul di tombol "Lihat Donatur".
+   Contoh: { nama: 'Hamba Allah', jumlah: 100000, tanggal: '2026-08-14' } */
+const donorList = [
+  // { nama: 'Nama Donatur', jumlah: 100000, tanggal: '2026-08-14' },
+];
+
+function formatRupiah(n){
+  return 'Rp' + Math.round(n).toLocaleString('id-ID');
+}
+
+/* ---------- Countdown ---------- */
+function updateCountdown(){
+  const target = new Date(CONFIG.deadline).getTime();
+  const now = Date.now();
+  const diff = target - now;
+
+  const els = {
+    d: document.getElementById('cdDays'),
+    h: document.getElementById('cdHours'),
+    m: document.getElementById('cdMinutes'),
+    s: document.getElementById('cdSeconds'),
+    label: document.getElementById('countdownLabel'),
+    daysStat: document.getElementById('daysLeftStat')
+  };
+
+  if(diff <= 0){
+    els.d.textContent = els.h.textContent = els.m.textContent = els.s.textContent = '00';
+    els.label.textContent = 'Batas waktu telah tercapai — donasi tetap kami terima dengan hangat';
+    els.daysStat.textContent = '0';
+    return;
+  }
+
+  const days = Math.floor(diff / 86400000);
+  const hours = Math.floor((diff % 86400000) / 3600000);
+  const minutes = Math.floor((diff % 3600000) / 60000);
+  const seconds = Math.floor((diff % 60000) / 1000);
+
+  els.d.textContent = String(days).padStart(2,'0');
+  els.h.textContent = String(hours).padStart(2,'0');
+  els.m.textContent = String(minutes).padStart(2,'0');
+  els.s.textContent = String(seconds).padStart(2,'0');
+  els.daysStat.textContent = String(days);
+}
+updateCountdown();
+setInterval(updateCountdown, 1000);
+
+/* ---------- Progress & Donasi ---------- */
+function renderProgress(){
+  const pct = Math.min(100, (CONFIG.donasiTerkumpul / CONFIG.targetDonasi) * 100);
+  document.getElementById('collectedAmount').textContent = formatRupiah(CONFIG.donasiTerkumpul);
+  document.getElementById('targetAmountInline').textContent = formatRupiah(CONFIG.targetDonasi);
+  document.getElementById('progressPct').textContent = pct.toFixed(1).replace('.0','') + '% tercapai';
+  document.getElementById('progressFill').style.width = pct + '%';
+  document.getElementById('headerProgressFill').style.width = pct + '%';
+  document.getElementById('donorCount').textContent = String(donorList.length);
+}
+renderProgress();
+
+/* ---------- Copy nomor rekening ---------- */
+const copyBtn = document.getElementById('copyRekBtn');
+const toast = document.getElementById('toast');
+copyBtn.addEventListener('click', async () => {
+  try{
+    await navigator.clipboard.writeText('1318662538');
+  }catch(e){
+    const ta = document.createElement('textarea');
+    ta.value = '1318662538';
+    document.body.appendChild(ta);
+    ta.select();
+    document.execCommand('copy');
+    document.body.removeChild(ta);
+  }
+  toast.classList.add('is-visible');
+  setTimeout(() => toast.classList.remove('is-visible'), 2200);
+});
+
+/* ---------- Modal Daftar Donatur ---------- */
+const donaturModal = document.getElementById('donaturModal');
+const donorListWrap = document.getElementById('donorListWrap');
+
+function renderDonorList(){
+  if(donorList.length === 0){
+    donorListWrap.innerHTML = `
+      <div class="donor-empty">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M12 21s-7-4.5-7-11a7 7 0 0 1 14 0c0 6.5-7 11-7 11z"/></svg>
+        <p>Belum ada donatur yang tercatat.<br>Jadilah yang pertama berkontribusi untuk Pesisir Selatan!</p>
+        <a href="#donasi" class="btn btn--primary" id="modalDonateLink">Donasi Sekarang</a>
+      </div>`;
+    document.getElementById('modalDonateLink').addEventListener('click', closeModal);
+  } else {
+    donorListWrap.innerHTML = `<div class="donor-list">` + donorList.map(d => `
+      <div class="donor-row">
+        <div>
+          <div class="donor-row__name">${d.nama}</div>
+          <div class="donor-row__date">${d.tanggal}</div>
+        </div>
+        <div class="donor-row__amount">${formatRupiah(d.jumlah)}</div>
+      </div>`).join('') + `</div>`;
+  }
+}
+
+function openModal(){
+  renderDonorList();
+  donaturModal.classList.add('is-open');
+  donaturModal.setAttribute('aria-hidden','false');
+  document.body.style.overflow = 'hidden';
+}
+function closeModal(){
+  donaturModal.classList.remove('is-open');
+  donaturModal.setAttribute('aria-hidden','true');
+  document.body.style.overflow = '';
+}
+document.getElementById('openDonaturBtn').addEventListener('click', openModal);
+document.getElementById('openDonaturBtn2').addEventListener('click', openModal);
+document.getElementById('closeDonaturBtn').addEventListener('click', closeModal);
+donaturModal.addEventListener('click', (e) => { if(e.target === donaturModal) closeModal(); });
+document.addEventListener('keydown', (e) => { if(e.key === 'Escape') closeModal(); });
+
+/* ---------- Scroll reveal ---------- */
+if('IntersectionObserver' in window){
+  const io = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if(entry.isIntersecting){
+        entry.target.classList.add('is-visible');
+        io.unobserve(entry.target);
+      }
+    });
+  }, { threshold: 0.12 });
+  document.querySelectorAll('.reveal').forEach(el => io.observe(el));
+} else {
+  document.querySelectorAll('.reveal').forEach(el => el.classList.add('is-visible'));
+}
+</script>
+</body>
+</html>
