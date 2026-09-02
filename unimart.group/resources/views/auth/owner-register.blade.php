@@ -532,7 +532,7 @@
                 <div class="step-circle">1</div>
                 <div class="step-label">Akses</div>
             </div>
-            <div class="step-item" :class="(isGoogleRegister || step > 2) ? 'completed' : (step === 2 ? 'active' : '')">
+            <div class="step-item" :class="step > 2 ? 'completed' : (step === 2 ? 'active' : '')">
                 <div class="step-circle">2</div>
                 <div class="step-label">Pemilik</div>
             </div>
@@ -661,7 +661,6 @@
                 <template x-if="isGoogleRegister">
                     <div>
                         <input type="hidden" name="email" :value="email">
-                        <input type="hidden" name="name" :value="name">
                     </div>
                 </template>
 
@@ -795,8 +794,8 @@
 
             <!-- Navigation Buttons -->
             <div style="display: flex; justify-content: space-between; margin-top: 2.5rem; gap: 1rem;">
-                <button type="button" @click="prevStep()" class="form-input" x-show="step > (isGoogleRegister ? 3 : 1)" style="width: auto; background: var(--surface-accent); color: var(--text-main); font-weight: 600; cursor: pointer; padding: 0.8rem 1.8rem;">Sebelumnya</button>
-                <div x-show="step === (isGoogleRegister ? 3 : 1)"></div>
+                <button type="button" @click="prevStep()" class="form-input" x-show="step > (isGoogleRegister ? 2 : 1)" style="width: auto; background: var(--surface-accent); color: var(--text-main); font-weight: 600; cursor: pointer; padding: 0.8rem 1.8rem;">Sebelumnya</button>
+                <div x-show="step === (isGoogleRegister ? 2 : 1)"></div>
                 
                 <button type="button" @click="nextStep()" class="form-input" x-show="step < 5" style="width: auto; background: var(--primary); color: var(--background); font-weight: 700; cursor: pointer; padding: 0.8rem 2.2rem; box-shadow: 0 4px 14px rgba(230, 115, 0, 0.3);">Lanjutkan</button>
                 <button type="submit" class="form-input" x-show="step === 5" :disabled="!agreeTerms || !hasScrolledToBottom" style="width: auto; background: var(--primary); color: var(--background); font-weight: 700; cursor: pointer; padding: 0.8rem 2.2rem; box-shadow: 0 4px 14px rgba(230, 115, 0, 0.3);" :style="(!agreeTerms || !hasScrolledToBottom) ? 'opacity: 0.5; cursor: not-allowed; box-shadow: none;' : ''">Daftarkan Sekarang</button>
@@ -811,7 +810,7 @@
         document.addEventListener('alpine:init', () => {
             Alpine.data('registrationForm', () => ({
                 isGoogleRegister: @json(session()->has('google_register')),
-                step: @json(session()->has('google_register') ? 3 : 1),
+                step: @json(session()->has('google_register') ? 2 : 1),
                 selectedPackage: 'Bisnis',
                 hasScrolledToBottom: false,
                 agreeTerms: false,
@@ -858,7 +857,6 @@
                 },
 
                 validateStep2() {
-                    if (this.isGoogleRegister) return true;
                     this.errors.step2 = '';
                     if (!this.name) {
                         this.errors.step2 = 'Nama lengkap wajib diisi.';
@@ -906,7 +904,7 @@
 
                 prevStep() {
                     if (this.isGoogleRegister) {
-                        if (this.step > 3) this.step--;
+                        if (this.step > 2) this.step--;
                     } else {
                         if (this.step > 1) this.step--;
                     }

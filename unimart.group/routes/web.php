@@ -15,9 +15,9 @@ Route::get('/', function () {
 });
 
 Route::get('/caffe/{alias}', function ($alias) {
-    $tenant = app('tenant');
+    $tenant = app()->bound('tenant') ? app('tenant') : null;
     if (!$tenant) {
-        abort(404);
+        abort(404, 'Kafe tidak ditemukan');
     }
     $products = \App\Models\Product::where('tenant_id', $tenant->id)->get();
     $tables = \App\Models\Table::where('tenant_id', $tenant->id)
