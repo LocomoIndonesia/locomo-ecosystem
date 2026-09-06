@@ -27,7 +27,13 @@ class MerchantRegistrationController extends Controller
         // 1. Create Tenant
         $tenant = Tenant::create([
             'name' => $request->business_name,
-            'domain' => Str::slug($request->business_name) . '.unimart.group',
+            'domain' => Str::slug($request->business_name),
+            'business_type' => $request->business_type,
+            'owner_name' => $request->owner_name,
+            'owner_email' => $request->owner_email,
+            'owner_phone' => $request->owner_phone,
+            'status' => 'trial',
+            'trial_ends_at' => now()->addDays(3),
             'settings' => [
                 'verified' => false,
                 'agent_id' => $request->agent_id,
@@ -47,7 +53,8 @@ class MerchantRegistrationController extends Controller
         ]);
 
         // 3. Dispatch Email & WhatsApp (Simulated via log)
-        Log::info("Simulated WhatsApp & Email sent to owner {$request->owner_name} ({$request->owner_email}). Content: Please confirm your registration by clicking link http://unimart.group.localhost/api/v1/unimart/confirm-lead?email={$request->owner_email}");
+        $confirmUrl = url('/api/v1/unimart/confirm-lead?email=' . urlencode($request->owner_email));
+        Log::info("Simulated WhatsApp & Email sent to owner {$request->owner_name} ({$request->owner_email}). Content: Please confirm your registration by clicking link {$confirmUrl}");
 
         return response()->json([
             'message' => 'Lead registered successfully in Unimart. Confirmation pending.',
@@ -84,7 +91,7 @@ class MerchantRegistrationController extends Controller
         $tenant->save();
 
         // Trigger PitiCoin Webhook: lead.confirmed
-        $webhookUrl = env('PITICOIN_WEBHOOK_URL', 'http://piticoin.id.localhost/api/v1/webhooks/unimart-event');
+        $webhookUrl = config('services.piticoin.webhook_url') ?: env('PITICOIN_WEBHOOK_URL', app()->environment('local') ? 'http://piticoin.id.localhost/api/v1/webhooks/unimart-event' : 'https://piticoin.id/api/v1/webhooks/unimart-event');
         $secret = env('WEBHOOK_SECRET', 'piticoin_local_secret_key');
 
         $payload = [
@@ -126,7 +133,7 @@ class MerchantRegistrationController extends Controller
         $tenant = Tenant::find($user->tenant_id);
 
         // Trigger PitiCoin Webhook: payment.verified
-        $webhookUrl = env('PITICOIN_WEBHOOK_URL', 'http://piticoin.id.localhost/api/v1/webhooks/unimart-event');
+        $webhookUrl = config('services.piticoin.webhook_url') ?: env('PITICOIN_WEBHOOK_URL', app()->environment('local') ? 'http://piticoin.id.localhost/api/v1/webhooks/unimart-event' : 'https://piticoin.id/api/v1/webhooks/unimart-event');
         $secret = env('WEBHOOK_SECRET', 'piticoin_local_secret_key');
 
         $payload = [

@@ -715,7 +715,8 @@
         const tenantId = '{{ $tenant ? $tenant->id : 0 }}';
         if (tenantId !== '0') {
             try {
-                socket = io('http://gateway.locomo.id.localhost');
+                const gatewayUrl = '{{ \App\Services\GatewayService::getClientSocketUrl() }}';
+                socket = io(gatewayUrl);
                 socket.on('connect', () => {
                     socket.emit('join', 'caffe-' + tenantId + '-kitchen');
                 });

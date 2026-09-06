@@ -27,32 +27,50 @@ class IdentifyTenant
             $tenant = Tenant::where('domain', $request->route('alias'))->first();
         }
 
-        // 3. Cari tenant berdasarkan host domain
-        if (!$tenant) {
-            $host = $request->getHost();
-            $baseDomain = 'unimart.group.localhost';
-            $onlineDomain = 'unimart.group';
+        $rawHost = $request->getHost();
+        $host = explode(':', $rawHost)[0];
+
+        $baseDomain = env('APP_LOCAL_DOMAIN', 'unimart.group.localhost');
+        $onlineDomain = env('APP_BASE_DOMAIN', 'unimart.group');
+
+        $isMarketplace = str_starts_with($host, 'marketplace.') || $request->is('marketplace*');
+        app()->instance('is_marketplace', $isMarketplace);
+
+        // 3. Cari tenant berdasarkan host domain (hanya jika bukan portal marketplace)
+        if (!$isMarketplace && !$tenant) {
+            $subdomain = null;
+
             if (str_ends_with($host, '.' . $baseDomain)) {
-                $subdomain = str_replace('.' . $baseDomain, '', $host);
-                $tenant = Tenant::where('domain', $subdomain)->first();
+                $subdomain = substr($host, 0, -strlen('.' . $baseDomain));
             } elseif (str_ends_with($host, '.' . $onlineDomain)) {
-                $subdomain = str_replace('.' . $onlineDomain, '', $host);
+                $subdomain = substr($host, 0, -strlen('.' . $onlineDomain));
+            }
+
+            if ($subdomain && !in_array($subdomain, ['www', 'app', 'admin', 'marketplace'])) {
                 $tenant = Tenant::where('domain', $subdomain)->first();
             }
+
             if (!$tenant) {
-                $tenant = Tenant::where('domain', $host)->first();
+                // Cek apakah ada custom domain terdaftar
+                if (\Illuminate\Support\Facades\Schema::hasTable('domain_mappings')) {
+                    $mapping = \App\Models\DomainMapping::where('custom_domain', $host)->where('is_verified', true)->first();
+                    if ($mapping) {
+                        $tenant = $mapping->tenant;
+                    }
+                }
+                
+                if (!$tenant) {
+                    $tenant = Tenant::where('domain', $host)->first();
+                }
             }
         }
 
         // 4. Fallback untuk testing/lokal
-        if (!$tenant) {
+        if (!$isMarketplace && !$tenant) {
             if (app()->environment('testing')) {
                 $tenant = Tenant::first();
             } elseif (app()->environment('local')) {
-                $host = $request->getHost();
-                $baseDomain = 'unimart.group.localhost';
-                $onlineDomain = 'unimart.group';
-                if ($host !== $baseDomain && $host !== $onlineDomain && $host !== 'localhost' && $host !== '127.0.0.1') {
+                if ($host !== $baseDomain && $host !== $onlineDomain && $host !== 'localhost' && $host !== '127.0.0.1' && !$isMarketplace) {
                     $tenant = Tenant::first();
                 }
             }
@@ -61,9 +79,13 @@ class IdentifyTenant
         if ($tenant) {
             app()->instance('tenant_id', $tenant->id);
             app()->instance('tenant', $tenant);
+            app()->instance('business_type', $tenant->business_type ?? 'caffe');
             
             // Simpan di session agar mudah diakses
-            session(['tenant_id' => $tenant->id]);
+            session([
+                'tenant_id' => $tenant->id,
+                'business_type' => $tenant->business_type ?? 'caffe'
+            ]);
         }
 
         return $next($request);

@@ -23,7 +23,7 @@ class TableController extends Controller
         for ($i = 1; $i <= $tablesCount; $i++) {
             $tables[] = [
                 'number' => $i,
-                'qr_url' => 'http://unimart.group.localhost/caffe/' . $tenant->domain . '?table=' . $i
+                'qr_url' => url('/caffe/' . $tenant->domain . '?table=' . $i)
             ];
         }
 

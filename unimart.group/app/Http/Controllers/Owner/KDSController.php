@@ -45,25 +45,16 @@ class KDSController extends Controller
         $order->save();
 
         // Kirim notifikasi event real-time via locomo.gateway
-        $gatewayUrl = 'http://gateway:3000/emit';
-        $channelName = 'caffe-' . $tenant->id . '-kitchen';
-
-        $payload = [
-            'channel' => $channelName,
-            'event' => 'order-ready',
-            'data' => [
+        \App\Services\GatewayService::emit(
+            'caffe-' . $tenant->id . '-kitchen',
+            'order-ready',
+            [
                 'id' => $order->id,
                 'status' => 'ready',
                 'order_number' => $order->order_number,
                 'table_number' => $order->table_number,
             ]
-        ];
-
-        try {
-            Http::timeout(3)->post($gatewayUrl, $payload);
-        } catch (\Exception $e) {
-            // Abaikan error koneksi gateway agar flow lokal tetap berjalan
-        }
+        );
 
         return response()->json([
             'success' => true,

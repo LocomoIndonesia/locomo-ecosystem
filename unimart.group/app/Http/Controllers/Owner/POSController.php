@@ -227,14 +227,10 @@ class POSController extends Controller
             });
 
             // 4. Kirim trigger HTTP POST internal ke Node.js gateway (locomo.gateway)
-            $gatewayUrl = 'http://gateway:3000/emit';
-            $channelName = 'caffe-' . $tenant->id . '-kitchen';
-            
-            // Siapkan payload data pesanan untuk dapur
-            $payload = [
-                'channel' => $channelName,
-                'event' => 'new-order',
-                'data' => [
+            \App\Services\GatewayService::emit(
+                'caffe-' . $tenant->id . '-kitchen',
+                'new-order',
+                [
                     'id' => $order->id,
                     'order_number' => $order->order_number,
                     'table_number' => $order->table_number,
@@ -248,10 +244,7 @@ class POSController extends Controller
                         ];
                     })->toArray()
                 ]
-            ];
-
-            // Kirim request ke gateway Node.js (abaikan timeout untuk kelancaran lokal)
-            Http::timeout(3)->post($gatewayUrl, $payload);
+            );
 
             return response()->json([
                 'success' => true,
@@ -376,13 +369,10 @@ class POSController extends Controller
             });
 
             // Kirim trigger HTTP POST internal ke Node.js gateway
-            $gatewayUrl = 'http://gateway:3000/emit';
-            $channelName = 'caffe-' . $tenant->id . '-kitchen';
-            
-            $payload = [
-                'channel' => $channelName,
-                'event' => 'new-order',
-                'data' => [
+            \App\Services\GatewayService::emit(
+                'caffe-' . $tenant->id . '-kitchen',
+                'new-order',
+                [
                     'id' => $order->id,
                     'order_number' => $order->order_number,
                     'table_number' => $order->table ? $order->table->name : ($order->order_source === 'online' ? 'Online' : 'Counter'),
@@ -400,9 +390,7 @@ class POSController extends Controller
                         ];
                     })->toArray()
                 ]
-            ];
-
-            Http::timeout(3)->post($gatewayUrl, $payload);
+            );
 
             return response()->json([
                 'success' => true,

@@ -695,7 +695,8 @@
                 dialogMessage: '',
 
                 init() {
-                    this.socket = io('http://gateway.locomo.id.localhost');
+                    const gatewayUrl = '{{ \App\Services\GatewayService::getClientSocketUrl() }}';
+                    this.socket = io(gatewayUrl);
 
                     this.socket.on('connect', () => {
                         this.socketConnected = true;

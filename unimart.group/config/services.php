@@ -41,4 +41,14 @@ return [
         'redirect' => env('GOOGLE_REDIRECT_URI'),
     ],
 
+    'gateway' => [
+        'client_url' => env('GATEWAY_CLIENT_URL'),
+        'internal_url' => env('GATEWAY_INTERNAL_URL', 'http://gateway:3000'),
+    ],
+
+    'piticoin' => [
+        'url' => env('PITICOIN_URL'),
+        'webhook_url' => env('PITICOIN_WEBHOOK_URL'),
+    ],
+
 ];

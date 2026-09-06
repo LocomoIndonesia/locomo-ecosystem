@@ -1310,7 +1310,8 @@ function staffDashboard() {
             const tenantId = '{{ $tenant ? $tenant->id : 0 }}';
             if (tenantId !== '0') {
                 try {
-                    this.socket = io('http://gateway.locomo.id.localhost');
+                    const gatewayUrl = '{{ \App\Services\GatewayService::getClientSocketUrl() }}';
+                    this.socket = io(gatewayUrl);
                     this.socket.on('connect', () => {
                         this.socket.emit('join', 'caffe-' + tenantId + '-kitchen');
                     });

@@ -349,14 +349,17 @@
                     </div>
                     <span>Unimart</span>
                 </a>
-                <a href="http://piticoin.id.localhost" class="dest-card">
+                @php
+                    $piticoinBase = config('services.piticoin.url') ?? (str_ends_with(request()->getHost(), '.localhost') || request()->getHost() === 'localhost' ? 'http://piticoin.id.localhost' : 'https://piticoin.id');
+                @endphp
+                <a href="{{ $piticoinBase }}" class="dest-card">
                     <div>
                         <strong>Buru Harta Karun & Games</strong>
                         <p style="font-size: 0.8rem; font-weight: normal; opacity: 0.8;">Kumpulkan koin gratis dari cafe</p>
                     </div>
                     <span>PitiCoin</span>
                 </a>
-                <a href="http://piticoin.id.localhost/ppob" class="dest-card">
+                <a href="{{ $piticoinBase }}/ppob" class="dest-card">
                     <div>
                         <strong>Bayar Tagihan & PPOB</strong>
                         <p style="font-size: 0.8rem; font-weight: normal; opacity: 0.8;">Pulsa, Paket Data, Token Listrik</p>

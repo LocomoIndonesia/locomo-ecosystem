@@ -15,7 +15,20 @@ use App\Http\Controllers\Owner\AccountPayableController;
 use App\Http\Controllers\Owner\AccountReceivableController;
 use App\Http\Controllers\Owner\FinancialReportController;
 
-Route::get('/', function () {
+Route::get('/', function (\Illuminate\Http\Request $request) {
+    if (app()->bound('is_marketplace') && app('is_marketplace')) {
+        return app(\App\Modules\Marketplace\Controllers\MarketplaceHomeController::class)->index($request);
+    }
+
+    $tenant = app()->bound('tenant') ? app('tenant') : null;
+    if ($tenant) {
+        if ($tenant->business_type === 'grosir') {
+            return app(\App\Modules\Grosir\Controllers\GrosirLandingController::class)->showLanding($tenant->domain);
+        } elseif ($tenant->business_type === 'caffe') {
+            return app(\App\Modules\Caffe\Controllers\CaffeLandingController::class)->showLanding($tenant->domain);
+        }
+    }
+
     return view('welcome');
 });
 

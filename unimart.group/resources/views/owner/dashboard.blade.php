@@ -456,7 +456,7 @@
                 <p style="font-style: italic; margin-top: 0.35rem; font-size: 0.85rem; color: var(--text-muted); line-height: 1.4;">
                     "Asisten Kasir Pintar siap mendampingi Kakak di Ruang Kendali ini. Tetap semangat memimpin tim, semoga bisnis <strong>{{ $tenant->name }}</strong> makin sukses dan laris manis hari ini! 🚀"
                 </p>
-                <p style="margin-top: 0.5rem; font-size: 0.8rem; color: var(--text-muted);">Domain Toko: <code>{{ $tenant->domain }}.unimart.group</code></p>
+                <p style="margin-top: 0.5rem; font-size: 0.8rem; color: var(--text-muted);">Domain Toko: <code>{{ $tenant->full_domain }}</code></p>
             </div>
             <div class="nav-tabs" style="display: flex; flex-wrap: wrap; gap: 0.4rem;">
                 <a href="{{ route('owner.dashboard') }}" class="tab-link active">Dasbor</a>
@@ -594,7 +594,7 @@
             <div class="feature-card" style="grid-column: span 2; max-width: 100%;">
                 <div class="feature-card-header">
                     <h3>🎨 Personalisasi Landing Page</h3>
-                    <p>Ubah tampilan utama landing page toko Anda di subdomain <code>{{ $tenant->domain }}.unimart.group.localhost</code>.</p>
+                    <p>Ubah tampilan utama landing page toko Anda di subdomain <code>{{ $tenant->full_domain }}</code>.</p>
                     
                     <form action="{{ route('owner.settings.update') }}" method="POST" style="margin-top: 1.2rem; display: grid; gap: 0.8rem; text-align: left;">
                         @csrf
