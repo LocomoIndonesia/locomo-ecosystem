@@ -380,22 +380,19 @@ class StaffAuthController extends Controller
         }
 
         // Kirim notifikasi event real-time via locomo.gateway
-        try {
-            $tenant = app('tenant');
-            $gatewayUrl = 'http://gateway:3000/emit';
-            $channelName = 'caffe-' . $tenant->id . '-kitchen';
-            $payload = [
-                'channel' => $channelName,
-                'event' => 'order-updated',
-                'data' => [
+        $tenant = app('tenant');
+        if ($tenant) {
+            \App\Services\GatewayService::emit(
+                'caffe-' . $tenant->id . '-kitchen',
+                'order-updated',
+                [
                     'id' => $order->id,
                     'status' => $order->kitchen_status,
                     'payment_status' => $order->payment_status,
                     'order_number' => $order->order_number,
                 ]
-            ];
-            \Illuminate\Support\Facades\Http::timeout(3)->post($gatewayUrl, $payload);
-        } catch (\Exception $e) {}
+            );
+        }
 
         if ($request->wantsJson()) {
             return response()->json([
@@ -445,32 +442,25 @@ class StaffAuthController extends Controller
 
         // Kirim notifikasi event real-time via locomo.gateway
         $tenant = app('tenant');
-        $gatewayUrl = 'http://gateway:3000/emit';
-        $channelName = 'caffe-' . $tenant->id . '-kitchen';
-        
-        $payload = [
-            'channel' => $channelName,
-            'event' => 'new-order',
-            'data' => [
-                'id' => $order->id,
-                'order_number' => $order->order_number,
-                'table_number' => $order->table ? $order->table->name : ($order->order_type === 'takeaway' ? 'Takeaway' : 'Counter'),
-                'status' => 'cooking',
-                'total_amount' => $order->total_amount,
-                'created_at' => $order->created_at->toIso8601String(),
-                'items' => $order->items->map(function ($item) {
-                    return [
-                        'name' => $item->product->name,
-                        'qty' => $item->quantity,
-                    ];
-                })->toArray()
-            ]
-        ];
-
-        try {
-            \Illuminate\Support\Facades\Http::timeout(3)->post($gatewayUrl, $payload);
-        } catch (\Exception $e) {
-            // Abaikan error koneksi gateway
+        if ($tenant) {
+            \App\Services\GatewayService::emit(
+                'caffe-' . $tenant->id . '-kitchen',
+                'new-order',
+                [
+                    'id' => $order->id,
+                    'order_number' => $order->order_number,
+                    'table_number' => $order->table ? $order->table->name : ($order->order_type === 'takeaway' ? 'Takeaway' : 'Counter'),
+                    'status' => 'cooking',
+                    'total_amount' => $order->total_amount,
+                    'created_at' => $order->created_at->toIso8601String(),
+                    'items' => $order->items->map(function ($item) {
+                        return [
+                            'name' => $item->product->name,
+                            'qty' => $item->quantity,
+                        ];
+                    })->toArray()
+                ]
+            );
         }
 
         if ($request->wantsJson()) {
@@ -515,22 +505,19 @@ class StaffAuthController extends Controller
         });
 
         // Kirim notifikasi event real-time via locomo.gateway
-        try {
-            $tenant = app('tenant');
-            $gatewayUrl = 'http://gateway:3000/emit';
-            $channelName = 'caffe-' . $tenant->id . '-kitchen';
-            $payload = [
-                'channel' => $channelName,
-                'event' => 'order-updated',
-                'data' => [
+        $tenant = app('tenant');
+        if ($tenant) {
+            \App\Services\GatewayService::emit(
+                'caffe-' . $tenant->id . '-kitchen',
+                'order-updated',
+                [
                     'id' => $order->id,
                     'status' => 'void',
                     'payment_status' => 'void',
                     'order_number' => $order->order_number,
                 ]
-            ];
-            \Illuminate\Support\Facades\Http::timeout(3)->post($gatewayUrl, $payload);
-        } catch (\Exception $e) {}
+            );
+        }
 
         if ($request->wantsJson()) {
             return response()->json([
@@ -657,21 +644,18 @@ class StaffAuthController extends Controller
             });
 
             // Kirim notifikasi event real-time via locomo.gateway
-            try {
-                $tenant = app('tenant');
-                $gatewayUrl = 'http://gateway:3000/emit';
-                $channelName = 'caffe-' . $tenant->id . '-kitchen';
-                $payload = [
-                    'channel' => $channelName,
-                    'event' => 'order-updated',
-                    'data' => [
+            $tenant = app('tenant');
+            if ($tenant) {
+                \App\Services\GatewayService::emit(
+                    'caffe-' . $tenant->id . '-kitchen',
+                    'order-updated',
+                    [
                         'id' => $order->id,
                         'status' => 'pending',
                         'order_number' => $order->order_number,
                     ]
-                ];
-                \Illuminate\Support\Facades\Http::timeout(3)->post($gatewayUrl, $payload);
-            } catch (\Exception $e) {}
+                );
+            }
 
             if ($request->wantsJson()) {
                 return response()->json([

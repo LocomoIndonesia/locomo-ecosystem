@@ -86,6 +86,11 @@ class IdentifyTenant
                 'tenant_id' => $tenant->id,
                 'business_type' => $tenant->business_type ?? 'caffe'
             ]);
+        } else {
+            app()->forgetInstance('tenant_id');
+            app()->forgetInstance('tenant');
+            app()->forgetInstance('business_type');
+            session()->forget(['tenant_id', 'business_type']);
         }
 
         return $next($request);
