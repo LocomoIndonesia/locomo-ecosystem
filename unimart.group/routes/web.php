@@ -9,6 +9,11 @@ use App\Http\Controllers\Owner\POSController;
 use App\Http\Controllers\Owner\KDSController;
 use App\Http\Controllers\Owner\MenuController;
 use App\Http\Controllers\Owner\TableController;
+use App\Http\Controllers\Owner\SupplierController;
+use App\Http\Controllers\Owner\PurchaseController;
+use App\Http\Controllers\Owner\AccountPayableController;
+use App\Http\Controllers\Owner\AccountReceivableController;
+use App\Http\Controllers\Owner\FinancialReportController;
 
 Route::get('/', function () {
     return view('welcome');
@@ -89,6 +94,28 @@ Route::middleware(['auth', 'role:owner'])->group(function () {
     Route::get('/owner/tables', [TableController::class, 'index'])->name('owner.tables');
     Route::post('/owner/tables/update', [TableController::class, 'updateTablesCount'])->name('owner.tables.update');
     Route::post('/owner/settings/update', [DashboardController::class, 'updateSettings'])->name('owner.settings.update');
+
+    // Rute Manajemen Supplier
+    Route::get('/owner/suppliers', [SupplierController::class, 'index'])->name('owner.suppliers.index');
+    Route::post('/owner/suppliers', [SupplierController::class, 'store'])->name('owner.suppliers.store');
+    Route::post('/owner/suppliers/{id}', [SupplierController::class, 'update'])->name('owner.suppliers.update');
+    Route::delete('/owner/suppliers/{id}', [SupplierController::class, 'destroy'])->name('owner.suppliers.destroy');
+
+    // Rute Pengadaan / Kulakan Stok (Purchases)
+    Route::get('/owner/purchases', [PurchaseController::class, 'index'])->name('owner.purchases.index');
+    Route::get('/owner/purchases/create', [PurchaseController::class, 'create'])->name('owner.purchases.create');
+    Route::post('/owner/purchases', [PurchaseController::class, 'store'])->name('owner.purchases.store');
+
+    // Rute Buku Utang Toko ke Supplier (Accounts Payable)
+    Route::get('/owner/payables', [AccountPayableController::class, 'index'])->name('owner.payables.index');
+    Route::post('/owner/payables/{id}/payment', [AccountPayableController::class, 'recordPayment'])->name('owner.payables.payment');
+
+    // Rute Buku Piutang Pelanggan (Accounts Receivable)
+    Route::get('/owner/receivables', [AccountReceivableController::class, 'index'])->name('owner.receivables.index');
+    Route::post('/owner/receivables/{id}/payment', [AccountReceivableController::class, 'recordPayment'])->name('owner.receivables.payment');
+
+    // Rute Laporan Keuangan (Laba Rugi & Arus Kas)
+    Route::get('/owner/reports/finance', [FinancialReportController::class, 'finance'])->name('owner.reports.finance');
 });
 
 // Group Owner & Kasir

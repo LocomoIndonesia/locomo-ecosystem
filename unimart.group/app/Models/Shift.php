@@ -12,18 +12,30 @@ class Shift extends Model
     use BelongsToTenant;
 
     protected $fillable = [
+        'tenant_id',
         'user_id',
         'opened_at',
         'closed_at',
         'starting_cash',
         'actual_ending_cash',
         'system_ending_cash',
+        'total_cash_sales',
+        'total_debt_sales',
+        'total_supplier_cash_out',
+        'cash_difference',
         'notes',
     ];
 
     protected $casts = [
         'opened_at' => 'datetime',
         'closed_at' => 'datetime',
+        'starting_cash' => 'integer',
+        'actual_ending_cash' => 'integer',
+        'system_ending_cash' => 'integer',
+        'total_cash_sales' => 'integer',
+        'total_debt_sales' => 'integer',
+        'total_supplier_cash_out' => 'integer',
+        'cash_difference' => 'integer',
     ];
 
     /**
@@ -48,5 +60,21 @@ class Shift extends Model
     public function orders(): HasMany
     {
         return $this->hasMany(Order::class);
+    }
+
+    /**
+     * Relasi ke pembayaran cicilan utang supplier selama shift ini.
+     */
+    public function payablePayments(): HasMany
+    {
+        return $this->hasMany(PayablePayment::class);
+    }
+
+    /**
+     * Relasi ke penerimaan setoran cicilan piutang pelanggan selama shift ini.
+     */
+    public function receivablePayments(): HasMany
+    {
+        return $this->hasMany(ReceivablePayment::class);
     }
 }

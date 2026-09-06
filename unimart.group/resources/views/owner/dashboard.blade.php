@@ -458,8 +458,15 @@
                 </p>
                 <p style="margin-top: 0.5rem; font-size: 0.8rem; color: var(--text-muted);">Domain Toko: <code>{{ $tenant->domain }}.unimart.group</code></p>
             </div>
-            <div class="nav-tabs">
+            <div class="nav-tabs" style="display: flex; flex-wrap: wrap; gap: 0.4rem;">
                 <a href="{{ route('owner.dashboard') }}" class="tab-link active">Dasbor</a>
+                <a href="{{ route('owner.menus') }}" class="tab-link">Produk & Menu</a>
+                <a href="{{ route('owner.tables') }}" class="tab-link">Meja</a>
+                <a href="{{ route('owner.suppliers.index') }}" class="tab-link">🚚 Pemasok</a>
+                <a href="{{ route('owner.purchases.index') }}" class="tab-link">📦 Kulakan</a>
+                <a href="{{ route('owner.payables.index') }}" class="tab-link">📕 Utang Toko</a>
+                <a href="{{ route('owner.receivables.index') }}" class="tab-link">📗 Piutang</a>
+                <a href="{{ route('owner.reports.finance') }}" class="tab-link">📈 Keuangan P&L</a>
                 <a href="{{ route('owner.team') }}" class="tab-link">Kelola Staf</a>
             </div>
         </div>

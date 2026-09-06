@@ -125,17 +125,29 @@ class POSController extends Controller
                 }
 
                 // 2. Buat Order baru
-                $isPaylater = $request->payment_method === 'later';
+                $isDebt = in_array($request->payment_method, ['debt', 'later']);
+                
+                // Cari atau buat customer jika transaksi utang
+                $customerId = $request->customer_id ?? null;
+                if ($isDebt && !$customerId && $request->customer_name) {
+                    $customer = \App\Models\Customer::firstOrCreate(
+                        ['tenant_id' => $tenant->id, 'name' => $request->customer_name],
+                        ['phone' => $request->customer_phone ?? '-']
+                    );
+                    $customerId = $customer->id;
+                }
+
                 $order = Order::create([
                     'tenant_id' => $tenant->id,
                     'shift_id' => $shift->id,
+                    'customer_id' => $customerId,
                     'order_number' => 'ORD-' . date('YmdHis') . '-' . rand(10, 99),
                     'customer_name' => $request->customer_name ?? null,
                     'order_type' => $isOnline ? 'takeaway' : $request->order_type,
                     'table_id' => (!$isOnline && $request->order_type === 'dine_in') ? $request->table_id : null,
                     'kitchen_status' => 'pending',
-                    // Jika bayar nanti: unpaid. Jika metode pembayaran lain: langsung paid
-                    'payment_status' => $isPaylater ? 'unpaid' : 'paid',
+                    // Jika utang/bayar nanti: debt/unpaid. Jika tunai/PG: paid
+                    'payment_status' => $isDebt ? 'debt' : 'paid',
                     'total_amount' => $totalAmount,
                     'order_source' => $isOnline ? 'online' : 'pos',
                     'delivery_address' => $isOnline ? $request->delivery_address : null,
@@ -146,26 +158,59 @@ class POSController extends Controller
                     'processed_by_name' => $processedByName,
                 ]);
 
-                // 3. Simpan item pesanan
+                // 3. Simpan item pesanan beserta snapshot HPP modal
                 foreach ($orderItemsData as $itemData) {
+                    $prodModel = Product::find($itemData['product_id']);
                     OrderItem::create([
+                        'tenant_id' => $tenant->id,
                         'order_id' => $order->id,
                         'product_id' => $itemData['product_id'],
                         'quantity' => $itemData['quantity'],
                         'price' => $itemData['price'],
+                        'cost_price' => $prodModel ? $prodModel->cost_price : 0,
                         'status' => 'pending',
                     ]);
                 }
 
-                // 4. Catat Payment (hanya jika bukan "bayar nanti")
-                if (!$isPaylater) {
+                // 4. Catat Pembayaran / Buku Piutang
+                if ($isDebt) {
+                    $receivableNumber = 'AR-' . date('Ymd') . '-' . str_pad(\App\Models\AccountReceivable::where('tenant_id', $tenant->id)->count() + 1, 4, '0', STR_PAD_LEFT);
+                    
+                    if ($customerId) {
+                        \App\Models\AccountReceivable::create([
+                            'tenant_id' => $tenant->id,
+                            'customer_id' => $customerId,
+                            'order_id' => $order->id,
+                            'receivable_number' => $receivableNumber,
+                            'total_debt_amount' => $totalAmount,
+                            'remaining_amount' => $totalAmount,
+                            'due_date' => $request->due_date ?? now()->addDays(7)->toDateString(),
+                            'status' => 'unpaid',
+                            'notes' => 'Transaksi POS Bon ' . $order->order_number,
+                        ]);
+
+                        $cust = \App\Models\Customer::find($customerId);
+                        if ($cust) {
+                            $cust->increment('current_debt', $totalAmount);
+                        }
+                    }
+
+                    $shift->increment('total_debt_sales', $totalAmount);
+                } else {
                     $order->payments()->create([
+                        'tenant_id' => $tenant->id,
                         'payment_method' => $request->payment_method,
                         'amount_paid' => $totalAmount,
                         'status' => 'success',
                         'processed_by_user_id' => $processedByUserId,
                         'processed_by_name' => $processedByName,
                     ]);
+
+                    // Update kas shift jika pembayaran tunai
+                    if ($request->payment_method === 'cash') {
+                        $shift->increment('total_cash_sales', $totalAmount);
+                        $shift->increment('system_ending_cash', $totalAmount);
+                    }
                 }
 
                 // Update status meja jika dine_in dan bukan online
@@ -174,11 +219,6 @@ class POSController extends Controller
                     if ($table && $table->status === 'available') {
                         $table->update(['status' => 'occupied']);
                     }
-                }
-
-                // Update system ending cash jika pembayaran tunai (cash) dan bukan bayar nanti
-                if ($request->payment_method === 'cash' && !$isPaylater) {
-                    $shift->increment('system_ending_cash', $totalAmount);
                 }
 
                 // Return order dengan relasi items untuk broadcast data lengkap
