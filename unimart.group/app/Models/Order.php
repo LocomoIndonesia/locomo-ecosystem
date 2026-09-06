@@ -6,12 +6,14 @@ use Illuminate\Database\Eloquent\Model;
 use App\Tenant\BelongsToTenant;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 
 class Order extends Model
 {
     use BelongsToTenant;
 
     protected $fillable = [
+        'tenant_id',
         'shift_id',
         'customer_id',
         'table_id',
@@ -26,6 +28,14 @@ class Order extends Model
         'delivery_latitude',
         'delivery_longitude',
         'delivery_fee',
+        'notes',
+        'metadata',
+    ];
+
+    protected $casts = [
+        'total_amount' => 'integer',
+        'delivery_fee' => 'integer',
+        'metadata' => 'array',
     ];
 
     protected $appends = ['status', 'table_number'];
@@ -64,19 +74,18 @@ class Order extends Model
         return $this->hasMany(Payment::class);
     }
 
-    /**
-     * Relasi ke Shift.
-     */
     public function shift(): BelongsTo
     {
         return $this->belongsTo(Shift::class);
     }
 
-    /**
-     * Relasi ke OrderItems.
-     */
     public function items(): HasMany
     {
         return $this->hasMany(OrderItem::class);
+    }
+
+    public function accountReceivable(): HasOne
+    {
+        return $this->hasOne(AccountReceivable::class);
     }
 }
