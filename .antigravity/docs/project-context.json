@@ -1,8 +1,8 @@
 {
   "schema_version": "1.0",
-  "last_updated": "2026-06-10",
+  "last_updated": "2026-09-06",
   "workspace_name": "Locomo.id Federated Ecosystem",
-  "active_project": "donasi.mandeh.online",
+  "active_project": "unimart.group",
   "projects": [
     "locomo-web",
     "mandeh.online",
