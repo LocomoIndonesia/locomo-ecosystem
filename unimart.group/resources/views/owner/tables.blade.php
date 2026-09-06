@@ -416,10 +416,16 @@
                 <h2>Kelola Meja Kafe</h2>
                 <p>Atur total meja terdaftar dan unduh QR Code meja untuk mempercepat proses check-in order tamu.</p>
             </div>
-            <div class="nav-tabs">
-                <a href="{{ route('owner.dashboard') }}" class="tab-link">Dasbor</a>
-                <a href="{{ route('owner.menus') }}" class="tab-link">Daftar Menu</a>
-                <a href="{{ route('owner.tables') }}" class="tab-link active">Kelola Meja</a>
+            <div class="nav-scroll-wrap" style="display: flex; gap: 0.5rem; overflow-x: auto; padding: 0.35rem 0.1rem; -webkit-overflow-scrolling: touch; scrollbar-width: none; margin-top: 1rem;">
+                <a href="{{ route('owner.dashboard') }}" class="tab-link" style="border-radius: 30px; white-space: nowrap; flex-shrink: 0;">📊 Dasbor</a>
+                <a href="{{ route('owner.menus') }}" class="tab-link" style="border-radius: 30px; white-space: nowrap; flex-shrink: 0;">🍽️ Produk & Menu</a>
+                <a href="{{ route('owner.tables') }}" class="tab-link active" style="border-radius: 30px; white-space: nowrap; flex-shrink: 0;">🪑 Meja & QR</a>
+                <a href="{{ route('owner.suppliers.index') }}" class="tab-link" style="border-radius: 30px; white-space: nowrap; flex-shrink: 0;">🚚 Pemasok</a>
+                <a href="{{ route('owner.purchases.index') }}" class="tab-link" style="border-radius: 30px; white-space: nowrap; flex-shrink: 0;">📦 Kulakan</a>
+                <a href="{{ route('owner.payables.index') }}" class="tab-link" style="border-radius: 30px; white-space: nowrap; flex-shrink: 0;">📕 Utang Toko</a>
+                <a href="{{ route('owner.receivables.index') }}" class="tab-link" style="border-radius: 30px; white-space: nowrap; flex-shrink: 0;">📗 Piutang</a>
+                <a href="{{ route('owner.reports.finance') }}" class="tab-link" style="border-radius: 30px; white-space: nowrap; flex-shrink: 0;">📈 Laporan P&L</a>
+                <a href="{{ route('owner.team') }}" class="tab-link" style="border-radius: 30px; white-space: nowrap; flex-shrink: 0;">👥 Staf Kasir</a>
             </div>
         </div>
 

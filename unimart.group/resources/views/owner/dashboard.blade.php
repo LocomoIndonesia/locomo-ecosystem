@@ -3,32 +3,40 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dasbor Pemilik Bisnis - Unimart.group</title>
+    <title>Dasbor Pemilik Bisnis — Unimart.group</title>
+    
     <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700;800&family=Playfair+Display:ital,wght=0,600;0,700;1,400&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Playfair+Display:ital,wght@0,600;0,700;1,500&display=swap" rel="stylesheet">
     
     <!-- Alpine.js -->
     <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
 
-    <!-- Custom CSS (Mobile-First & Responsive) -->
     <style>
         :root {
-            --primary: hsl(28, 90%, 50%);
-            --primary-light: hsl(28, 95%, 62%);
-            --background: hsl(210, 30%, 8%);
-            --surface: hsl(210, 24%, 12%);
-            --surface-accent: hsl(210, 24%, 18%);
-            --text-main: hsl(210, 20%, 96%);
-            --text-muted: hsl(210, 14%, 70%);
+            --primary: hsl(28, 95%, 50%);
+            --primary-hover: hsl(28, 100%, 46%);
+            --primary-gradient: linear-gradient(135deg, hsl(28, 95%, 52%), hsl(22, 95%, 45%));
+            --primary-soft: rgba(249, 115, 22, 0.12);
+            --primary-ring: rgba(249, 115, 22, 0.25);
+            --bg: hsl(220, 26%, 8%);
+            --surface: hsl(220, 24%, 12%);
+            --surface-accent: hsl(220, 22%, 16%);
+            --surface-hover: hsl(220, 22%, 20%);
+            --text-main: hsl(220, 20%, 96%);
+            --text-muted: hsl(220, 14%, 68%);
+            --text-dim: hsl(220, 12%, 48%);
             --border: rgba(255, 255, 255, 0.08);
-            --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-            --shadow: 0 15px 35px rgba(0, 0, 0, 0.4);
-            --radius-lg: 20px;
-            --radius-md: 14px;
+            --border-glow: rgba(249, 115, 22, 0.4);
+            --radius-xl: 20px;
+            --radius-lg: 16px;
+            --radius-md: 12px;
             --radius-sm: 8px;
-            --secondary: hsl(150, 60%, 35%);
+            --shadow-lg: 0 20px 40px -12px rgba(0, 0, 0, 0.5);
+            --shadow-sm: 0 4px 12px rgba(0, 0, 0, 0.25);
+            --success: hsl(150, 60%, 42%);
+            --transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
         }
 
         * {
@@ -36,88 +44,93 @@
             margin: 0;
             padding: 0;
             font-family: 'Outfit', sans-serif;
+            -webkit-tap-highlight-color: transparent;
         }
 
         body {
-            background-color: var(--background);
+            background-color: var(--bg);
             color: var(--text-main);
             min-height: 100vh;
             display: flex;
             flex-direction: column;
             overflow-x: hidden;
+            background-image: 
+                radial-gradient(circle at 10% 0%, rgba(249, 115, 22, 0.07) 0%, transparent 40%),
+                radial-gradient(circle at 90% 100%, rgba(249, 115, 22, 0.05) 0%, transparent 40%);
         }
 
-        /* Header */
+        /* Sticky App Header */
         header.dashboard-header {
-            background: rgba(15, 23, 30, 0.85);
-            backdrop-filter: blur(12px);
-            -webkit-backdrop-filter: blur(12px);
+            background: rgba(11, 15, 23, 0.88);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
             border-bottom: 1px solid var(--border);
-            padding: 1rem 1.2rem;
+            padding: 0.85rem 1rem;
             display: flex;
             justify-content: space-between;
             align-items: center;
             position: sticky;
             top: 0;
-            z-index: 10;
+            z-index: 100;
         }
 
-        .logo {
+        @media (min-width: 768px) {
+            header.dashboard-header {
+                padding: 1rem 2rem;
+            }
+        }
+
+        .brand-logo {
             font-family: 'Playfair Display', serif;
-            font-size: 1.3rem;
-            font-weight: 800;
+            font-size: 1.35rem;
+            font-weight: 700;
             color: var(--primary);
             text-decoration: none;
-        }
-
-        .logo span {
-            font-family: 'Outfit', sans-serif;
-            font-size: 0.75rem;
-            font-weight: 700;
-            background: var(--primary);
-            color: var(--background);
-            padding: 0.1rem 0.4rem;
-            border-radius: 20px;
-            margin-left: 0.2rem;
-        }
-
-        .user-menu {
             display: flex;
             align-items: center;
-            gap: 1rem;
+            gap: 0.4rem;
         }
 
-        .user-info {
-            text-align: right;
-            display: none; /* Sembunyikan nama di mobile untuk menghemat tempat */
+        .brand-logo span.tag {
+            font-family: 'Outfit', sans-serif;
+            font-size: 0.7rem;
+            font-weight: 700;
+            background: var(--primary-soft);
+            color: var(--primary);
+            border: 1px solid var(--border-glow);
+            padding: 0.15rem 0.5rem;
+            border-radius: 20px;
+        }
+
+        .header-actions {
+            display: flex;
+            align-items: center;
+            gap: 0.6rem;
         }
 
         .badge-package {
-            display: inline-block;
-            font-size: 0.7rem;
+            font-size: 0.72rem;
             font-weight: 700;
-            background: var(--primary);
-            color: var(--background);
-            padding: 0.1rem 0.4rem;
-            border-radius: 10px;
+            padding: 0.25rem 0.65rem;
+            border-radius: 20px;
+            background: var(--primary-soft);
+            color: var(--primary);
+            border: 1px solid var(--border-glow);
             text-transform: uppercase;
+            letter-spacing: 0.4px;
         }
 
         .badge-package.vip {
-            background: linear-gradient(135deg, #ffd700, #ffa500);
-            color: #000;
-        }
-
-        .badge-package.pro {
-            background: hsl(200, 80%, 45%);
-            color: #fff;
+            background: linear-gradient(135deg, rgba(255, 215, 0, 0.15), rgba(255, 165, 0, 0.2));
+            color: #ffd700;
+            border-color: rgba(255, 215, 0, 0.4);
         }
 
         .btn-logout {
             background: transparent;
             color: #ff453a;
-            border: 1px solid rgba(255, 69, 58, 0.2);
-            padding: 0.35rem 0.8rem;
+            border: 1px solid rgba(255, 69, 58, 0.25);
+            padding: 0.35rem 0.75rem;
             border-radius: var(--radius-sm);
             cursor: pointer;
             font-weight: 600;
@@ -129,266 +142,529 @@
             background: rgba(255, 69, 58, 0.1);
         }
 
-        /* Main Workspace */
+        /* Workspace Container */
         main {
-            padding: 1.5rem 1.2rem;
+            padding: 1rem 1rem 2.5rem;
             max-width: 1200px;
             width: 100%;
             margin: 0 auto;
             flex-grow: 1;
         }
 
-        /* Welcome Banner */
-        .welcome-banner {
-            background: linear-gradient(135deg, var(--surface-accent), var(--surface));
+        @media (min-width: 768px) {
+            main {
+                padding: 1.75rem 2rem 3rem;
+            }
+        }
+
+        /* Hero Welcome Banner */
+        .hero-banner {
+            background: linear-gradient(135deg, var(--surface), var(--surface-accent));
             border: 1px solid var(--border);
-            border-radius: var(--radius-lg);
-            padding: 1.5rem;
-            margin-bottom: 2rem;
+            border-radius: var(--radius-xl);
+            padding: 1.25rem 1.25rem 1.4rem;
+            position: relative;
+            overflow: hidden;
+            box-shadow: var(--shadow-sm);
+        }
+
+        .hero-top {
             display: flex;
-            flex-direction: column;
-            gap: 1.2rem;
+            align-items: flex-start;
+            gap: 0.85rem;
+            margin-bottom: 0.85rem;
         }
 
-        .welcome-text h2 {
-            font-size: 1.4rem;
-            margin-bottom: 0.3rem;
+        .hero-avatar {
+            font-size: 2rem;
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            background: var(--surface-accent);
+            border: 1.5px solid var(--border);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
         }
 
-        .welcome-text p {
-            color: var(--text-muted);
+        .hero-title {
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: var(--text-main);
+            line-height: 1.25;
+        }
+
+        .hero-subtitle {
             font-size: 0.85rem;
+            color: var(--text-muted);
+            margin-top: 0.2rem;
         }
 
-        .nav-tabs {
+        .store-chips-row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.45rem;
+            margin-top: 0.75rem;
+        }
+
+        .store-chip {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.35rem;
+            background: rgba(0, 0, 0, 0.25);
+            border: 1px solid var(--border);
+            padding: 0.3rem 0.65rem;
+            border-radius: 20px;
+            font-size: 0.78rem;
+            color: var(--text-main);
+        }
+
+        .store-chip.domain {
+            color: var(--primary);
+            font-weight: 600;
+        }
+
+        /* Horizontal Scrollable Navigation Tabs (Mobile-First Segmented Chips) */
+        .nav-scroll-wrap {
             display: flex;
             gap: 0.5rem;
+            overflow-x: auto;
+            padding: 0.5rem 0.2rem;
+            -webkit-overflow-scrolling: touch;
+            scrollbar-width: none;
+            margin: 1.25rem 0 1.5rem;
         }
 
-        .tab-link {
-            color: var(--text-main);
-            background: rgba(255, 255, 255, 0.05);
+        .nav-scroll-wrap::-webkit-scrollbar {
+            display: none;
+        }
+
+        .nav-pill {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.45rem;
+            padding: 0.65rem 1.1rem;
+            background: var(--surface);
             border: 1px solid var(--border);
-            padding: 0.5rem 1rem;
-            border-radius: var(--radius-md);
-            text-decoration: none;
+            border-radius: 30px;
+            color: var(--text-muted);
+            font-size: 0.82rem;
             font-weight: 600;
-            font-size: 0.8rem;
+            text-decoration: none;
+            white-space: nowrap;
             transition: var(--transition);
+            flex-shrink: 0;
         }
 
-        .tab-link.active {
-            background: var(--primary);
-            color: var(--background);
-            border-color: var(--primary);
+        .nav-pill:active {
+            transform: scale(0.96);
         }
 
-        /* Stats Grid - Mobile First: 2 Kolom */
+        .nav-pill.active {
+            background: var(--primary-gradient);
+            color: #ffffff;
+            border-color: transparent;
+            box-shadow: 0 4px 14px rgba(249, 115, 22, 0.35);
+        }
+
+        /* Quick Action Shortcuts */
+        .quick-actions-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 0.75rem;
+            margin-bottom: 1.75rem;
+        }
+
+        @media (min-width: 640px) {
+            .quick-actions-grid {
+                grid-template-columns: repeat(3, 1fr);
+            }
+        }
+
+        .quick-action-btn {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-md);
+            padding: 0.85rem 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            text-decoration: none;
+            color: var(--text-main);
+            font-weight: 600;
+            font-size: 0.85rem;
+            transition: var(--transition);
+            box-shadow: var(--shadow-sm);
+        }
+
+        .quick-action-btn:hover {
+            border-color: var(--border-glow);
+            transform: translateY(-2px);
+            background: var(--surface-hover);
+        }
+
+        .quick-action-icon {
+            width: 36px;
+            height: 36px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.15rem;
+            flex-shrink: 0;
+        }
+
+        .quick-action-icon.pos {
+            background: rgba(249, 115, 22, 0.15);
+            color: var(--primary);
+        }
+
+        .quick-action-icon.kds {
+            background: rgba(52, 211, 153, 0.15);
+            color: #34d399;
+        }
+
+        .quick-action-icon.stock {
+            background: rgba(96, 165, 250, 0.15);
+            color: #60a5fa;
+        }
+
+        /* Key Metrics / Stats Grid */
         .stats-grid {
             display: grid;
             grid-template-columns: repeat(2, 1fr);
-            gap: 1rem;
+            gap: 0.75rem;
             margin-bottom: 2rem;
+        }
+
+        @media (min-width: 768px) {
+            .stats-grid {
+                grid-template-columns: repeat(4, 1fr);
+                gap: 1.25rem;
+            }
         }
 
         .stat-card {
             background: var(--surface);
             border: 1px solid var(--border);
-            border-radius: var(--radius-md);
-            padding: 1.2rem;
-            box-shadow: var(--shadow);
+            border-radius: var(--radius-lg);
+            padding: 1.1rem;
+            box-shadow: var(--shadow-sm);
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            position: relative;
+            overflow: hidden;
         }
 
         .stat-card-title {
-            font-size: 0.7rem;
+            font-size: 0.72rem;
+            font-weight: 700;
             color: var(--text-muted);
             text-transform: uppercase;
             letter-spacing: 0.5px;
-            margin-bottom: 0.3rem;
+            margin-bottom: 0.4rem;
         }
 
         .stat-card-value {
-            font-size: 1.4rem;
+            font-size: 1.35rem;
             font-weight: 800;
             color: var(--primary);
+            font-variant-numeric: tabular-nums;
+            line-height: 1.2;
         }
 
-        /* Features Section - Mobile First: 1 Kolom */
+        .stat-card-sub {
+            font-size: 0.72rem;
+            color: var(--text-dim);
+            margin-top: 0.35rem;
+        }
+
+        /* Section Heading */
+        .section-header-wrap {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.1rem;
+        }
+
         .section-title {
             font-size: 1.15rem;
             font-weight: 700;
-            margin-bottom: 1.2rem;
-            border-bottom: 1px solid var(--border);
-            padding-bottom: 0.3rem;
+            color: var(--text-main);
         }
 
+        /* Ecosystem Features Grid (Strictly 1 Column on Mobile to prevent clipping) */
         .features-grid {
             display: grid;
             grid-template-columns: 1fr;
-            gap: 1.2rem;
+            gap: 1rem;
+            min-width: 0;
+            width: 100%;
+        }
+
+        @media (min-width: 768px) {
+            .features-grid {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 1.25rem;
+            }
+        }
+
+        @media (min-width: 1100px) {
+            .features-grid {
+                grid-template-columns: repeat(3, 1fr);
+                gap: 1.5rem;
+            }
         }
 
         .feature-card {
             background: var(--surface);
             border: 1px solid var(--border);
             border-radius: var(--radius-lg);
-            padding: 1.5rem;
-            position: relative;
-            min-height: 180px;
+            padding: 1.35rem;
             display: flex;
             flex-direction: column;
             justify-content: space-between;
+            position: relative;
             overflow: hidden;
-            box-shadow: var(--shadow);
+            min-width: 0;
+            box-shadow: var(--shadow-sm);
             transition: var(--transition);
         }
 
         .feature-card:hover {
             transform: translateY(-2px);
+            border-color: rgba(255, 255, 255, 0.15);
         }
 
-        .feature-card-header h3 {
+        .feature-card.full-span {
+            grid-column: 1 / -1;
+        }
+
+        .feature-head h3 {
             font-size: 1.1rem;
             font-weight: 700;
             margin-bottom: 0.4rem;
             display: flex;
             align-items: center;
-            gap: 0.5rem;
+            gap: 0.45rem;
+            color: var(--text-main);
         }
 
-        .feature-card-header p {
+        .feature-head p {
             color: var(--text-muted);
-            font-size: 0.8rem;
-            line-height: 1.4;
+            font-size: 0.82rem;
+            line-height: 1.45;
         }
 
-        .feature-card-footer {
-            margin-top: 1.2rem;
+        .feature-foot {
+            margin-top: 1.25rem;
             display: flex;
             justify-content: space-between;
             align-items: center;
+            gap: 0.5rem;
         }
 
-        .feature-link {
+        .feature-action-link {
             color: var(--primary);
             text-decoration: none;
-            font-weight: 600;
+            font-weight: 700;
             font-size: 0.85rem;
-            display: flex;
+            display: inline-flex;
             align-items: center;
-            gap: 0.2rem;
+            gap: 0.3rem;
             transition: var(--transition);
         }
 
-        .feature-link:hover {
-            color: var(--primary-light);
+        .feature-action-link:hover {
+            color: var(--primary-hover);
         }
 
-        /* Locked Overlay */
+        .status-pill-active {
+            font-size: 0.68rem;
+            font-weight: 700;
+            color: var(--success);
+            background: rgba(16, 185, 129, 0.1);
+            border: 1px solid rgba(16, 185, 129, 0.3);
+            padding: 0.2rem 0.55rem;
+            border-radius: 20px;
+            text-transform: uppercase;
+            letter-spacing: 0.4px;
+        }
+
+        /* Locked Feature Overlay */
         .locked-overlay {
             position: absolute;
             top: 0;
             left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(15, 23, 30, 0.9);
-            backdrop-filter: blur(6px);
-            -webkit-backdrop-filter: blur(6px);
+            right: 0;
+            bottom: 0;
+            background: rgba(11, 15, 23, 0.92);
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
             display: flex;
             flex-direction: column;
             justify-content: center;
             align-items: center;
-            padding: 1rem;
+            padding: 1.25rem;
             text-align: center;
-            z-index: 2;
+            z-index: 10;
         }
 
-        .lock-icon {
-            font-size: 1.6rem;
-            margin-bottom: 0.4rem;
+        .lock-badge {
+            font-size: 1.8rem;
+            margin-bottom: 0.35rem;
         }
 
-        .locked-text {
-            font-size: 0.75rem;
+        .lock-desc {
+            font-size: 0.78rem;
             color: var(--text-muted);
-            margin-bottom: 0.8rem;
+            margin-bottom: 0.85rem;
+            line-height: 1.35;
             max-width: 260px;
-            line-height: 1.3;
         }
 
-        .btn-upgrade {
-            background: linear-gradient(135deg, var(--primary), #ffa500);
-            color: var(--background);
+        .btn-upgrade-pill {
+            background: var(--primary-gradient);
+            color: #ffffff;
             border: none;
-            padding: 0.35rem 1rem;
-            border-radius: var(--radius-sm);
+            padding: 0.45rem 1.1rem;
+            border-radius: 20px;
             font-weight: 700;
             font-size: 0.75rem;
             cursor: pointer;
+            box-shadow: 0 4px 12px rgba(249, 115, 22, 0.35);
             transition: var(--transition);
-            box-shadow: 0 4px 10px rgba(230, 115, 0, 0.3);
         }
 
-        /* Tablet & Desktop Layouts (>= 768px) */
-        @media (min-width: 768px) {
-            header.dashboard-header {
-                padding: 1.2rem 2rem;
-            }
+        .btn-upgrade-pill:hover {
+            transform: scale(1.03);
+        }
 
-            .logo {
-                font-size: 1.5rem;
-            }
+        /* Personalization Form Layout */
+        .personalize-form-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 0.85rem;
+            margin-top: 1rem;
+        }
 
-            .user-info {
-                display: block; /* Tampilkan nama di layar lebar */
-            }
-
-            main {
-                padding: 2.5rem 2rem;
-            }
-
-            .welcome-banner {
-                flex-direction: row;
-                justify-content: space-between;
-                align-items: center;
-                padding: 2rem;
-            }
-
-            .welcome-text h2 {
-                font-size: 1.8rem;
-            }
-
-            .welcome-text p {
-                font-size: 0.95rem;
-            }
-
-            .tab-link {
-                padding: 0.6rem 1.2rem;
-                font-size: 0.9rem;
-            }
-
-            .stats-grid {
-                grid-template-columns: repeat(4, 1fr);
-                gap: 1.5rem;
-            }
-
-            .stat-card-value {
-                font-size: 1.8rem;
-            }
-
-            .features-grid {
-                grid-template-columns: repeat(2, 1fr);
-                gap: 1.5rem;
+        @media (min-width: 640px) {
+            .personalize-form-grid {
+                grid-template-columns: 1fr 1fr;
             }
         }
 
-        @media (min-width: 1200px) {
-            .features-grid {
-                grid-template-columns: repeat(3, 1fr);
-                gap: 2rem;
-            }
+        .form-mini-group {
+            display: flex;
+            flex-direction: column;
+            gap: 0.3rem;
         }
-        /* AI Assistant Welcome Banner & Chat Widget */
+
+        .form-mini-label {
+            font-size: 0.72rem;
+            font-weight: 700;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.4px;
+        }
+
+        .form-mini-input {
+            width: 100%;
+            height: 44px;
+            padding: 0 0.85rem;
+            background: var(--surface-accent);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-sm);
+            color: var(--text-main);
+            font-size: 0.88rem;
+            outline: none;
+            transition: var(--transition);
+        }
+
+        .form-mini-input:focus {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px var(--primary-ring);
+        }
+
+        textarea.form-mini-input {
+            height: auto;
+            min-height: 60px;
+            padding: 0.65rem 0.85rem;
+            resize: vertical;
+        }
+
+        .btn-save-personalize {
+            width: 100%;
+            height: 46px;
+            margin-top: 0.5rem;
+            background: var(--primary-gradient);
+            color: #ffffff;
+            font-weight: 700;
+            font-size: 0.88rem;
+            border: none;
+            border-radius: var(--radius-sm);
+            cursor: pointer;
+            box-shadow: 0 4px 12px rgba(249, 115, 22, 0.3);
+            transition: var(--transition);
+        }
+
+        .btn-save-personalize:active {
+            transform: scale(0.98);
+        }
+
+        /* Floating AI Assistant */
+        .floating-ai-btn {
+            position: fixed;
+            bottom: 1.5rem;
+            right: 1.25rem;
+            width: 54px;
+            height: 54px;
+            border-radius: 50%;
+            background: var(--primary-gradient);
+            border: none;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 8px 24px rgba(249, 115, 22, 0.4);
+            z-index: 999;
+            transition: var(--transition);
+        }
+
+        .floating-ai-btn:active {
+            transform: scale(0.92);
+        }
+
+        .ai-online-dot {
+            position: absolute;
+            top: 2px;
+            right: 2px;
+            width: 12px;
+            height: 12px;
+            background: var(--success);
+            border: 2px solid var(--bg);
+            border-radius: 50%;
+        }
+
+        .ai-chat-window {
+            position: fixed;
+            bottom: 80px;
+            right: 1rem;
+            width: min(350px, calc(100vw - 2rem));
+            height: 440px;
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow-lg);
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            z-index: 1000;
+        }
+
         .chat-messages::-webkit-scrollbar {
             width: 4px;
         }
@@ -396,7 +672,7 @@
             background: var(--surface-accent);
             border-radius: 4px;
         }
-        
+
         .suggestion-chip {
             padding: 0.35rem 0.65rem;
             background: var(--surface-accent);
@@ -412,32 +688,22 @@
         .suggestion-chip:hover {
             border-color: var(--primary);
             color: var(--primary);
-            background: rgba(230,115,0,0.08);
-        }
-        
-        @keyframes bounce {
-            0%, 80%, 100% { transform: scale(0); }
-            40% { transform: scale(1.0); }
+            background: var(--primary-soft);
         }
     </style>
 </head>
 <body>
 
-    <!-- Header -->
+    <!-- App Header Bar -->
     <header class="dashboard-header">
-        <div class="logo-area">
-            <a href="/" class="logo">Unimart<span>dashboard</span></a>
-        </div>
-        <div class="user-menu">
-            <div class="user-info">
-                <div class="user-name" style="font-size: 0.9rem; font-weight: 600;">{{ Auth::user()->name }}</div>
-                <div class="badge-package @if($package === 'Premium VIP') vip @elseif($package === 'Profesional') pro @endif">
-                    Paket {{ $package }}
-                </div>
-            </div>
-            <div class="badge-package @if($package === 'Premium VIP') vip @elseif($package === 'Profesional') pro @endif" style="display: inline-block; font-size: 0.65rem; margin-right: 0.5rem; @media (min-width: 768px) { display: none; }">
+        <a href="/" class="brand-logo">
+            Unimart<span class="tag">dasbor</span>
+        </a>
+
+        <div class="header-actions">
+            <span class="badge-package @if($package === 'Premium VIP') vip @endif">
                 {{ $package }}
-            </div>
+            </span>
             <form action="{{ route('owner.logout') }}" method="POST">
                 @csrf
                 <button type="submit" class="btn-logout">Keluar</button>
@@ -447,244 +713,261 @@
 
     <!-- Main Workspace -->
     <main>
-        <!-- Welcome Banner -->
-        <div class="welcome-banner">
-            <div class="welcome-text" x-data="{ greetingTime: '' }" x-init="const hrs = new Date().getHours(); greetingTime = (hrs >= 5 && hrs < 11) ? 'Pagi' : (hrs >= 11 && hrs < 15) ? 'Siang' : (hrs >= 15 && hrs < 18) ? 'Sore' : 'Malam'">
-                <h2 style="display: flex; align-items: center; gap: 0.5rem; font-size: 1.4rem;">
-                    <span>🤖</span> Halo Kak {{ Auth::user()->name }}! Selamat <span x-text="greetingTime">Hari</span>! 🌟
-                </h2>
-                <p style="font-style: italic; margin-top: 0.35rem; font-size: 0.85rem; color: var(--text-muted); line-height: 1.4;">
-                    "Asisten Kasir Pintar siap mendampingi Kakak di Ruang Kendali ini. Tetap semangat memimpin tim, semoga bisnis <strong>{{ $tenant->name }}</strong> makin sukses dan laris manis hari ini! 🚀"
-                </p>
-                <p style="margin-top: 0.5rem; font-size: 0.8rem; color: var(--text-muted);">Domain Toko: <code>{{ $tenant->full_domain }}</code></p>
+        <!-- Hero Welcome Banner -->
+        <div class="hero-banner">
+            <div class="hero-top" x-data="{ greetingTime: '' }" x-init="const hrs = new Date().getHours(); greetingTime = (hrs >= 5 && hrs < 11) ? 'Pagi' : (hrs >= 11 && hrs < 15) ? 'Siang' : (hrs >= 15 && hrs < 18) ? 'Sore' : 'Malam'">
+                <div class="hero-avatar">🤖</div>
+                <div>
+                    <h1 class="hero-title">Halo, Kak {{ Auth::user()->name }}! 👋</h1>
+                    <p class="hero-subtitle">Selamat <span x-text="greetingTime">Hari</span>, siap pantau operasional bisnis hari ini.</p>
+                </div>
             </div>
-            <div class="nav-tabs" style="display: flex; flex-wrap: wrap; gap: 0.4rem;">
-                <a href="{{ route('owner.dashboard') }}" class="tab-link active">Dasbor</a>
-                <a href="{{ route('owner.menus') }}" class="tab-link">Produk & Menu</a>
-                <a href="{{ route('owner.tables') }}" class="tab-link">Meja</a>
-                <a href="{{ route('owner.suppliers.index') }}" class="tab-link">🚚 Pemasok</a>
-                <a href="{{ route('owner.purchases.index') }}" class="tab-link">📦 Kulakan</a>
-                <a href="{{ route('owner.payables.index') }}" class="tab-link">📕 Utang Toko</a>
-                <a href="{{ route('owner.receivables.index') }}" class="tab-link">📗 Piutang</a>
-                <a href="{{ route('owner.reports.finance') }}" class="tab-link">📈 Keuangan P&L</a>
-                <a href="{{ route('owner.team') }}" class="tab-link">Kelola Staf</a>
+
+            <div class="store-chips-row">
+                <span class="store-chip">🏪 <strong>{{ $tenant->name }}</strong></span>
+                <span class="store-chip domain">🌐 {{ $tenant->full_domain }}</span>
             </div>
         </div>
 
-        <!-- Stats Grid -->
+        <!-- Horizontal Scrollable Navigation Segmented Tabs -->
+        <div class="nav-scroll-wrap">
+            <a href="{{ route('owner.dashboard') }}" class="nav-pill active">📊 Dasbor</a>
+            <a href="{{ route('owner.menus') }}" class="nav-pill">🍽️ Produk & Menu</a>
+            <a href="{{ route('owner.tables') }}" class="nav-pill">🪑 Meja & QR</a>
+            <a href="{{ route('owner.suppliers.index') }}" class="nav-pill">🚚 Pemasok</a>
+            <a href="{{ route('owner.purchases.index') }}" class="nav-pill">📦 Kulakan</a>
+            <a href="{{ route('owner.payables.index') }}" class="nav-pill">📕 Utang Toko</a>
+            <a href="{{ route('owner.receivables.index') }}" class="nav-pill">📗 Piutang</a>
+            <a href="{{ route('owner.reports.finance') }}" class="nav-pill">📈 Laporan P&L</a>
+            <a href="{{ route('owner.team') }}" class="nav-pill">👥 Staf Kasir</a>
+        </div>
+
+        <!-- Quick Actions Row -->
+        <div class="quick-actions-grid">
+            <a href="{{ route('owner.pos', ['alias' => $tenant->domain]) }}" class="quick-action-btn">
+                <div class="quick-action-icon pos">⚡</div>
+                <div>
+                    <div>Buka Kasir POS</div>
+                    <div style="font-size: 0.72rem; color: var(--text-dim); font-weight: normal;">Catat Pesanan & Bayar</div>
+                </div>
+            </a>
+            <a href="{{ route('owner.kds', ['alias' => $tenant->domain]) }}" class="quick-action-btn">
+                <div class="quick-action-icon kds">🍳</div>
+                <div>
+                    <div>Layar KDS Dapur</div>
+                    <div style="font-size: 0.72rem; color: var(--text-dim); font-weight: normal;">Pantau Masakan Koki</div>
+                </div>
+            </a>
+            <a href="{{ route('owner.purchases.create') }}" class="quick-action-btn">
+                <div class="quick-action-icon stock">➕</div>
+                <div>
+                    <div>Input Kulakan</div>
+                    <div style="font-size: 0.72rem; color: var(--text-dim); font-weight: normal;">Restock Barang Toko</div>
+                </div>
+            </a>
+        </div>
+
+        <!-- Key Business Metrics Grid (2x2 Mobile, 4x1 Desktop) -->
         <div class="stats-grid">
             <div class="stat-card">
                 <div class="stat-card-title">Penjualan Hari Ini</div>
                 <div class="stat-card-value">{{ $stats['today_sales'] }}</div>
+                <div class="stat-card-sub">Omset kasir & online</div>
             </div>
             <div class="stat-card">
                 <div class="stat-card-title">Transaksi Selesai</div>
-                <div class="stat-card-value">{{ $stats['orders_count'] }}</div>
+                <div class="stat-card-value" style="color: var(--text-main);">{{ $stats['orders_count'] }}</div>
+                <div class="stat-card-sub">Pesanan sukses</div>
             </div>
             <div class="stat-card">
                 <div class="stat-card-title">Meja Aktif</div>
-                <div class="stat-card-value">{{ $stats['active_tables'] }}</div>
+                <div class="stat-card-value" style="color: var(--text-main);">{{ $stats['active_tables'] }}</div>
+                <div class="stat-card-sub">Kapasitas terisi</div>
             </div>
             <div class="stat-card">
-                <div class="stat-card-title">Total Staf</div>
-                <div class="stat-card-value">{{ $stats['team_count'] }}</div>
+                <div class="stat-card-title">Total Karyawan</div>
+                <div class="stat-card-value" style="color: var(--text-main);">{{ $stats['team_count'] }}</div>
+                <div class="stat-card-sub">Kasir, koki, kurir</div>
             </div>
         </div>
 
-        <!-- Features Section -->
-        <h2 class="section-title">Modul & Fitur Unimart</h2>
+        <!-- Ecosystem Features Grid -->
+        <div class="section-header-wrap">
+            <h2 class="section-title">Modul & Layanan Ekosistem</h2>
+        </div>
+
         <div class="features-grid">
             
-            <!-- Fitur 1: POS Kasir Dasar & Laporan (Milik Paket Bisnis ke atas) -->
+            <!-- Modul 1: POS Kasir Dasar -->
             <div class="feature-card">
-                <div class="feature-card-header">
-                    <h3>💻 POS & Kasir Dasar</h3>
-                    <p>Mencatat penjualan, memproses order di kasir, mencetak struk secara manual, dan melihat laporan penjualan harian sederhana.</p>
+                <div class="feature-head">
+                    <h3>💻 POS & Kasir Pintar</h3>
+                    <p>Mencatat penjualan, memproses order di kasir, pembayaran tunai/QRIS, dan buku piutang pelanggan.</p>
                 </div>
-                <div class="feature-card-footer">
-                    <a href="{{ route('owner.pos', ['alias' => $tenant->domain]) }}" class="feature-link">Buka Kasir →</a>
-                    <span style="font-size: 0.7rem; color: var(--secondary); font-weight: bold;">AKSES AKTIF</span>
+                <div class="feature-foot">
+                    <a href="{{ route('owner.pos', ['alias' => $tenant->domain]) }}" class="feature-action-link">Buka Kasir →</a>
+                    <span class="status-pill-active">Aktif</span>
                 </div>
             </div>
 
-            <!-- Fitur 2: KDS & Kitchen Management (Milik Paket Profesional ke atas) -->
+            <!-- Modul 2: KDS Layar Dapur -->
             <div class="feature-card">
-                <!-- Lock Overlay if package is Bisnis -->
-                @if($package === 'Bisnis')
+                @if($package === 'Basic')
                     <div class="locked-overlay">
-                        <div class="lock-icon">🔒</div>
-                        <div class="locked-text">Modul Dapur (KDS) & Manajemen Inventaris membutuhkan paket <strong>Profesional</strong>.</div>
-                        <button class="btn-upgrade">Upgrade ke Profesional</button>
+                        <div class="lock-badge">🔒</div>
+                        <div class="lock-desc">Modul Layar Dapur (KDS) & Manajemen Meja membutuhkan paket <strong>Bisnis</strong>.</div>
+                        <button class="btn-upgrade-pill" onclick="alert('Silakan hubungi admin untuk upgrade paket!');">Upgrade ke Bisnis</button>
                     </div>
                 @endif
-                <div class="feature-card-header">
+                <div class="feature-head">
                     <h3>🍳 Tampilan Dapur (KDS)</h3>
-                    <p>Hubungkan kasir dengan dapur. Pantau antrean memasak koki secara real-time lengkap dengan sistem alarm SLA durasi 15 menit.</p>
+                    <p>Hubungkan kasir dengan koki. Pantau antrean memasak secara real-time via WebSocket dengan alarm durasi SLA.</p>
                 </div>
-                <div class="feature-card-footer">
-                    <a href="{{ route('owner.kds', ['alias' => $tenant->domain]) }}" class="feature-link">Buka KDS Dapur →</a>
-                    <span style="font-size: 0.7rem; color: var(--secondary); font-weight: bold;">AKSES AKTIF</span>
-                </div>
-            </div>
-
-            <!-- Fitur 3: Inventaris & Manajemen Meja (Milik Paket Profesional ke atas) -->
-            <div class="feature-card">
-                <!-- Lock Overlay if package is Bisnis -->
-                @if($package === 'Bisnis')
-                    <div class="locked-overlay">
-                        <div class="lock-icon">🔒</div>
-                        <div class="locked-text">Manajemen Meja & Inventaris Bahan Baku membutuhkan paket <strong>Profesional</strong>.</div>
-                        <button class="btn-upgrade">Upgrade ke Profesional</button>
-                    </div>
-                @endif
-                <div class="feature-card-header">
-                    <h3>🪑 Meja & Menu</h3>
-                    <p>Mengatur layout meja pelanggan, melacak stok produk/bahan baku secara *asynchronous* (DB lock) untuk mencegah overselling.</p>
-                </div>
-                <div class="feature-card-footer">
-                    <div style="display: flex; gap: 0.8rem;">
-                        <a href="{{ route('owner.menus') }}" class="feature-link">Bahan & Menu →</a>
-                        <a href="{{ route('owner.tables') }}" class="feature-link">Layout Meja →</a>
-                    </div>
-                    <span style="font-size: 0.7rem; color: var(--secondary); font-weight: bold;">AKSES AKTIF</span>
+                <div class="feature-foot">
+                    <a href="{{ route('owner.kds', ['alias' => $tenant->domain]) }}" class="feature-action-link">Buka KDS Dapur →</a>
+                    <span class="status-pill-active">Aktif</span>
                 </div>
             </div>
 
-            <!-- Fitur 4: iZone Hotspot Integration (Milik Paket Premium VIP) -->
+            <!-- Modul 3: Manajemen Meja & Menu -->
             <div class="feature-card">
-                <!-- Lock Overlay if package is Bisnis atau Profesional -->
-                @if($package === 'Bisnis' || $package === 'Profesional')
+                <div class="feature-head">
+                    <h3>🪑 Meja & Katalog Menu</h3>
+                    <p>Atur layout meja dan QR Code self-order, serta kelola stok produk makanan dan minuman.</p>
+                </div>
+                <div class="feature-foot">
+                    <div style="display: flex; gap: 0.75rem;">
+                        <a href="{{ route('owner.menus') }}" class="feature-action-link">Menu →</a>
+                        <a href="{{ route('owner.tables') }}" class="feature-action-link">Meja →</a>
+                    </div>
+                    <span class="status-pill-active">Aktif</span>
+                </div>
+            </div>
+
+            <!-- Modul 4: Pengadaan & Utang Piutang -->
+            <div class="feature-card">
+                <div class="feature-head">
+                    <h3>📦 Kulakan & Utang Toko</h3>
+                    <p>Catat faktur pembelian stok dari supplier, hitung HPP (Moving Average), dan kelola buku utang tempo.</p>
+                </div>
+                <div class="feature-foot">
+                    <div style="display: flex; gap: 0.75rem;">
+                        <a href="{{ route('owner.purchases.index') }}" class="feature-action-link">Kulakan →</a>
+                        <a href="{{ route('owner.payables.index') }}" class="feature-action-link">Utang →</a>
+                    </div>
+                    <span class="status-pill-active">Aktif</span>
+                </div>
+            </div>
+
+            <!-- Modul 5: iZone Hotspot WiFi -->
+            <div class="feature-card">
+                @if($package !== 'Premium VIP')
                     <div class="locked-overlay">
-                        <div class="lock-icon">🔒</div>
-                        <div class="locked-text">Integrasi iZone Captive Portal WiFi membutuhkan paket <strong>Premium VIP</strong>.</div>
-                        <button class="btn-upgrade">Upgrade ke Premium VIP</button>
+                        <div class="lock-badge">🔒</div>
+                        <div class="lock-desc">Integrasi iZone Captive Portal WiFi MikroTik membutuhkan paket <strong>Enterprise VIP</strong>.</div>
+                        <button class="btn-upgrade-pill" onclick="alert('Silakan hubungi admin untuk upgrade paket!');">Upgrade ke VIP</button>
                     </div>
                 @endif
-                <div class="feature-card-header">
+                <div class="feature-head">
                     <h3>🌐 iZone WiFi Captive</h3>
-                    <p>Integrasikan router MikroTik Anda dengan captive portal cloud. Akuisisi data pengunjung dan arahkan otomatis ke QR Menu setelah konek.</p>
+                    <p>Integrasikan router MikroTik Anda dengan captive portal cloud. Akuisisi data pengunjung dan arahkan ke katalog menu.</p>
                 </div>
-                <div class="feature-card-footer">
-                    <a href="{{ route('hotspot.captive', ['alias' => $tenant->domain]) }}" class="feature-link" target="_blank">Lihat Portal →</a>
-                    <span style="font-size: 0.7rem; color: var(--secondary); font-weight: bold;">AKSES AKTIF</span>
+                <div class="feature-foot">
+                    <a href="{{ route('hotspot.captive', ['alias' => $tenant->domain]) }}" class="feature-action-link" target="_blank">Lihat Portal →</a>
+                    <span class="status-pill-active">Aktif</span>
                 </div>
             </div>
 
-            <!-- Fitur 5: WhatsApp AI Assistant (Milik Paket Premium VIP) -->
-            <div class="feature-card">
-                <!-- Lock Overlay if package is Bisnis atau Profesional -->
-                @if($package === 'Bisnis' || $package === 'Profesional')
-                    <div class="locked-overlay">
-                        <div class="lock-icon">🔒</div>
-                        <div class="locked-text">WhatsApp AI Assistant (Gemini) membutuhkan paket <strong>Premium VIP</strong>.</div>
-                        <button class="btn-upgrade">Upgrade ke Premium VIP</button>
+            <!-- Modul 6: Personalisasi Landing Page Toko (Full Span) -->
+            <div class="feature-card full-span">
+                <div class="feature-head">
+                    <h3>🎨 Personalisasi Toko Online</h3>
+                    <p>Sesuaikan judul, kontak WhatsApp, dan profil landing page toko di subdomain <code>{{ $tenant->full_domain }}</code>.</p>
+                </div>
+
+                <form action="{{ route('owner.settings.update') }}" method="POST">
+                    @csrf
+                    <div class="personalize-form-grid">
+                        <div class="form-mini-group">
+                            <label class="form-mini-label">Judul Landing Toko</label>
+                            <input type="text" name="landing_title" class="form-mini-input"
+                                   value="{{ $tenant->settings['landing_title'] ?? $tenant->name }}" required>
+                        </div>
+                        <div class="form-mini-group">
+                            <label class="form-mini-label">Nomor WhatsApp Pemesanan</label>
+                            <input type="text" name="whatsapp_url" class="form-mini-input"
+                                   placeholder="Contoh: 6281234567890" value="{{ $tenant->settings['whatsapp_url'] ?? '' }}">
+                        </div>
+                        <div class="form-mini-group">
+                            <label class="form-mini-label">Instagram Profil URL</label>
+                            <input type="text" name="instagram_url" class="form-mini-input"
+                                   placeholder="https://instagram.com/kopikita" value="{{ $tenant->settings['instagram_url'] ?? '' }}">
+                        </div>
+                        <div class="form-mini-group">
+                            <label class="form-mini-label">Deskripsi Profil Singkat</label>
+                            <textarea name="landing_description" class="form-mini-input" rows="2" required>{{ $tenant->settings['landing_description'] ?? 'Menyediakan pilihan produk berkualitas premium dengan pelayanan ramah dan cepat.' }}</textarea>
+                        </div>
                     </div>
-                @endif
-                <div class="feature-card-header">
-                    <h3>💬 WhatsApp AI Bot 24/7</h3>
-                    <p>Aktifkan asisten kasir virtual bertenaga Google Gemini. Otomatis menjawab pertanyaan menu & ketersediaan stok pelanggan via WhatsApp.</p>
-                </div>
-                <div class="feature-card-footer">
-                    <a href="#" class="feature-link" onclick="alert('WhatsApp AI Bot telah aktif di latar belakang (simulated mode). Menghubungkan Google Gemini...'); return false;">Pengaturan AI Bot →</a>
-                    <span style="font-size: 0.7rem; color: var(--secondary); font-weight: bold;">AKSES AKTIF</span>
-                </div>
-            </div>
-
-            <!-- Fitur 6: Personalisasi Landing Page (Owner/Admin) -->
-            <div class="feature-card" style="grid-column: span 2; max-width: 100%;">
-                <div class="feature-card-header">
-                    <h3>🎨 Personalisasi Landing Page</h3>
-                    <p>Ubah tampilan utama landing page toko Anda di subdomain <code>{{ $tenant->full_domain }}</code>.</p>
-                    
-                    <form action="{{ route('owner.settings.update') }}" method="POST" style="margin-top: 1.2rem; display: grid; gap: 0.8rem; text-align: left;">
-                        @csrf
-                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.8rem;">
-                            <div style="display: flex; flex-direction: column; gap: 0.2rem;">
-                                <label style="font-size: 0.72rem; color: var(--text-muted); font-weight: bold;">Judul Landing Page</label>
-                                <input type="text" name="landing_title" style="padding: 0.45rem; background: var(--surface-accent); border: 1px solid var(--border); border-radius: var(--radius-sm); color: var(--text-main); font-size: 0.8rem; outline: none; border-color: var(--border);"
-                                       value="{{ $tenant->settings['landing_title'] ?? $tenant->name }}" required>
-                            </div>
-                            <div style="display: flex; flex-direction: column; gap: 0.2rem;">
-                                <label style="font-size: 0.72rem; color: var(--text-muted); font-weight: bold;">Nomor WhatsApp</label>
-                                <input type="text" name="whatsapp_url" style="padding: 0.45rem; background: var(--surface-accent); border: 1px solid var(--border); border-radius: var(--radius-sm); color: var(--text-main); font-size: 0.8rem; outline: none; border-color: var(--border);"
-                                       placeholder="Contoh: 6281234567890" value="{{ $tenant->settings['whatsapp_url'] ?? '' }}">
-                            </div>
-                        </div>
-                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.8rem;">
-                            <div style="display: flex; flex-direction: column; gap: 0.2rem;">
-                                <label style="font-size: 0.72rem; color: var(--text-muted); font-weight: bold;">Instagram URL</label>
-                                <input type="text" name="instagram_url" style="padding: 0.45rem; background: var(--surface-accent); border: 1px solid var(--border); border-radius: var(--radius-sm); color: var(--text-main); font-size: 0.8rem; outline: none; border-color: var(--border);"
-                                       placeholder="https://instagram.com/kopikita" value="{{ $tenant->settings['instagram_url'] ?? '' }}">
-                            </div>
-                            <div style="display: flex; flex-direction: column; gap: 0.2rem;">
-                                <label style="font-size: 0.72rem; color: var(--text-muted); font-weight: bold;">Deskripsi Singkat Bisnis</label>
-                                <textarea name="landing_description" rows="2" style="padding: 0.45rem; background: var(--surface-accent); border: 1px solid var(--border); border-radius: var(--radius-sm); color: var(--text-main); font-size: 0.8rem; outline: none; font-family: inherit; border-color: var(--border);" required>{{ $tenant->settings['landing_description'] ?? 'Menyediakan pilihan kopi berkualitas premium dan tempat nongkrong santai.' }}</textarea>
-                            </div>
-                        </div>
-                        <button type="submit" class="btn-upgrade" style="width: 100%; padding: 0.5rem; margin-top: 0.4rem; font-weight: bold;">✓ Simpan Personalisasi</button>
-                    </form>
-                </div>
+                    <button type="submit" class="btn-save-personalize">✓ Simpan Profil Toko Online</button>
+                </form>
             </div>
 
         </div>
     </main>
 
-    <!-- Floating AI Chat Widget -->
-    <div class="floating-ai-widget" x-data="aiAssistantWidget()" style="position: fixed; bottom: 2rem; right: 2rem; z-index: 9999;">
-        <!-- Floating Trigger Button -->
-        <button class="ai-trigger-btn" @click="toggleChat()"
-                style="width: 56px; height: 56px; border-radius: 50%; background: linear-gradient(135deg, var(--primary), #ffa500); border: none; cursor: pointer; display: flex; align-items: center; justify-content: center; box-shadow: 0 8px 24px rgba(230,115,0,0.4); transition: transform 0.2s; position: relative;">
-            <span style="font-size: 1.6rem; color: var(--background);">💬</span>
-            <span style="position: absolute; top: 0; right: 0; width: 12px; height: 12px; background: var(--secondary); border: 2px solid var(--background); border-radius: 50%; box-shadow: 0 0 6px var(--secondary);"></span>
+    <!-- Floating AI Assistant Widget -->
+    <div class="floating-ai-widget" x-data="aiAssistantWidget()">
+        <button class="floating-ai-btn" @click="toggleChat()" aria-label="Buka Asisten AI">
+            <span style="font-size: 1.5rem; color: #ffffff;">💬</span>
+            <span class="ai-online-dot"></span>
         </button>
 
         <!-- Chat Panel Window -->
-        <div class="ai-chat-panel" x-show="isOpen" x-transition.scale.origin.bottom.right style="display: none; position: absolute; bottom: 70px; right: 0; width: 340px; height: 420px; background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-md); box-shadow: var(--shadow); display: flex; flex-direction: column; overflow: hidden;" x-cloak>
+        <div class="ai-chat-window" x-show="isOpen" x-transition.scale.origin.bottom.right style="display: none;" x-cloak>
             <!-- Header -->
-            <div class="chat-header" style="padding: 0.9rem 1.2rem; background: var(--surface-accent); border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center;">
+            <div style="padding: 0.85rem 1rem; background: var(--surface-accent); border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center;">
                 <div style="display: flex; align-items: center; gap: 0.5rem;">
-                    <span style="font-size: 1.3rem;">🤖</span>
-                    <div style="text-align: left;">
-                        <h4 style="font-size: 0.88rem; font-weight: 700; color: #fff;">Asisten Kasir Pintar</h4>
-                        <span style="font-size: 0.65rem; color: var(--secondary); font-weight: bold;">● Online (Gemini AI)</span>
+                    <span style="font-size: 1.25rem;">🤖</span>
+                    <div>
+                        <div style="font-size: 0.85rem; font-weight: 700; color: #fff;">Asisten Kasir Pintar</div>
+                        <span style="font-size: 0.65rem; color: var(--success); font-weight: bold;">● Online (Gemini AI)</span>
                     </div>
                 </div>
-                <button @click="isOpen = false" style="background: none; border: none; color: var(--text-muted); cursor: pointer; font-size: 1.1rem;">✕</button>
+                <button @click="isOpen = false" style="background: none; border: none; color: var(--text-muted); cursor: pointer; font-size: 1.1rem; padding: 0.2rem;">✕</button>
             </div>
 
             <!-- Messages Area -->
-            <div class="chat-messages" style="flex-grow: 1; padding: 1rem; overflow-y: auto; display: flex; flex-direction: column; gap: 0.8rem;">
-                <div style="align-self: flex-start; text-align: left; max-width: 85%; background: var(--surface-accent); padding: 0.7rem 0.9rem; border-radius: 12px 12px 12px 0; border: 1px solid var(--border); font-size: 0.82rem; line-height: 1.4;">
-                    Halo Kak {{ Auth::user()->name }}! Ada yang bisa Asisten bantu hari ini untuk mengelola bisnis <strong>{{ $tenant->name }}</strong>? 😊
+            <div class="chat-messages" style="flex-grow: 1; padding: 0.85rem; overflow-y: auto; display: flex; flex-direction: column; gap: 0.75rem;">
+                <div style="align-self: flex-start; text-align: left; max-width: 85%; background: var(--surface-accent); padding: 0.65rem 0.85rem; border-radius: 12px 12px 12px 0; border: 1px solid var(--border); font-size: 0.8rem; line-height: 1.4;">
+                    Halo Kak {{ Auth::user()->name }}! Ada yang bisa Asisten bantu untuk mengelola <strong>{{ $tenant->name }}</strong> hari ini? 😊
                 </div>
 
                 <template x-for="msg in messages">
-                    <div :style="msg.sender === 'user' ? 'align-self: flex-end; text-align: right; max-width: 85%; background: var(--primary); color: var(--background); padding: 0.7rem 0.9rem; border-radius: 12px 12px 0 12px; font-weight: 500;' : 'align-self: flex-start; text-align: left; max-width: 85%; background: var(--surface-accent); padding: 0.7rem 0.9rem; border-radius: 12px 12px 12px 0; border: 1px solid var(--border);'" 
-                         style="font-size: 0.82rem; line-height: 1.4;" x-html="msg.text">
+                    <div :style="msg.sender === 'user' ? 'align-self: flex-end; text-align: right; max-width: 85%; background: var(--primary); color: #fff; padding: 0.65rem 0.85rem; border-radius: 12px 12px 0 12px; font-weight: 500;' : 'align-self: flex-start; text-align: left; max-width: 85%; background: var(--surface-accent); padding: 0.65rem 0.85rem; border-radius: 12px 12px 12px 0; border: 1px solid var(--border);'" 
+                         style="font-size: 0.8rem; line-height: 1.4;" x-html="msg.text">
                     </div>
                 </template>
 
-                <div x-show="isTyping" style="align-self: flex-start; background: var(--surface-accent); padding: 0.6rem 0.9rem; border-radius: 12px; display: flex; gap: 0.3rem; align-items: center;">
-                    <span style="width: 6px; height: 6px; background: var(--text-muted); border-radius: 50%; animation: bounce 1.4s infinite both;"></span>
-                    <span style="width: 6px; height: 6px; background: var(--text-muted); border-radius: 50%; animation: bounce 1.4s infinite both 0.2s;"></span>
-                    <span style="width: 6px; height: 6px; background: var(--text-muted); border-radius: 50%; animation: bounce 1.4s infinite both 0.4s;"></span>
+                <div x-show="isTyping" style="align-self: flex-start; background: var(--surface-accent); padding: 0.5rem 0.8rem; border-radius: 12px; display: flex; gap: 0.25rem; align-items: center;">
+                    <span style="width: 5px; height: 5px; background: var(--text-muted); border-radius: 50%;"></span>
+                    <span style="width: 5px; height: 5px; background: var(--text-muted); border-radius: 50%;"></span>
+                    <span style="width: 5px; height: 5px; background: var(--text-muted); border-radius: 50%;"></span>
                 </div>
             </div>
 
             <!-- Quick Suggestions Chips -->
-            <div class="chat-suggestions" x-show="messages.length === 0"
-                 style="padding: 0.5rem 0.8rem; display: flex; flex-wrap: wrap; gap: 0.4rem; border-top: 1px solid var(--border); background: rgba(0,0,0,0.15);">
-                <span class="suggestion-chip" @click="askQuestion('Bagaimana meningkatkan penjualan?')">🚀 Naikkan Omset</span>
-                <span class="suggestion-chip" @click="askQuestion('Bagaimana cara tutup shift kasir?')">⏱ Cara Tutup Shift</span>
-                <span class="suggestion-chip" @click="askQuestion('Bagaimana cara Koki menggunakan KDS dapur?')">🍳 Cara Kerja KDS</span>
-                <span class="suggestion-chip" @click="askQuestion('Berikan saya kata motivasi hari ini!')">✨ Motivasi Hari Ini</span>
+            <div x-show="messages.length === 0" style="padding: 0.45rem 0.75rem; display: flex; flex-wrap: wrap; gap: 0.35rem; border-top: 1px solid var(--border); background: rgba(0,0,0,0.15);">
+                <span class="suggestion-chip" @click="askQuestion('Bagaimana cara meningkatkan penjualan?')">🚀 Naikkan Omset</span>
+                <span class="suggestion-chip" @click="askQuestion('Bagaimana cara tutup shift kasir?')">⏱ Tutup Shift</span>
+                <span class="suggestion-chip" @click="askQuestion('Bagaimana cara Koki menggunakan KDS?')">🍳 Alur KDS</span>
+                <span class="suggestion-chip" @click="askQuestion('Berikan kata motivasi hari ini!')">✨ Motivasi</span>
             </div>
 
             <!-- Input Box -->
-            <form @submit.prevent="sendMessage()" style="padding: 0.8rem; border-top: 1px solid var(--border); display: flex; gap: 0.5rem; background: var(--surface-accent);">
-                <input type="text" x-model="userInput" placeholder="Tanya sesuatu..." 
-                       style="flex-grow: 1; padding: 0.45rem 0.8rem; background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-sm); color: #fff; font-size: 0.82rem; outline: none;">
-                <button type="submit" style="background: var(--primary); border: none; padding: 0.45rem 0.8rem; border-radius: var(--radius-sm); color: var(--background); font-weight: bold; cursor: pointer; font-size: 0.82rem;">Kirim</button>
+            <form @submit.prevent="sendMessage()" style="padding: 0.65rem 0.75rem; border-top: 1px solid var(--border); display: flex; gap: 0.45rem; background: var(--surface-accent);">
+                <input type="text" x-model="userInput" placeholder="Tanya asisten kasir..." 
+                       style="flex-grow: 1; height: 38px; padding: 0 0.75rem; background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-sm); color: #fff; font-size: 0.82rem; outline: none;">
+                <button type="submit" style="background: var(--primary); border: none; padding: 0 0.85rem; border-radius: var(--radius-sm); color: #fff; font-weight: bold; cursor: pointer; font-size: 0.8rem;">Kirim</button>
             </form>
         </div>
     </div>
@@ -721,15 +1004,15 @@ function aiAssistantWidget() {
                 if (query.includes('omset') || query.includes('penjualan') || query.includes('naik')) {
                     reply = "<b>Tips Meningkatkan Penjualan Kafe:</b><br>1. <b>Bundling Menu</b>: Gabungkan kopi terlaris dengan cemilan kecil dengan diskon 10%.<br>2. <b>Promo QR Menu</b>: Buat diskon khusus 5% bagi pelanggan yang melakukan <i>self-order</i> langsung dari meja.<br>3. <b>Upselling</b>: Latih kasir untuk menawarkan tambahan toping atau ukuran <i>large</i> saat mencatat pesanan.";
                 } else if (query.includes('shift') || query.includes('tutup') || query.includes('laci')) {
-                    reply = "<b>Cara Tutup Shift Kasir (Blind Close):</b><br>1. Masuk ke tab <b>Shift & Kas</b> di dasbor.<br>2. Hitung uang tunai fisik yang ada di laci kasir secara manual.<br>3. Input nominal uang fisik tersebut di kolom input <i>Blind Close</i> lalu tekan tombol <b>Tutup Kasir</b>.<br>4. Sistem akan membandingkan uang fisik dengan hitungan sistem dan mencatat selisihnya demi menghindari kebocoran.";
+                    reply = "<b>Cara Tutup Shift Kasir (Blind Close):</b><br>1. Masuk ke tab <b>Shift & Kas</b> di kasir POS.<br>2. Hitung uang tunai fisik yang ada di laci kasir secara manual.<br>3. Input nominal uang fisik tersebut di kolom input <i>Blind Close</i> lalu tekan tombol <b>Tutup Kasir</b>.<br>4. Sistem akan membandingkan uang fisik dengan hitungan sistem dan mencatat selisihnya demi menghindari kebocoran.";
                 } else if (query.includes('kds') || query.includes('dapur') || query.includes('koki')) {
-                    reply = "<b>Panduan Kitchen Display System (KDS):</b><br>1. Layar KDS akan berbunyi (beep) secara otomatis jika ada pesanan baru masuk.<br>2. Koki memantau antrean pesanan. Jika pesanan belum selesai dimasak dalam waktu <b>15 menit</b>, kartu pesanan akan berkedip merah (Over SLA).<br>3. Klik tombol <b>Selesai</b> untuk mengubah status makanan menjadi <i>Ready</i> agar pelayan bisa langsung mengantar.";
+                    reply = "<b>Panduan Kitchen Display System (KDS):</b><br>1. Layar KDS akan berbunyi secara otomatis jika ada pesanan baru masuk.<br>2. Koki memantau antrean pesanan. Jika pesanan belum selesai dimasak dalam waktu <b>15 menit</b>, kartu pesanan akan berkedip merah (Over SLA).<br>3. Klik tombol <b>Selesai</b> untuk mengubah status makanan menjadi <i>Ready</i> agar pelayan bisa langsung mengantar.";
                 } else if (query.includes('motivasi') || query.includes('semangat') || query.includes('kata')) {
                     const quotes = [
                         "<b>Kata Motivasi Hari Ini:</b><br>\"Kesuksesan bukan tentang seberapa banyak kopi yang kita buat, melainkan tentang senyum kebahagiaan pelanggan saat meminumnya. Semangat melayani hari ini!\" ☕✨",
                         "<b>Kata Motivasi Hari Ini:</b><br>\"Kerja keras kita hari ini adalah fondasi bagi perkembangan bisnis Unimart kita di masa depan. Mari layani pelanggan dengan sepenuh hati!\" 💪🌟",
                         "<b>Kata Motivasi Hari Ini:</b><br>\"Setiap tantangan di toko adalah kesempatan untuk belajar menjadi lebih baik. Tetap ceria dan beri pelayanan terbaik!\" 🚀🔥",
-                        "<b>Kata Motivasi Hari Ini:</b><br>\"Kafe yang ramai diawali dari tim dapur yang solid dan kasir yang ramah. Semangat melayani, Kak!\" 🍔😊"
+                        "<b>Kata Motivasi Hari Ini:</b><br>\"Toko yang ramai diawali dari tim dapur yang solid dan kasir yang ramah. Semangat melayani, Kak!\" 🍔😊"
                     ];
                     reply = quotes[Math.floor(Math.random() * quotes.length)];
                 } else {
@@ -742,7 +1025,7 @@ function aiAssistantWidget() {
                     const el = document.querySelector('.chat-messages');
                     if (el) el.scrollTop = el.scrollHeight;
                 }, 50);
-            }, 1000);
+            }, 800);
         }
     }
 }
