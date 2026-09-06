@@ -26,8 +26,8 @@ class PinLoginController extends Controller
             'pin' => 'required|string|between:4,6',
         ]);
 
-        $tenantId = app('tenant_id');
-        $tenant = app('tenant');
+        $tenantId = app()->bound('tenant_id') ? app('tenant_id') : session('tenant_id');
+        $tenant = app()->bound('tenant') ? app('tenant') : ($tenantId ? \App\Models\Tenant::find($tenantId) : null);
 
         if (!$tenantId || !$tenant) {
             return back()->withErrors(['pin' => 'Tenant tidak teridentifikasi. Harap akses melalui domain toko.']);

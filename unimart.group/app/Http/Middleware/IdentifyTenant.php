@@ -15,18 +15,6 @@ class IdentifyTenant
      */
     public function handle(Request $request, Closure $next): Response
     {
-        $tenant = null;
-
-        // 1. Jika user sudah login, prioritaskan tenant milik user tersebut
-        if (Auth::check() && Auth::user()->tenant_id) {
-            $tenant = Tenant::find(Auth::user()->tenant_id);
-        }
-
-        // 2. Jika mengakses rute dengan parameter alias (caffe atau hotspot)
-        if (!$tenant && $request->route('alias')) {
-            $tenant = Tenant::where('domain', $request->route('alias'))->first();
-        }
-
         $rawHost = $request->getHost();
         $host = explode(':', $rawHost)[0];
 
@@ -36,8 +24,25 @@ class IdentifyTenant
         $isMarketplace = str_starts_with($host, 'marketplace.') || $request->is('marketplace*');
         app()->instance('is_marketplace', $isMarketplace);
 
-        // 3. Cari tenant berdasarkan host domain (hanya jika bukan portal marketplace)
-        if (!$isMarketplace && !$tenant) {
+        $isRootDomain = in_array($host, [
+            $baseDomain, 
+            $onlineDomain, 
+            'localhost', 
+            '127.0.0.1', 
+            'www.' . $baseDomain, 
+            'www.' . $onlineDomain
+        ]);
+        app()->instance('is_root_domain', $isRootDomain);
+
+        $tenant = null;
+
+        // 1. Jika rute memiliki parameter alias (misal /caffe/{alias} atau /grosir/{alias})
+        if ($request->route('alias')) {
+            $tenant = Tenant::where('domain', $request->route('alias'))->first();
+        }
+
+        // 2. Jika bukan root domain dan bukan marketplace, cari tenant berdasarkan subdomain host
+        if (!$isRootDomain && !$isMarketplace && !$tenant) {
             $subdomain = null;
 
             if (str_ends_with($host, '.' . $baseDomain)) {
@@ -51,28 +56,29 @@ class IdentifyTenant
             }
 
             if (!$tenant) {
-                // Cek apakah ada custom domain terdaftar
+                // Cek domain mappings (custom domain)
                 if (\Illuminate\Support\Facades\Schema::hasTable('domain_mappings')) {
                     $mapping = \App\Models\DomainMapping::where('custom_domain', $host)->where('is_verified', true)->first();
                     if ($mapping) {
                         $tenant = $mapping->tenant;
                     }
                 }
-                
+
                 if (!$tenant) {
                     $tenant = Tenant::where('domain', $host)->first();
                 }
             }
         }
 
-        // 4. Fallback untuk testing/lokal
-        if (!$isMarketplace && !$tenant) {
+        // 3. Jika user login (untuk akses dashboard /owner atau /staff), resolve tenant milik user
+        if (!$tenant && Auth::check() && Auth::user()->tenant_id) {
+            $tenant = Tenant::find(Auth::user()->tenant_id);
+        }
+
+        // 4. Fallback untuk environment testing non-root domain
+        if (!$isRootDomain && !$isMarketplace && !$tenant) {
             if (app()->environment('testing')) {
                 $tenant = Tenant::first();
-            } elseif (app()->environment('local')) {
-                if ($host !== $baseDomain && $host !== $onlineDomain && $host !== 'localhost' && $host !== '127.0.0.1' && !$isMarketplace) {
-                    $tenant = Tenant::first();
-                }
             }
         }
 
@@ -80,8 +86,7 @@ class IdentifyTenant
             app()->instance('tenant_id', $tenant->id);
             app()->instance('tenant', $tenant);
             app()->instance('business_type', $tenant->business_type ?? 'caffe');
-            
-            // Simpan di session agar mudah diakses
+
             session([
                 'tenant_id' => $tenant->id,
                 'business_type' => $tenant->business_type ?? 'caffe'

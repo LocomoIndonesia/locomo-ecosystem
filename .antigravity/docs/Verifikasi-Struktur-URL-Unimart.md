@@ -17,6 +17,8 @@ Dokumen ini mendokumentasikan hasil audit, perbaikan, dan pengujian struktur URL
 | [`caffe-qr.blade.php`](file:///home/dev360_03/locomo.id/unimart.group/resources/views/caffe-qr.blade.php) & View Lainnya | Socket.io client hardcoded ke `.localhost`. | **SELESAI**: Menggunakan `GatewayService::getClientSocketUrl()`. |
 | [`izone-hotspot.blade.php`](file:///home/dev360_03/locomo.id/unimart.group/resources/views/izone-hotspot.blade.php) | Tautan PitiCoin hardcoded ke `http://piticoin.id.localhost`. | **SELESAI**: Menggunakan variabel dinamis dengan fallback aman ke `https://piticoin.id` saat publik. |
 
+| [`welcome.blade.php`](file:///home/dev360_03/locomo.id/unimart.group/resources/views/welcome.blade.php) | Template kafe lama sempat tercampur di baris atas welcome.blade.php. | **SELESAI**: Template kafe dihapus dan dipisah penuh ke modul kafe (`caffe::landing`), sehingga root landing page murni menyajikan SaaS Platform Unimart.group. |
+
 ---
 
 ## 2. Matriks Resolusi URL
@@ -25,9 +27,9 @@ Dokumen ini mendokumentasikan hasil audit, perbaikan, dan pengujian struktur URL
 |---|---|---|---|
 | **Platform Landing SaaS** | `http://unimart.group.localhost/` | `https://unimart.group/` | `resources/views/welcome.blade.php` |
 | **Marketplace Portal** | `http://marketplace.unimart.group.localhost/` atau `/marketplace` | `https://marketplace.unimart.group/` atau `/marketplace` | `App\Modules\Marketplace\Controllers\MarketplaceHomeController` |
-| **Subdomain Kafe** | `http://[slug].unimart.group.localhost/` atau `/caffe/[slug]` | `https://[slug].unimart.group/` atau `/caffe/[slug]` | `App\Modules\Caffe\Controllers\CaffeLandingController` |
-| **Subdomain Grosir** | `http://[slug].unimart.group.localhost/` atau `/grosir/[slug]` | `https://[slug].unimart.group/` atau `/grosir/[slug]` | `App\Modules\Grosir\Controllers\GrosirLandingController` |
-| **QR Table Order** | `.../caffe/[slug]?table=X` | `.../caffe/[slug]?table=X` | `caffe.qr` view |
+| **Subdomain Kafe** | `http://[alias].unimart.group.localhost/` atau `/caffe/[alias]` | `https://[alias].unimart.group/` atau `/caffe/[alias]` | `App\Modules\Caffe\Controllers\CaffeLandingController` |
+| **Subdomain Grosir** | `http://[alias].unimart.group.localhost/` atau `/grosir/[alias]` | `https://[alias].unimart.group/` atau `/grosir/[alias]` | `App\Modules\Grosir\Controllers\GrosirLandingController` |
+| **QR Table Order** | `.../caffe/[alias]?table=X` | `.../caffe/[alias]?table=X` | `caffe.qr` view |
 | **WebSocket Gateway** | `http://gateway.locomo.id.localhost` | `https://gateway.unimart.group` (atau env `GATEWAY_CLIENT_URL`) | Node.js Gateway via Socket.io |
 
 ---
@@ -51,8 +53,9 @@ PASS  Tests\Feature\UrlStructureAndRoutingTest
   ✓ grosir subdomain routing local and prod
   ✓ marketplace subdomain routing local and prod
   ✓ tenant full domain attribute
+  ✓ root landing page never replaced by merchant landing even when logged in
 
-Tests:    13 passed (37 assertions)
-Duration: 0.81s
+Tests:    14 passed (42 assertions)
+Duration: 0.57s
 ```
-Semua 13 pengujian (37 assertions) lulus 100% tanpa kesalahan.
+Semua 14 pengujian (42 assertions) lulus 100% tanpa kesalahan.

@@ -37,16 +37,16 @@ class StaffAuthController extends Controller
             'password' => 'required|string',
         ]);
 
-        $tenantId = app('tenant_id');
-        $tenant = app('tenant');
-
-        if (!$tenantId || !$tenant) {
-            return back()->withErrors(['login' => 'Tenant tidak teridentifikasi. Harap akses melalui domain toko.']);
-        }
+        $tenantId = app()->bound('tenant_id') ? app('tenant_id') : session('tenant_id');
+        $tenant = app()->bound('tenant') ? app('tenant') : ($tenantId ? Tenant::find($tenantId) : null);
 
         // Cari user berdasarkan email atau nomor telepon
-        $user = User::where('tenant_id', $tenantId)
-            ->where(function ($query) use ($request) {
+        $userQuery = User::query();
+        if ($tenantId) {
+            $userQuery->where('tenant_id', $tenantId);
+        }
+
+        $user = $userQuery->where(function ($query) use ($request) {
                 $query->where('email', $request->login)
                       ->orWhere('phone', $request->login);
             })

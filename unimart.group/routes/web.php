@@ -20,15 +20,22 @@ Route::get('/', function (\Illuminate\Http\Request $request) {
         return app(\App\Modules\Marketplace\Controllers\MarketplaceHomeController::class)->index($request);
     }
 
-    $tenant = app()->bound('tenant') ? app('tenant') : null;
-    if ($tenant) {
-        if ($tenant->business_type === 'grosir') {
-            return app(\App\Modules\Grosir\Controllers\GrosirLandingController::class)->showLanding($tenant->domain);
-        } elseif ($tenant->business_type === 'caffe') {
-            return app(\App\Modules\Caffe\Controllers\CaffeLandingController::class)->showLanding($tenant->domain);
+    $isRootDomain = app()->bound('is_root_domain') ? app('is_root_domain') : true;
+
+    // Jika diakses dari subdomain merchant ({alias}.unimart.group.localhost / {alias}.unimart.group)
+    if (!$isRootDomain) {
+        $tenant = app()->bound('tenant') ? app('tenant') : null;
+        if ($tenant) {
+            if ($tenant->business_type === 'grosir') {
+                return app(\App\Modules\Grosir\Controllers\GrosirLandingController::class)->showLanding($tenant->domain);
+            } elseif ($tenant->business_type === 'caffe') {
+                return app(\App\Modules\Caffe\Controllers\CaffeLandingController::class)->showLanding($tenant->domain);
+            }
         }
+        abort(404, 'Toko atau Merchant tidak ditemukan.');
     }
 
+    // Jika diakses dari domain root (unimart.group.localhost / unimart.group / localhost), selalu tampilkan SaaS landing page
     return view('welcome');
 });
 

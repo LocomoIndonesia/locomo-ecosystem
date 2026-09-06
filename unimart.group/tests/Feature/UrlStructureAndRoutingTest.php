@@ -88,4 +88,32 @@ class UrlStructureAndRoutingTest extends TestCase
         $this->get('http://unimart.group/');
         $this->assertEquals('tokocontoh.unimart.group', $tenant->full_domain);
     }
+
+    public function test_root_landing_page_never_replaced_by_merchant_landing_even_when_logged_in(): void
+    {
+        $tenant = Tenant::create([
+            'name' => 'Kopi Senja Utama',
+            'domain' => 'kopisenja',
+            'business_type' => 'caffe',
+        ]);
+
+        $owner = \App\Models\User::create([
+            'tenant_id' => $tenant->id,
+            'name' => 'Owner Kopi',
+            'email' => 'owner@kopisenja.com',
+            'password' => \Illuminate\Support\Facades\Hash::make('password123'),
+            'role' => 'owner',
+        ]);
+
+        // 1. Owner logged in mengakses root local domain
+        $response = $this->actingAs($owner)->get('http://unimart.group.localhost/');
+        $response->assertStatus(200);
+        $response->assertSee('Unimart.group');
+        $response->assertSee('Ekosistem Bisnis Global Otonom untuk Usaha Modern');
+
+        // 2. Mengakses merchant subdomain lokal
+        $subResponse = $this->get('http://kopisenja.unimart.group.localhost/');
+        $subResponse->assertStatus(200);
+        $subResponse->assertSee('Kopi Senja Utama');
+    }
 }
