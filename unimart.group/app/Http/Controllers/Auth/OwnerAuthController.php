@@ -48,10 +48,21 @@ class OwnerAuthController extends Controller
 
         $request->validate($rules);
 
+        $bType = 'caffe';
+        if (str_contains(strtolower($request->business_type), 'grosir') || str_contains(strtolower($request->business_type), 'kelontong') || str_contains(strtolower($request->business_type), 'wholesale')) {
+            $bType = 'grosir';
+        }
+
         // 1. Buat Tenant baru
         $tenant = Tenant::create([
             'name' => $request->business_name,
             'domain' => $request->domain,
+            'business_type' => $bType,
+            'owner_name' => $request->name,
+            'owner_email' => $request->email,
+            'owner_phone' => $request->phone,
+            'city' => 'Indonesia',
+            'address' => $request->business_address,
             'settings' => [
                 'package' => $request->package,
                 'tables_count' => 15,
