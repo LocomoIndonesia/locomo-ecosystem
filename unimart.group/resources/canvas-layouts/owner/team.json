@@ -1,0 +1,19 @@
+{
+  "screen": "team",
+  "title": "Kelola Tim",
+  "data_api": "/canvas/api/team",
+  "widgets": [
+    {
+      "id": "staff_list",
+      "type": "staff_card_list",
+      "data_key": "staff",
+      "show_role_badge": true,
+      "tap_action": "open_sheet:staff_detail"
+    }
+  ],
+  "fab": { "icon": "+", "label": "Tambah Staf", "action": "open_sheet:add_staff" },
+  "sheets": {
+    "add_staff":    { "title": "Tambah Anggota Tim", "type": "staff_form", "mode": "add" },
+    "staff_detail": { "title": "Detail Staf",        "type": "staff_form", "mode": "view_edit" }
+  }
+}

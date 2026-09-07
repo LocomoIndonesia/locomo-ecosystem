@@ -1,0 +1,33 @@
+{
+  "screen": "notifications",
+  "title": "Notifikasi",
+  "data_api": "/canvas/api/notifications",
+  "widgets": [
+    {
+      "id": "push_toggle",
+      "type": "push_permission_card",
+      "title": "Notifikasi Push",
+      "description": "Aktifkan notifikasi untuk mendapatkan update pesanan, stok habis, dan laporan harian langsung di HP Anda.",
+      "button_enable": "Aktifkan Notifikasi",
+      "button_disable": "Nonaktifkan"
+    },
+    {
+      "id": "notif_filter",
+      "type": "filter_chips",
+      "options": [
+        { "value": "all",      "label": "Semua" },
+        { "value": "orders",   "label": "Pesanan" },
+        { "value": "stock",    "label": "Stok" },
+        { "value": "finance",  "label": "Keuangan" }
+      ]
+    },
+    {
+      "id": "notif_list",
+      "type": "notification_list",
+      "data_key": "notifications",
+      "show_empty": true,
+      "empty_label": "Belum ada notifikasi.",
+      "show_timestamp": true
+    }
+  ]
+}

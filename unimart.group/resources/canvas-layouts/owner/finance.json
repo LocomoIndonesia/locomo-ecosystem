@@ -1,0 +1,48 @@
+{
+  "screen": "finance",
+  "title": "Laporan Keuangan",
+  "data_api": "/canvas/api/finance",
+  "widgets": [
+    {
+      "id": "period_picker",
+      "type": "date_range_picker",
+      "options": [
+        { "value": "today",      "label": "Hari Ini" },
+        { "value": "this_week",  "label": "Minggu Ini" },
+        { "value": "this_month", "label": "Bulan Ini" },
+        { "value": "custom",     "label": "Kustom..." }
+      ],
+      "default": "today",
+      "filter_param": "period"
+    },
+    {
+      "id": "pnl_summary",
+      "type": "pnl_waterfall",
+      "data_key": "root",
+      "rows": [
+        { "key": "gross_sales",  "label": "📥 Pendapatan Kotor",  "type": "income",   "format": "currency" },
+        { "key": "total_cogs",   "label": "📦 HPP (Harga Modal)", "type": "deduction","format": "currency" },
+        { "key": "gross_profit", "label": "💰 Laba Kotor",        "type": "subtotal", "format": "currency" },
+        { "key": "expenses",     "label": "💸 Biaya Operasional", "type": "deduction","format": "currency" },
+        { "key": "net_profit",   "label": "✅ Laba Bersih",       "type": "total",    "format": "currency", "highlight": true }
+      ]
+    },
+    {
+      "id": "quick_stats",
+      "type": "stat_row",
+      "data_key": "root",
+      "stats": [
+        { "key": "order_count", "label": "Total Transaksi", "format": "number" },
+        { "key": "avg_order",   "label": "Rata-rata Order", "format": "currency" }
+      ]
+    },
+    {
+      "id": "share_actions",
+      "type": "action_row",
+      "actions": [
+        { "type": "button", "label": "📤 Bagikan via WhatsApp", "action": "share_whatsapp" },
+        { "type": "button", "label": "🖨️ Export PDF",          "action": "export_pdf",      "variant": "outline" }
+      ]
+    }
+  ]
+}

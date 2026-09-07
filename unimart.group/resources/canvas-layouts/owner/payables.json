@@ -1,0 +1,26 @@
+{
+  "screen": "payables",
+  "title": "Buku Utang",
+  "data_api": "/canvas/api/payables",
+  "widgets": [
+    {
+      "id": "payables_summary",
+      "type": "alert_banner",
+      "data_key": "total_debt",
+      "template": "Total utang aktif: {value}",
+      "format": "currency",
+      "color": "danger"
+    },
+    {
+      "id": "payables_list",
+      "type": "payable_card_list",
+      "data_key": "payables",
+      "show_due_date": true,
+      "show_overdue_badge": true,
+      "tap_action": "open_sheet:pay_debt"
+    }
+  ],
+  "sheets": {
+    "pay_debt": { "title": "Bayar Utang", "type": "payment_form", "api": "/owner/payables/{id}/payment" }
+  }
+}

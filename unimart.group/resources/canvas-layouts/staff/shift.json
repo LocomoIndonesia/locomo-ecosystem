@@ -1,0 +1,26 @@
+{
+  "screen": "shift",
+  "title": "Manajemen Shift",
+  "widgets": [
+    {
+      "id": "shift_open_form",
+      "type": "conditional_form",
+      "show_when": "shift_closed",
+      "title": "🔓 Buka Shift Kasir",
+      "fields": [
+        { "key": "opening_cash", "label": "Modal Awal (Rp)", "type": "number_currency", "required": true }
+      ],
+      "action_button": { "label": "Buka Shift", "api": "POST:/canvas/api/shift/open" }
+    },
+    {
+      "id": "shift_close_form",
+      "type": "conditional_form",
+      "show_when": "shift_open",
+      "title": "🔒 Tutup Shift Kasir",
+      "fields": [
+        { "key": "closing_cash", "label": "Hitung Uang Fisik (Rp)", "type": "number_currency", "required": true }
+      ],
+      "action_button": { "label": "Tutup Shift & Cetak Laporan", "api": "POST:/canvas/api/shift/close", "variant": "danger" }
+    }
+  ]
+}

@@ -1,0 +1,35 @@
+{
+  "screen": "home",
+  "title": "Beranda Staf",
+  "data_api": "/canvas/api/dashboard",
+  "poll_widgets": ["orders_live"],
+  "widgets": [
+    {
+      "id": "shift_status",
+      "type": "shift_status_card",
+      "data_key": "daily_summary",
+      "show_open_button": true,
+      "show_timer": true
+    },
+    {
+      "id": "orders_live",
+      "type": "metric_row",
+      "data_key": "daily_summary",
+      "metrics": [
+        { "key": "orders_pending", "label": "Pesanan Masuk", "icon": "📋", "badge": "warning" },
+        { "key": "active_staff",   "label": "Staf Aktif",   "icon": "👤" }
+      ]
+    },
+    {
+      "id": "quick_actions",
+      "type": "command_pills",
+      "layout": "grid_2x2",
+      "commands": [
+        { "cmd": "orders",    "label": "Lihat Pesanan", "icon": "📋", "color": "#3B82F6" },
+        { "cmd": "pos",       "label": "Buka Kasir",   "icon": "💳", "color": "#6C3AE8" },
+        { "cmd": "kds",       "label": "Layar Dapur",  "icon": "🍳", "color": "#F59E0B" },
+        { "cmd": "pengeluaran","label": "Pengeluaran",  "icon": "💸", "color": "#EF4444" }
+      ]
+    }
+  ]
+}

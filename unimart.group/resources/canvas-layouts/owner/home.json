@@ -1,0 +1,49 @@
+{
+  "screen": "home",
+  "title": "Beranda",
+  "data_api": "/canvas/api/dashboard",
+  "poll_widgets": ["daily_kpi", "activity_feed"],
+  "widgets": [
+    {
+      "id": "greeting",
+      "type": "greeting_card",
+      "props": {
+        "show_time": true,
+        "show_store_name": true,
+        "show_date": true
+      }
+    },
+    {
+      "id": "daily_kpi",
+      "type": "metric_row",
+      "data_key": "daily_summary",
+      "metrics": [
+        { "key": "total_sales",    "label": "Omset Hari Ini", "format": "currency", "icon": "💰" },
+        { "key": "order_count",    "label": "Transaksi",      "format": "number",   "icon": "🧾" },
+        { "key": "orders_pending", "label": "Pending",        "format": "number",   "icon": "⏳", "badge": "warning" },
+        { "key": "active_staff",   "label": "Staf Aktif",     "format": "number",   "icon": "👤" }
+      ]
+    },
+    {
+      "id": "quick_actions",
+      "type": "command_pills",
+      "layout": "grid_2x2",
+      "commands": [
+        { "cmd": "pos",       "label": "Buka Kasir",   "icon": "💳",  "color": "#6C3AE8" },
+        { "cmd": "orders",    "label": "Pesanan",      "icon": "📋",  "color": "#3B82F6" },
+        { "cmd": "laporan",   "label": "Cek Omset",    "icon": "📊",  "color": "#10B981" },
+        { "cmd": "menu",      "label": "Kelola Menu",  "icon": "🍽️", "color": "#F59E0B" }
+      ]
+    },
+    {
+      "id": "activity_feed",
+      "type": "activity_feed",
+      "data_key": "recent_activity",
+      "limit": 8,
+      "style": "chat_bubble",
+      "title": "Aktivitas Terkini",
+      "show_empty": true,
+      "empty_label": "Belum ada aktivitas hari ini."
+    }
+  ]
+}

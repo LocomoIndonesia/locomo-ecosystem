@@ -1,0 +1,20 @@
+{
+  "screen": "purchases",
+  "title": "Kulakan / Pengadaan",
+  "data_api": "/canvas/api/purchases",
+  "widgets": [
+    {
+      "id": "purchase_list",
+      "type": "purchase_card_list",
+      "data_key": "purchases",
+      "show_supplier": true,
+      "show_payment_type": true,
+      "tap_action": "open_sheet:purchase_detail"
+    }
+  ],
+  "fab": { "icon": "+", "label": "Buat PO Baru", "action": "open_sheet:new_purchase" },
+  "sheets": {
+    "new_purchase":     { "title": "Purchase Order Baru", "type": "purchase_form", "mode": "add" },
+    "purchase_detail":  { "title": "Detail PO",           "type": "purchase_form", "mode": "view" }
+  }
+}

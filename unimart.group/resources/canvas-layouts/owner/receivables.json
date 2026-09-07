@@ -1,0 +1,25 @@
+{
+  "screen": "receivables",
+  "title": "Buku Piutang",
+  "data_api": "/canvas/api/receivables",
+  "widgets": [
+    {
+      "id": "receivables_summary",
+      "type": "alert_banner",
+      "data_key": "total_receivable",
+      "template": "Total piutang aktif: {value}",
+      "format": "currency",
+      "color": "info"
+    },
+    {
+      "id": "receivables_list",
+      "type": "receivable_card_list",
+      "data_key": "receivables",
+      "show_customer": true,
+      "tap_action": "open_sheet:collect_payment"
+    }
+  ],
+  "sheets": {
+    "collect_payment": { "title": "Terima Pembayaran", "type": "payment_form", "api": "/owner/receivables/{id}/payment" }
+  }
+}

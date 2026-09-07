@@ -1,0 +1,17 @@
+{
+  "screen": "expense",
+  "title": "Catat Pengeluaran",
+  "widgets": [
+    {
+      "id": "expense_form",
+      "type": "form",
+      "fields": [
+        { "key": "amount",      "label": "Jumlah (Rp)", "type": "number_currency", "required": true },
+        { "key": "description", "label": "Keterangan",  "type": "text",            "required": true, "placeholder": "Beli es batu, gas elpiji..." },
+        { "key": "category",    "label": "Kategori",    "type": "select",
+          "options": ["Bahan Baku","Operasional","Gaji","Lainnya"] }
+      ],
+      "action_button": { "label": "💾 Catat Pengeluaran", "api": "POST:/canvas/api/expense" }
+    }
+  ]
+}

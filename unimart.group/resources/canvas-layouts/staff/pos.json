@@ -1,0 +1,32 @@
+{
+  "screen": "pos",
+  "title": "Kasir",
+  "data_api": "/canvas/api/menu",
+  "widgets": [
+    { "id": "pos_searchbar", "type": "search_input", "placeholder": "Cari menu..." },
+    { "id": "category_tabs",  "type": "filter_chips",  "data_source": "categories", "all_label": "Semua" },
+    { "id": "product_grid",   "type": "product_grid",  "data_key": "products",
+      "columns_mobile": 2, "columns_tablet": 3, "tap_action": "add_to_cart" },
+    { "id": "cart_bar", "type": "sticky_cart_bar", "position": "bottom", "on_tap": "open_sheet:cart_detail" }
+  ],
+  "sheets": {
+    "cart_detail": {
+      "title": "Keranjang",
+      "widgets": [
+        { "type": "cart_item_list", "editable": true },
+        { "type": "table_selector" },
+        { "type": "cart_summary", "show_tax": true }
+      ],
+      "action_button": { "label": "Lanjut Bayar →", "open_sheet": "checkout" }
+    },
+    "checkout": {
+      "title": "Pembayaran",
+      "widgets": [
+        { "type": "payment_method_picker", "methods": ["tunai","qris","transfer","kasbon"] },
+        { "type": "cash_input", "show_when": "method=tunai", "calc_change": true },
+        { "type": "order_total_summary" }
+      ],
+      "action_button": { "label": "✓ Proses Pembayaran", "api": "POST:/canvas/api/pos/checkout" }
+    }
+  }
+}

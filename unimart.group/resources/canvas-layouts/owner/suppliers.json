@@ -1,0 +1,19 @@
+{
+  "screen": "suppliers",
+  "title": "Data Supplier",
+  "data_api": "/canvas/api/suppliers",
+  "widgets": [
+    {
+      "id": "supplier_list",
+      "type": "supplier_card_list",
+      "data_key": "suppliers",
+      "show_debt_badge": true,
+      "tap_action": "open_sheet:supplier_detail"
+    }
+  ],
+  "fab": { "icon": "+", "label": "Tambah Supplier", "action": "open_sheet:add_supplier" },
+  "sheets": {
+    "add_supplier":    { "title": "Tambah Supplier",  "type": "supplier_form", "mode": "add" },
+    "supplier_detail": { "title": "Detail Supplier",  "type": "supplier_form", "mode": "view_edit" }
+  }
+}

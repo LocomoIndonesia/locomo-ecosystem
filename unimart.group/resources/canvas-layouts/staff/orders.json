@@ -1,0 +1,44 @@
+{
+  "screen": "orders",
+  "title": "Antrian Pesanan",
+  "data_api": "/canvas/api/orders",
+  "poll_interval_ms": 5000,
+  "widgets": [
+    {
+      "id": "status_filters",
+      "type": "filter_chips",
+      "options": [
+        { "value": "all",      "label": "Semua" },
+        { "value": "pending",  "label": "Baru",     "badge_key": "pending" },
+        { "value": "preparing","label": "Diproses", "badge_key": "preparing" },
+        { "value": "ready",    "label": "Siap" }
+      ],
+      "filter_param": "status",
+      "default": "pending"
+    },
+    {
+      "id": "orders_list",
+      "type": "order_card_list",
+      "data_key": "orders",
+      "swipe_actions": [
+        { "direction": "right", "action": "prepare",  "label": "Proses",  "color": "#3B82F6" },
+        { "direction": "left",  "action": "deliver",  "label": "Antar",   "color": "#10B981" }
+      ],
+      "tap_action": "open_sheet:order_detail",
+      "show_timer": true,
+      "show_table": true
+    }
+  ],
+  "sheets": {
+    "order_detail": {
+      "title": "Detail Pesanan",
+      "widgets": [
+        { "type": "order_info_header" },
+        { "type": "order_item_list" },
+        { "type": "order_action_buttons",
+          "actions": ["prepare","deliver","complete"],
+          "api": "POST:/canvas/api/orders/{id}/action" }
+      ]
+    }
+  }
+}

@@ -1,0 +1,55 @@
+{
+  "screen": "dashboard",
+  "title": "Dashboard Bisnis",
+  "data_api": "/canvas/api/dashboard",
+  "poll_widgets": ["daily_kpi"],
+  "widgets": [
+    {
+      "id": "daily_kpi",
+      "type": "kpi_carousel",
+      "data_key": "daily_summary",
+      "metrics": [
+        { "key": "total_sales",    "label": "Omset Hari Ini",  "format": "currency", "icon": "💰", "color": "#6C3AE8" },
+        { "key": "order_count",    "label": "Total Transaksi",  "format": "number",   "icon": "🧾", "color": "#3B82F6" },
+        { "key": "orders_pending", "label": "Pesanan Pending",  "format": "number",   "icon": "⏳", "color": "#F59E0B" },
+        { "key": "avg_order",      "label": "Rata-rata Order",  "format": "currency", "icon": "📈", "color": "#10B981" },
+        { "key": "active_staff",   "label": "Staf Aktif",       "format": "number",   "icon": "👥", "color": "#EC4899" }
+      ]
+    },
+    {
+      "id": "weekly_chart",
+      "type": "chart_sparkline",
+      "data_key": "weekly_trend",
+      "title": "Tren 7 Hari Terakhir",
+      "x_key": "date",
+      "y_key": "sales",
+      "color": "#6C3AE8",
+      "format": "currency"
+    },
+    {
+      "id": "top_products",
+      "type": "ranked_list",
+      "data_key": "top_products",
+      "title": "🏆 Produk Terlaris (30 Hari)",
+      "key_label": "name",
+      "key_value": "qty_sold",
+      "key_secondary": "revenue",
+      "format_secondary": "currency",
+      "limit": 5
+    },
+    {
+      "id": "quick_actions",
+      "type": "command_pills",
+      "layout": "grid_2x3",
+      "title": "Aksi Cepat",
+      "commands": [
+        { "cmd": "pos",       "label": "Kasir",     "icon": "💳",  "color": "#6C3AE8" },
+        { "cmd": "orders",    "label": "Pesanan",   "icon": "📋",  "color": "#3B82F6" },
+        { "cmd": "menu",      "label": "Menu",      "icon": "🍽️", "color": "#F59E0B" },
+        { "cmd": "laporan",   "label": "Laporan",   "icon": "📊",  "color": "#10B981" },
+        { "cmd": "tim",       "label": "Tim",       "icon": "👥",  "color": "#EC4899" },
+        { "cmd": "pengaturan","label": "Atur Toko", "icon": "⚙️", "color": "#64748B" }
+      ]
+    }
+  ]
+}

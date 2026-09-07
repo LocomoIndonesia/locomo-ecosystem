@@ -1,0 +1,34 @@
+{
+  "screen": "inventory",
+  "title": "Stok & Inventori",
+  "data_api": "/canvas/api/inventory",
+  "widgets": [
+    {
+      "id": "stock_summary",
+      "type": "stat_row",
+      "data_key": "summary",
+      "stats": [
+        { "key": "total",     "label": "Total Produk",   "format": "number", "icon": "📦" },
+        { "key": "low_stock", "label": "Stok Menipis",   "format": "number", "icon": "⚠️", "badge": "warning" },
+        { "key": "out",       "label": "Stok Habis",     "format": "number", "icon": "🚫", "badge": "danger" }
+      ]
+    },
+    {
+      "id": "stock_filter",
+      "type": "filter_chips",
+      "options": [
+        { "value": "all",          "label": "Semua" },
+        { "value": "low_stock",    "label": "Stok Menipis" },
+        { "value": "out_of_stock", "label": "Habis" }
+      ],
+      "filter_param": "filter"
+    },
+    {
+      "id": "inventory_list",
+      "type": "inventory_card_list",
+      "data_key": "products",
+      "show_stock_badge": true,
+      "tap_action": "open_sheet:edit_product"
+    }
+  ]
+}

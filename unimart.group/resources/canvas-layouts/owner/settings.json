@@ -1,0 +1,41 @@
+{
+  "screen": "settings",
+  "title": "Pengaturan Toko",
+  "data_api": "/canvas/api/settings",
+  "widgets": [
+    {
+      "id": "store_profile",
+      "type": "settings_section",
+      "title": "Profil Toko",
+      "fields": [
+        { "key": "name",    "label": "Nama Toko",   "type": "text" },
+        { "key": "phone",   "label": "Nomor Telepon","type": "tel" },
+        { "key": "address", "label": "Alamat",       "type": "textarea" }
+      ]
+    },
+    {
+      "id": "tax_settings",
+      "type": "settings_section",
+      "title": "Pajak & Biaya",
+      "fields": [
+        { "key": "tax_rate",       "label": "PPN / PB1 (%)", "type": "number", "min": 0, "max": 100 },
+        { "key": "service_charge", "label": "Service Charge (%)", "type": "number", "min": 0, "max": 100 }
+      ]
+    },
+    {
+      "id": "receipt_settings",
+      "type": "settings_section",
+      "title": "Struk",
+      "fields": [
+        { "key": "receipt_footer", "label": "Pesan Footer Struk", "type": "textarea", "placeholder": "Terima kasih sudah berkunjung..." }
+      ]
+    },
+    {
+      "id": "settings_save",
+      "type": "action_row",
+      "actions": [
+        { "type": "button", "label": "💾 Simpan Pengaturan", "api": "POST:/owner/settings/update", "variant": "primary" }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,50 @@
+{
+  "screen": "help",
+  "title": "Daftar Perintah",
+  "subtitle": "Pilih perintah atau ketik langsung di command bar",
+  "groups": [
+    {
+      "label": "Operasional Harian",
+      "icon": "⚡",
+      "commands": [
+        { "cmd": "pos",          "label": "Buka Kasir",         "icon": "💳", "color": "#6C3AE8", "roles": ["owner","cashier","staff"] },
+        { "cmd": "orders",       "label": "Lihat Pesanan",      "icon": "📋", "color": "#3B82F6", "roles": ["owner","cashier","chef","waiter","staff"] },
+        { "cmd": "kds",          "label": "Layar Dapur",        "icon": "🍳", "color": "#F59E0B", "roles": ["owner","chef","staff"] },
+        { "cmd": "buka shift",   "label": "Buka Shift Kasir",   "icon": "🔓", "color": "#10B981", "roles": ["owner","cashier","staff"] },
+        { "cmd": "tutup shift",  "label": "Tutup Shift Kasir",  "icon": "🔒", "color": "#EF4444", "roles": ["owner","cashier","staff"] },
+        { "cmd": "pengeluaran",  "label": "Catat Pengeluaran",  "icon": "💸", "color": "#F97316", "roles": ["owner","cashier","staff"] }
+      ]
+    },
+    {
+      "label": "Manajemen Toko",
+      "icon": "🏪",
+      "commands": [
+        { "cmd": "menu",       "label": "Kelola Menu",      "icon": "🍽️", "color": "#8B5CF6", "roles": ["owner"] },
+        { "cmd": "tim",        "label": "Kelola Tim",       "icon": "👥", "color": "#06B6D4", "roles": ["owner"] },
+        { "cmd": "meja",       "label": "Atur Meja & QR",   "icon": "🪑", "color": "#84CC16", "roles": ["owner"] },
+        { "cmd": "stok",       "label": "Cek Stok",         "icon": "📦", "color": "#F59E0B", "roles": ["owner"] },
+        { "cmd": "supplier",   "label": "Data Supplier",    "icon": "🏬", "color": "#EC4899", "roles": ["owner"] },
+        { "cmd": "kulakan",    "label": "Kulakan / PO",     "icon": "🛒", "color": "#14B8A6", "roles": ["owner"] }
+      ]
+    },
+    {
+      "label": "Keuangan & Laporan",
+      "icon": "📊",
+      "commands": [
+        { "cmd": "laporan",     "label": "Laporan Omset",   "icon": "📊", "color": "#6C3AE8", "roles": ["owner"] },
+        { "cmd": "utang",       "label": "Buku Utang",      "icon": "📕", "color": "#EF4444", "roles": ["owner"] },
+        { "cmd": "piutang",     "label": "Buku Piutang",    "icon": "📗", "color": "#10B981", "roles": ["owner"] }
+      ]
+    },
+    {
+      "label": "Sistem",
+      "icon": "⚙️",
+      "commands": [
+        { "cmd": "pengaturan",    "label": "Pengaturan Toko",   "icon": "⚙️", "color": "#64748B", "roles": ["owner"] },
+        { "cmd": "notifikasi",    "label": "Notifikasi",         "icon": "🔔", "color": "#F59E0B", "roles": ["owner","staff"] },
+        { "cmd": "dashboard",     "label": "Dashboard Bisnis",   "icon": "🏠", "color": "#6C3AE8", "roles": ["owner"] },
+        { "cmd": "help",          "label": "Bantuan",            "icon": "❓", "color": "#94A3B8", "roles": ["owner","staff"] }
+      ]
+    }
+  ]
+}
