@@ -5,10 +5,13 @@ interface ConquerorProps {
     user: {
         id: string;
         name: string;
+        username?: string;
         whatsapp: string;
         role: string;
         faction: string;
         role_class: string;
+        persona: string;
+        subscription_tier: string;
         license_type: string;
         license_status: string;
         level: number;
@@ -25,6 +28,11 @@ interface ConquerorProps {
         stake_amount_silver: number;
         reward_amount_gold: number;
         time_limit_hours: number;
+        quest_category?: string;
+        target_persona?: string;
+        time_window?: string;
+        min_level?: number;
+        parameters?: any;
         is_active: boolean;
     }>;
     escrows: Array<{
@@ -38,6 +46,27 @@ interface ConquerorProps {
             reward_amount_gold: number;
         };
     }>;
+    checkin_status: {
+        has_checked_in: boolean;
+        today_checkin: any;
+        streak_count: number;
+        time_window: {
+            window: string;
+            label: string;
+            time_range: string;
+            buff: string;
+            buff_badge: string;
+            icon: string;
+        };
+    };
+    time_details: {
+        window: string;
+        label: string;
+        time_range: string;
+        buff: string;
+        buff_badge: string;
+        icon: string;
+    };
     global_pool: {
         total_fiat_in_bank: number;
         total_gold_in_circulation: number;
@@ -51,9 +80,11 @@ interface ConquerorProps {
 
 export default function Conqueror({
     user,
-    wallet,
+    wallet: initialWallet,
     quests,
     escrows,
+    checkin_status: initialCheckinStatus,
+    time_details,
     global_pool,
     downlines,
     passive_income,
@@ -62,14 +93,44 @@ export default function Conqueror({
     const [message, setMessage] = useState<{ text: string; type: 'success' | 'error' } | null>(null);
     const [now, setNow] = useState(new Date());
     const [isMounted, setIsMounted] = useState(false);
+    const [isScrolled, setIsScrolled] = useState(false);
+    const [activeTab, setActiveTab] = useState<'QUESTS' | 'NETWORK' | 'BUSINESS' | 'MARKET'>('QUESTS');
+
+    // Live state
+    const [wallet, setWallet] = useState(initialWallet);
+    const [currentUser, setCurrentUser] = useState(user);
+    const [checkinStatus, setCheckinStatus] = useState(initialCheckinStatus);
     const [animatedFiat, setAnimatedFiat] = useState<number>(
         Number(global_pool?.total_fiat_in_bank || 500000) - Number(global_pool?.total_gold_in_circulation || 0)
     );
 
-    // Agent Mission states
+    // Modals
+    const [showUpgradeModal, setShowUpgradeModal] = useState(false);
+    const [showPosModal, setShowPosModal] = useState(false);
     const [showMissionModal, setShowMissionModal] = useState(false);
     const [showSurveyModal, setShowSurveyModal] = useState(false);
     const [agentMission, setAgentMission] = useState<any>(null);
+
+    // Business POS State
+    const [posSummary, setPosSummary] = useState({
+        total_sales: 450000,
+        transaction_count: 12,
+        gross_profit: 135000,
+        is_closed: false,
+        recent_transactions: [
+            { id: 'TRX-9481', time: '11:42 WIB', item: 'Kopi Susu Gula Aren Minang', qty: 2, amount: 36000, method: 'QRIS' },
+            { id: 'TRX-7214', time: '10:15 WIB', item: 'Nasi Kapau Rendang Spesial', qty: 1, amount: 28000, method: 'TUNAI' },
+            { id: 'TRX-3109', time: '09:05 WIB', item: 'Teh Talua Jahe Gula Merah', qty: 3, amount: 45000, method: 'TUNAI' },
+        ],
+    });
+    const [posForm, setPosForm] = useState({
+        item: '',
+        qty: 1,
+        amount: 25000,
+        method: 'QRIS',
+    });
+
+    // Survey lead state
     const [surveyData, setSurveyData] = useState({
         business_name: '',
         owner_name: '',
@@ -78,8 +139,28 @@ export default function Conqueror({
         business_type: 'FnB/Café',
     });
 
+    // Scroll listener for sticky user stat header
     useEffect(() => {
-        // Fetch active agent mission
+        setIsMounted(true);
+        const handleScroll = () => {
+            if (window.scrollY > 110) {
+                setIsScrolled(true);
+            } else {
+                setIsScrolled(false);
+            }
+        };
+        window.addEventListener('scroll', handleScroll);
+        return () => window.removeEventListener('scroll', handleScroll);
+    }, []);
+
+    // Interval clock
+    useEffect(() => {
+        const interval = setInterval(() => setNow(new Date()), 1000);
+        return () => clearInterval(interval);
+    }, []);
+
+    // Fetch active agent mission & POS summary
+    useEffect(() => {
         fetch('/api/agent-missions/active')
             .then(res => res.json())
             .then(data => {
@@ -88,16 +169,19 @@ export default function Conqueror({
                 }
             })
             .catch(err => console.error("Error fetching agent mission:", err));
+
+        fetch('/api/pos/summary')
+            .then(res => res.json())
+            .then(data => {
+                if (data.success && data.summary) {
+                    setPosSummary(data.summary);
+                }
+            })
+            .catch(err => console.error("Error fetching POS summary:", err));
     }, []);
 
-    useEffect(() => {
-        setIsMounted(true);
-        const interval = setInterval(() => setNow(new Date()), 1000);
-        return () => clearInterval(interval);
-    }, []);
-
+    // Animated fiat counter
     const poolCapacity = Number(global_pool?.total_fiat_in_bank || 500000) - Number(global_pool?.total_gold_in_circulation || 0);
-
     useEffect(() => {
         if (animatedFiat === poolCapacity) return;
         const diff = poolCapacity - animatedFiat;
@@ -124,126 +208,6 @@ export default function Conqueror({
         router.post(route('logout'));
     };
 
-    const handleStakeQuest = (questId: string) => {
-        setLoading(true);
-        router.post(route('quests.stake'), { quest_id: questId }, {
-            onFinish: () => setLoading(false),
-            onSuccess: () => showMsg('Quest berhasil distake! Ekspedisi dimulai.'),
-            onError: (errors: any) => showMsg(errors.error || 'Gagal melakukan stake', 'error')
-        });
-    };
-
-    const handleResolveQuest = async (escrowId: string, isSuccess: boolean) => {
-        setLoading(true);
-        try {
-            const res = await fetch(route('quests.resolve'), {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'x-admin-key': 'piticoin_admin_secret',
-                },
-                body: JSON.stringify({ escrow_id: escrowId, is_success: isSuccess }),
-            });
-            const data = await res.json();
-            if (data.success) {
-                showMsg(`Ekspedisi diselesaikan: ${isSuccess ? 'SUKSES' : 'GAGAL'}`);
-                router.reload();
-            } else {
-                showMsg(data.error || 'Resolusi gagal', 'error');
-            }
-        } catch (err) {
-            showMsg('Gagal menyinkronkan resolusi quest', 'error');
-        } finally {
-            setLoading(false);
-        }
-    };
-
-    const getRemainingTime = (expiresAtStr: string) => {
-        const expiresAt = new Date(expiresAtStr);
-        const diffMs = expiresAt.getTime() - now.getTime();
-        if (diffMs <= 0) return { label: 'Kedaluwarsa', expired: true };
-
-        const diffHours = Math.floor(diffMs / (1000 * 60 * 60));
-        const diffMins = Math.floor((diffMs % (1000 * 60 * 60)) / (1000 * 60));
-        const diffSecs = Math.floor((diffMs % (1000 * 60)) / 1000);
-        
-        const pad = (n: number) => n.toString().padStart(2, '0');
-        return {
-            label: `${pad(diffHours)}:${pad(diffMins)}:${pad(diffSecs)}`,
-            expired: false,
-        };
-    };
-
-    const getMissionRemainingTime = (expiresAtStr: string) => {
-        if (!expiresAtStr) return { label: '00:00:00', expired: true };
-        const expiresAt = new Date(expiresAtStr);
-        const diffMs = expiresAt.getTime() - now.getTime();
-        if (diffMs <= 0) return { label: 'Kedaluwarsa', expired: true };
-
-        const diffHours = Math.floor(diffMs / (1000 * 60 * 60));
-        const diffMins = Math.floor((diffMs % (1000 * 60 * 60)) / (1000 * 60));
-        const diffSecs = Math.floor((diffMs % (1000 * 60)) / 1000);
-        
-        const pad = (n: number) => n.toString().padStart(2, '0');
-        return {
-            label: `${pad(diffHours)}:${pad(diffMins)}:${pad(diffSecs)}`,
-            expired: false,
-        };
-    };
-
-    const handleTakeAgentMission = async () => {
-        setLoading(true);
-        try {
-            const res = await fetch('/api/agent-missions/take', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-CSRF-TOKEN': (document.querySelector('meta[name="csrf-token"]') as HTMLMetaElement)?.content || ''
-                }
-            });
-            const data = await res.json();
-            if (data.success) {
-                setAgentMission(data.mission);
-                showMsg(data.message);
-                router.reload();
-            } else {
-                showMsg(data.error || 'Gagal mengambil misi.', 'error');
-            }
-        } catch (err) {
-            showMsg('Koneksi terputus dengan server.', 'error');
-        } finally {
-            setLoading(false);
-        }
-    };
-
-    const handleSubmitSurvey = async (e: React.FormEvent) => {
-        e.preventDefault();
-        setLoading(true);
-        try {
-            const res = await fetch('/api/agent-missions/submit-lead', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-CSRF-TOKEN': (document.querySelector('meta[name="csrf-token"]') as HTMLMetaElement)?.content || ''
-                },
-                body: JSON.stringify(surveyData)
-            });
-            const data = await res.json();
-            if (data.success) {
-                setAgentMission(data.mission);
-                setShowSurveyModal(false);
-                showMsg(data.message);
-                router.reload();
-            } else {
-                showMsg(data.error || 'Gagal mengirim pendaftaran.', 'error');
-            }
-        } catch (err) {
-            showMsg('Server offline atau tidak dapat dihubungi.', 'error');
-        } finally {
-            setLoading(false);
-        }
-    };
-
     const formatRupiah = (val: number) => {
         return new Intl.NumberFormat('id-ID', {
             style: 'currency',
@@ -254,10 +218,10 @@ export default function Conqueror({
 
     const formatCoin = (val: number) => {
         return new Intl.NumberFormat('id-ID').format(val);
-    }
+    };
 
-    const xpThreshold = user.level * 1000;
-    const xpPercentage = Math.min((user.experience_points / xpThreshold) * 100, 100);
+    const xpThreshold = currentUser.level * 1000;
+    const xpPercentage = Math.min((currentUser.experience_points / xpThreshold) * 100, 100);
 
     const getFactionColorClass = (fac: string) => {
         switch (fac) {
@@ -267,608 +231,1082 @@ export default function Conqueror({
             default: return 'text-primary-container';
         }
     };
-
-    const factionColorClass = getFactionColorClass(user.faction);
+    const factionColorClass = getFactionColorClass(currentUser.faction);
 
     const totalDownlines = downlines.level_1.length + downlines.level_2.length;
     const transferUnlocked = totalDownlines >= 5;
 
-    return (
-        <div className="bg-background text-on-background min-h-screen relative overflow-x-hidden font-body-md text-body-md pb-[120px]">
-            <Head title="The Conqueror - Dashboard" />
+    // Daily Check-in Handler
+    const handleDailyCheckin = async () => {
+        setLoading(true);
+        try {
+            const res = await fetch('/api/checkin', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': (document.querySelector('meta[name="csrf-token"]') as HTMLMetaElement)?.content || ''
+                }
+            });
+            const data = await res.json();
+            if (data.success) {
+                setCheckinStatus({
+                    has_checked_in: true,
+                    today_checkin: data.checkin,
+                    streak_count: data.streak_count,
+                    time_window: data.time_window,
+                });
+                if (data.wallet) {
+                    setWallet(data.wallet);
+                }
+                if (data.user) {
+                    setCurrentUser(prev => ({
+                        ...prev,
+                        level: data.user.level,
+                        experience_points: data.user.experience_points,
+                    }));
+                }
+                showMsg(data.message);
+            } else {
+                showMsg(data.message || 'Gagal melakukan check-in', 'error');
+            }
+        } catch (err) {
+            showMsg('Terjadi kesalahan jaringan.', 'error');
+        } finally {
+            setLoading(false);
+        }
+    };
 
-            {/* Shared Component: TopAppBar */}
-            <header className="bg-transparent text-primary-container w-full px-margin-mobile pt-stack-md h-16 z-50 flex justify-between items-center transition-colors">
-                <button onClick={handleLogout} className="text-on-surface-variant hover:text-primary-fixed-dim transition-colors flex items-center justify-center p-2 rounded-full hover:bg-white/5 active:scale-95 duration-200">
-                    <span className="material-symbols-outlined" style={{ fontVariationSettings: "'FILL' 1" }}>logout</span>
+    // Persona Switcher Handler
+    const handleSwitchPersona = async (newPersona: string) => {
+        setLoading(true);
+        try {
+            const res = await fetch('/api/user/switch-persona', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': (document.querySelector('meta[name="csrf-token"]') as HTMLMetaElement)?.content || ''
+                },
+                body: JSON.stringify({ persona: newPersona })
+            });
+            const data = await res.json();
+            if (data.success) {
+                setCurrentUser(prev => ({ ...prev, persona: data.persona }));
+                showMsg(data.message);
+            } else {
+                showMsg(data.message || 'Gagal mengganti persona', 'error');
+            }
+        } catch (err) {
+            showMsg('Terjadi kesalahan saat mengganti persona.', 'error');
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    // Stake Quest Handler
+    const handleStakeQuest = (questId: string) => {
+        setLoading(true);
+        router.post(route('quests.stake'), { quest_id: questId }, {
+            onFinish: () => setLoading(false),
+            onSuccess: () => showMsg('Misi berhasil di-stake! Komitmen Anda terkunci di escrow.'),
+            onError: (errors: any) => showMsg(errors.error || 'Gagal melakukan staking', 'error')
+        });
+    };
+
+    // Quick POS Sale Record Handler
+    const handleRecordSale = async (e: React.FormEvent) => {
+        e.preventDefault();
+        setLoading(true);
+        try {
+            const res = await fetch('/api/pos/transaction', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': (document.querySelector('meta[name="csrf-token"]') as HTMLMetaElement)?.content || ''
+                },
+                body: JSON.stringify(posForm)
+            });
+            const data = await res.json();
+            if (data.success) {
+                setPosSummary(data.summary);
+                setShowPosModal(false);
+                setPosForm({ item: '', qty: 1, amount: 25000, method: 'QRIS' });
+                showMsg(data.message);
+            } else {
+                showMsg(data.message || 'Gagal mencatat transaksi kasir', 'error');
+            }
+        } catch (err) {
+            showMsg('Terjadi gangguan server.', 'error');
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    // Close Register Handler
+    const handleCloseRegister = async () => {
+        if (!confirm('Apakah Anda yakin ingin melakukan Tutup Buku Kasir untuk hari ini?')) return;
+        setLoading(true);
+        try {
+            const res = await fetch('/api/pos/close-register', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': (document.querySelector('meta[name="csrf-token"]') as HTMLMetaElement)?.content || ''
+                }
+            });
+            const data = await res.json();
+            if (data.success) {
+                setPosSummary(data.summary);
+                if (wallet) {
+                    setWallet({ ...wallet, silver_balance: wallet.silver_balance + 500 });
+                }
+                showMsg(data.message);
+            } else {
+                showMsg(data.message || 'Gagal menutup buku kasir', 'error');
+            }
+        } catch (err) {
+            showMsg('Koneksi terputus.', 'error');
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    // Upgrade License Handler
+    const handleUpgradeLicense = async (targetTier: string, method: string) => {
+        setLoading(true);
+        try {
+            const res = await fetch('/api/user/upgrade-license', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': (document.querySelector('meta[name="csrf-token"]') as HTMLMetaElement)?.content || ''
+                },
+                body: JSON.stringify({ target_tier: targetTier, payment_method: method })
+            });
+            const data = await res.json();
+            if (data.success) {
+                setCurrentUser(prev => ({ ...prev, license_type: data.license_type }));
+                if (data.wallet) setWallet(data.wallet);
+                setShowUpgradeModal(false);
+                showMsg(data.message);
+            } else {
+                showMsg(data.message || 'Gagal upgrade lisensi', 'error');
+            }
+        } catch (err) {
+            showMsg('Terjadi kesalahan saat memproses upgrade.', 'error');
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    // Remaining time helper
+    const getRemainingTime = (expiresAtStr: string) => {
+        const expiresAt = new Date(expiresAtStr);
+        const diffMs = expiresAt.getTime() - now.getTime();
+        if (diffMs <= 0) return { label: 'Kedaluwarsa', expired: true };
+        const diffHours = Math.floor(diffMs / (1000 * 60 * 60));
+        const diffMins = Math.floor((diffMs % (1000 * 60 * 60)) / (1000 * 60));
+        const diffSecs = Math.floor((diffMs % (1000 * 60)) / 1000);
+        const pad = (n: number) => n.toString().padStart(2, '0');
+        return { label: `${pad(diffHours)}:${pad(diffMins)}:${pad(diffSecs)}`, expired: false };
+    };
+
+    // Active quests filter
+    const activePersona = currentUser.persona || 'UMKM';
+    const currentTimeWindow = time_details?.window || 'MORNING';
+
+    const defaultQuests = quests.filter(q => q.quest_category === 'DEFAULT');
+    const timeWindowQuests = quests.filter(q => q.quest_category === 'TIME_WINDOW' && (q.time_window === currentTimeWindow || q.time_window === 'ALL'));
+    const personaQuests = quests.filter(q => q.quest_category === 'PERSONA_SPECIFIC' && (q.target_persona === activePersona || q.target_persona === 'ALL'));
+
+    const referralLink = `${window.location.origin}/register?ref=${currentUser.username || currentUser.whatsapp}`;
+    const waShareText = `Assalamu'alaikum! Bergabunglah bersama Karavan Saudagar saya di PitiCoin.id - Gerbang Ekosistem Bisnis & Gamifikasi Gunung Mas. Dapatkan 50.000 Koin Perak dan penghasilan riil! Daftar di sini: ${referralLink}`;
+
+    return (
+        <div className="bg-background text-on-background min-h-screen relative overflow-x-hidden font-body-md text-body-md pb-[120px] select-none">
+            <Head title="Markas Besar Saudagar - PitiCoin.id" />
+
+            {/* ========================================================= */}
+            {/* 1. SCROLLED VIEW: STICKY USER STAT HEADER (LAMPIRAN 2)    */}
+            {/* Muncul mulus saat scroll > 110px. ZERO text wrapping!    */}
+            {/* ========================================================= */}
+            <header
+                className={`fixed top-0 left-0 w-full z-50 transition-all duration-300 px-3 py-2 md:px-6 md:py-3 bg-obsidian-surface/95 backdrop-blur-xl border-b border-primary-container/20 shadow-[0_8px_30px_rgba(0,0,0,0.85)] ${
+                    isScrolled ? 'translate-y-0 opacity-100 pointer-events-auto' : '-translate-y-full opacity-0 pointer-events-none'
+                }`}
+            >
+                <div className="max-w-container-max mx-auto flex items-center justify-between gap-3">
+                    {/* Left: Avatar with glowing golden rounded frame & circular Level badge */}
+                    <div className="flex items-center gap-2.5 min-w-0 flex-1">
+                        <div className="relative flex-shrink-0 w-11 h-11 md:w-12 md:h-12 rounded-lg border-2 border-primary-container p-0.5 shadow-[0_0_12px_rgba(233,196,0,0.6)] bg-surface">
+                            <img
+                                alt="User Avatar"
+                                className="w-full h-full object-cover rounded-md"
+                                src="https://lh3.googleusercontent.com/aida-public/AB6AXuDi47Slkw4S4Y_KgVtZ0EISwFfTSIkSG4_2UXNIGz_TUpZPGsvQ9quu9zXxMlopsBUFeZOhn_yxJcMebklLuAHrdJXZOTxaanMZVSTn0-ghrNi4-HZtK5ZxRZPonkQg3bipaDJJjt0ghwB5GswyeN8IpGyxjzOyGGh3P6dz6mRoq-anKb_pf5frN99lP138Yfr7ElxVoaIt9Mds_TGIwKPmRA516YI1zc5MLi_Su07Z9ZLoMFO-KEQ"
+                            />
+                            <div className="absolute -bottom-1.5 -right-1.5 bg-obsidian-surface border border-primary-container text-primary-container font-mono text-[9px] font-bold w-5 h-5 flex items-center justify-center rounded-full shadow-[0_0_6px_rgba(255,215,0,0.7)]">
+                                {currentUser.level}
+                            </div>
+                        </div>
+
+                        {/* Middle: Name (yellow serif), Role, Green EXP bar, and ZERO-WRAPPED EXP text */}
+                        <div className="flex flex-col min-w-0 flex-1 max-w-[170px] md:max-w-[260px]">
+                            <h3
+                                className="font-headline-md text-sm md:text-base font-bold text-primary-container truncate leading-tight"
+                                style={{ fontFamily: "'Playfair Display', serif" }}
+                            >
+                                {currentUser.name}
+                            </h3>
+                            <div className="flex items-center gap-1.5">
+                                <span className="font-label-sm text-[9px] md:text-[10px] text-on-surface-variant uppercase tracking-wider truncate">
+                                    {currentUser.role} • {currentUser.persona}
+                                </span>
+                            </div>
+
+                            {/* Green EXP Bar */}
+                            <div className="w-full h-1.5 bg-surface-container-highest rounded-full overflow-hidden mt-1 relative">
+                                <div
+                                    className="h-full bg-secondary relative shadow-[0_0_8px_rgba(102,221,139,0.8)] transition-all duration-500"
+                                    style={{ width: `${xpPercentage}%` }}
+                                ></div>
+                            </div>
+
+                            {/* ZERO TEXT-WRAPPING EXP LABEL (Single line guaranteed!) */}
+                            <div className="flex items-center justify-between text-[9px] md:text-[10px] whitespace-nowrap font-mono text-on-surface-variant mt-0.5 leading-none">
+                                <span className="text-secondary font-semibold">EXP:</span>
+                                <span className="tracking-tight text-on-surface-variant/90">{currentUser.experience_points}/{xpThreshold}</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    {/* Right: Balances (Silver & Gold) with glowing icons */}
+                    <div className="flex flex-col gap-1.5 items-end flex-shrink-0">
+                        {/* Silver Capsule */}
+                        <div className="bg-surface-container-lowest/90 border border-glass-stroke rounded-lg px-2.5 py-0.5 flex items-center gap-1.5 shadow-inner">
+                            <span className="font-mono text-xs md:text-sm font-bold text-on-surface whitespace-nowrap">
+                                {wallet ? formatCoin(wallet.silver_balance) : 0}
+                            </span>
+                            <span className="material-symbols-outlined text-surface-variant text-[12px]" style={{ fontVariationSettings: "'FILL' 1" }}>circle</span>
+                        </div>
+
+                        {/* Gold Capsule with Gold $ Icon */}
+                        <div className="bg-primary-container/15 border border-primary-container/50 rounded-lg px-2.5 py-0.5 flex items-center gap-1.5 shadow-[0_0_8px_rgba(255,215,0,0.15)]">
+                            <span className="font-mono text-xs md:text-sm font-bold text-primary-fixed-dim whitespace-nowrap">
+                                {wallet ? formatCoin(wallet.gold_balance) : 0}
+                            </span>
+                            <span className="material-symbols-outlined text-primary-container text-[14px]" style={{ fontVariationSettings: "'FILL' 1" }}>monetization_on</span>
+                        </div>
+                    </div>
+                </div>
+            </header>
+
+            {/* ========================================================= */}
+            {/* 2. DEFAULT TOP APP BAR (Normal Top View)                  */}
+            {/* ========================================================= */}
+            <header className="bg-transparent text-primary-container w-full px-margin-mobile pt-stack-md h-16 z-40 flex justify-between items-center transition-colors">
+                <button
+                    onClick={handleLogout}
+                    title="Keluar Akun"
+                    className="text-on-surface-variant hover:text-primary-fixed-dim transition-colors flex items-center justify-center p-2 rounded-full hover:bg-white/5 active:scale-95 duration-200"
+                >
+                    <span className="material-symbols-outlined text-xl" style={{ fontVariationSettings: "'FILL' 1" }}>logout</span>
                 </button>
-                <h1 className="font-headline-lg-mobile text-headline-lg-mobile md:font-headline-md md:text-headline-md font-bold text-primary-container tracking-widest text-center flex-1" style={{ fontFamily: "'Playfair Display', serif" }}>
+                <h1
+                    className="font-headline-lg-mobile text-headline-lg-mobile md:font-headline-md md:text-headline-md font-bold text-primary-container tracking-widest text-center flex-1"
+                    style={{ fontFamily: "'Playfair Display', serif" }}
+                >
                     PITICOIN.ID
                 </h1>
-                <button className="text-on-surface-variant hover:text-primary-fixed-dim transition-colors w-10 h-10 rounded-full overflow-hidden border-2 border-glass-stroke active:scale-95 duration-200">
-                    <img alt="Explorer Rank Icon" className="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDtnNnM6GYAk06weL4J1x3GacDiwegweSKP84SJLeHNza0vvwlFwOUmt95Zp-S_X6zG6qkVVm-b90g6cINFPfuTa-nBO-3nCvwowsn452NwPmp6pNvXqVPhxwzPz2t4xwLoiP_EH1vm9bu1Q57t2jjgzGpaiXRk_NOuzg4GfBJ4rpt0dZrV5lN1gNXxvmoF9bCGXy8lMrSt6FfvwopiDszDU135FTdSvBO4XcYORkyfoUAviuDfWCA"/>
+                <button
+                    onClick={() => setShowUpgradeModal(true)}
+                    className="text-on-surface-variant hover:text-primary-fixed-dim transition-colors w-10 h-10 rounded-full overflow-hidden border-2 border-primary-container shadow-[0_0_10px_rgba(255,215,0,0.4)] active:scale-95 duration-200"
+                >
+                    <img
+                        alt="Explorer Rank Icon"
+                        className="w-full h-full object-cover"
+                        src="https://lh3.googleusercontent.com/aida-public/AB6AXuDtnNnM6GYAk06weL4J1x3GacDiwegweSKP84SJLeHNza0vvwlFwOUmt95Zp-S_X6zG6qkVVm-b90g6cINFPfuTa-nBO-3nCvwowsn452NwPmp6pNvXqVPhxwzPz2t4xwLoiP_EH1vm9bu1Q57t2jjgzGpaiXRk_NOuzg4GfBJ4rpt0dZrV5lN1gNXxvmoF9bCGXy8lMrSt6FfvwopiDszDU135FTdSvBO4XcYORkyfoUAviuDfWCA"
+                    />
                 </button>
             </header>
 
-            <main className="relative z-10 w-full max-w-container-max mx-auto px-margin-mobile md:px-margin-desktop flex flex-col gap-stack-lg">
-                
+            <main className="relative z-10 w-full max-w-container-max mx-auto px-margin-mobile md:px-margin-desktop flex flex-col gap-5">
+                {/* Notification toast */}
                 {message && (
-                    <div className={`mt-4 rounded-xl p-3 border text-sm font-bold tracking-wide ${message.type === 'error' ? 'bg-error-container/20 border-error/50 text-error' : 'bg-secondary-container/20 border-secondary/50 text-secondary'}`}>
+                    <div
+                        className={`rounded-xl p-3 border text-xs md:text-sm font-bold tracking-wide animate-fade-in ${
+                            message.type === 'error'
+                                ? 'bg-error-container/20 border-error/50 text-error'
+                                : 'bg-secondary-container/20 border-secondary/50 text-secondary'
+                        }`}
+                    >
                         {message.text}
                     </div>
                 )}
 
-                {/* Header (The Ledger Pool) */}
-                <section className="flex flex-col items-center justify-center text-center mt-stack-md">
-                    <p className="font-label-sm text-label-sm text-on-surface-variant uppercase tracking-widest mb-2 flex items-center gap-2">
+                {/* ========================================================= */}
+                {/* 3. HERO: THE LEDGER POOL (LAMPIRAN 1)                     */}
+                {/* Tetap berada di header atas dashboard                     */}
+                {/* ========================================================= */}
+                <section className="flex flex-col items-center justify-center text-center mt-1">
+                    <p className="font-label-sm text-label-sm text-on-surface-variant uppercase tracking-widest mb-1.5 flex items-center gap-2">
                         <span className="w-2 h-2 rounded-full bg-primary-container animate-pulse"></span>
-                        The Ledger Pool
+                        THE LEDGER POOL
                     </p>
-                    <h2 className="font-display-hero text-[40px] md:text-display-hero text-primary-fixed-dim drop-shadow-[0_0_15px_rgba(233,196,0,0.4)] transition-all duration-300" style={{ fontFamily: "'Playfair Display', serif" }}>
+                    <h2
+                        className="font-display-hero text-[38px] md:text-display-hero text-primary-fixed-dim drop-shadow-[0_0_18px_rgba(233,196,0,0.45)] transition-all duration-300 tracking-tight"
+                        style={{ fontFamily: "'Playfair Display', serif" }}
+                    >
                         {formatRupiah(animatedFiat)}
                     </h2>
-                    <div className="mt-4 glass-panel rounded-full px-6 py-2 inline-flex items-center gap-2 border-t-primary-container/30">
+                    <div className="mt-3 glass-panel rounded-full px-5 py-1.5 inline-flex items-center gap-2 border border-primary-container/30 shadow-[0_2px_12px_rgba(0,0,0,0.4)]">
                         <span className="material-symbols-outlined text-secondary-fixed-dim text-sm" style={{ fontVariationSettings: "'FILL' 1" }}>trending_up</span>
-                        <p className="font-label-sm text-label-sm text-secondary-fixed-dim">
+                        <p className="font-label-sm text-xs text-secondary-fixed-dim whitespace-nowrap">
                             Omset Pasukan Anda: +{formatCoin(passive_income)} Koin
                         </p>
                     </div>
-                </section>
 
-                {/* Core Object: The Golden Mountain & Menus (Bento Grid) */}
-                <section className="grid grid-cols-2 md:grid-cols-4 gap-4 mt-stack-sm">
-                    {/* Centerpiece: Golden Mountain */}
-                    <div className="col-span-2 md:col-span-2 row-span-2 glass-panel rounded-xl overflow-hidden relative group border-t-[1px] border-t-primary-container/40 bloom-gold transition-all duration-500 hover:border-primary-container min-h-[220px]">
-                        <div className="absolute inset-0 bg-cover bg-center transition-transform duration-700 group-hover:scale-105 opacity-80 mix-blend-luminosity group-hover:mix-blend-normal" style={{ backgroundImage: "url('https://lh3.googleusercontent.com/aida-public/AB6AXuBomh5nZA8r1Hn37i86UlZRJTJTTqOgkVNgNClIrvnNsVm4FLdwG9A0BDaTt6JAO5HC40cuBByuI0cZIKQlibhdE-wSEcUYxFpIVpnIE5oluyoS6p2D2oVA-bhdf7xwLMViQqzNhFLLWoMm1QYKM9ewl_zkzE9_BOmajzRCLR0LcohF_qm9Y0-9T2CHRM1TDxtTVc4bsCxF6IjL5tC0gVPDIoJPeWDOiCMaDwJIR03J4opa5EOpKgk')" }}></div>
-                        <div className="absolute inset-0 bg-gradient-to-t from-obsidian-surface via-transparent to-transparent"></div>
-                        <div className="absolute bottom-0 left-0 w-full p-6 flex flex-col items-start z-10">
-                            <div className="bg-primary-container/20 backdrop-blur-md rounded-full px-3 py-1 border border-primary-container/30 mb-2">
-                                <span className="font-label-sm text-[10px] text-primary-container font-bold tracking-widest">MARKAS BESAR</span>
-                            </div>
-                            <h3 className="font-headline-md text-headline-md text-on-background font-bold mb-1 group-hover:text-primary-container transition-colors" style={{ fontFamily: "'Playfair Display', serif" }}>The Golden Vault</h3>
-                            <p className="font-body-md text-body-md text-on-surface-variant/80 text-sm">Pusat komando kekayaan Anda.</p>
-                        </div>
-                        <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent -translate-x-full group-hover:animate-[shimmer_1.5s_infinite] pointer-events-none"></div>
-                    </div>
-                    
-                    {/* Menu 1 */}
-                    <Link href="/auction" className="glass-panel rounded-xl p-4 flex flex-col items-center justify-center gap-3 relative hover:border-primary-container/50 hover:bg-surface-container-high/50 transition-all active:scale-95 group">
-                        <div className="w-12 h-12 rounded-full neumorphic-inset flex items-center justify-center group-hover:shadow-[inset_0_0_10px_rgba(255,215,0,0.2)] transition-shadow">
-                            <span className="material-symbols-outlined text-on-surface-variant group-hover:text-primary-container" style={{ fontVariationSettings: "'FILL' 1" }}>storefront</span>
-                        </div>
-                        <span className="font-label-sm text-label-sm text-on-surface text-center">Bursa P2P</span>
-                    </Link>
-                    
-                    {/* Menu 2 */}
-                    <Link href="/digital-goods" className="glass-panel rounded-xl p-4 flex flex-col items-center justify-center gap-3 hover:border-primary-container/50 hover:bg-surface-container-high/50 transition-all active:scale-95 group">
-                        <div className="absolute -top-2 -right-2 bg-primary-container text-on-primary-container font-label-sm text-[10px] w-5 h-5 flex items-center justify-center rounded-full border border-surface shadow-[0_0_10px_rgba(255,215,0,0.5)] z-10">
-                            !
-                        </div>
-                        <div className="w-12 h-12 rounded-full neumorphic-inset flex items-center justify-center group-hover:shadow-[inset_0_0_10px_rgba(255,215,0,0.2)] transition-shadow">
-                            <span className="material-symbols-outlined text-on-surface-variant group-hover:text-primary-container" style={{ fontVariationSettings: "'FILL' 1" }}>phone_iphone</span>
-                        </div>
-                        <span className="font-label-sm text-label-sm text-on-surface text-center">Lebur Koin</span>
-                    </Link>
-                    
-                    {/* Menu 3 */}
-                    <a href="/games/harta-karun/index.html" target="_blank" className="glass-panel rounded-xl p-4 flex flex-col items-center justify-center gap-3 hover:border-primary-container/50 hover:bg-surface-container-high/50 transition-all active:scale-95 group">
-                        <div className="w-12 h-12 rounded-full neumorphic-inset flex items-center justify-center group-hover:shadow-[inset_0_0_10px_rgba(255,215,0,0.2)] transition-shadow">
-                            <span className="material-symbols-outlined text-on-surface-variant group-hover:text-primary-container" style={{ fontVariationSettings: "'FILL' 1" }}>casino</span>
-                        </div>
-                        <span className="font-label-sm text-label-sm text-on-surface text-center">Harta Karun</span>
-                    </a>
-                    
-                    {/* Menu 4: Misi Agen */}
-                    <button onClick={() => setShowMissionModal(true)} className="glass-panel rounded-xl p-4 flex flex-col items-center justify-center gap-3 hover:border-primary-container/50 hover:bg-surface-container-high/50 transition-all active:scale-95 group relative">
-                        {agentMission && (agentMission.status === 'active' || agentMission.status === 'completed') && (
-                            <div className="absolute -top-2 -right-2 bg-secondary text-on-secondary font-label-sm text-[10px] w-5 h-5 flex items-center justify-center rounded-full border border-surface shadow-[0_0_10px_rgba(102,221,139,0.5)] z-10 animate-pulse">
-                                1
-                            </div>
-                        )}
-                        <div className="w-12 h-12 rounded-full neumorphic-inset flex items-center justify-center group-hover:shadow-[inset_0_0_10px_rgba(255,215,0,0.2)] transition-shadow">
-                            <span className="material-symbols-outlined text-on-surface-variant group-hover:text-primary-container" style={{ fontVariationSettings: "'FILL' 1" }}>assignment_ind</span>
-                        </div>
-                        <span className="font-label-sm text-label-sm text-on-surface text-center">Misi Agen</span>
-                    </button>
-                </section>
-
-                {/* Campaign Board (Active Escrows) */}
-                <section className="mt-stack-md flex flex-col gap-4">
-                    <div className="flex justify-between items-end border-b border-glass-stroke pb-2">
-                        <h3 className="font-headline-md text-headline-md text-on-surface flex items-center gap-2" style={{ fontFamily: "'Playfair Display', serif" }}>
-                            <span className={`material-symbols-outlined ${factionColorClass}`} style={{ fontVariationSettings: "'FILL' 1" }}>explore</span>
-                            Campaign Board
-                        </h3>
-                        <span className={`font-label-sm text-label-sm ${factionColorClass} border border-current/30 bg-current/10 px-2 py-1 rounded tracking-widest`}>AKTIF & MENDESAK</span>
-                    </div>
-                    
-                    {escrows.filter(e => e.status === 'LOCKED').length === 0 ? (
-                        <div className="text-center text-sm text-on-surface-variant py-8 border border-dashed border-glass-stroke rounded-xl">
-                            Tidak ada ekspedisi aktif. Silakan pilih misi di bawah.
-                        </div>
-                    ) : (
-                        escrows.filter((e) => e.status === 'LOCKED').map((escrow) => {
-                            const timer = getRemainingTime(escrow.expires_at);
-                            return (
-                                <div key={escrow.id} className={`relative glass-panel rounded-xl overflow-hidden ${factionColorClass === 'text-faction-nisnas' ? 'border-faction-nisnas/50 bloom-emerald' : 'border-primary-container/50 bloom-gold'} p-1`}>
-                                    <div className="absolute inset-0 bg-cover bg-center opacity-20" style={{ backgroundImage: "url('https://lh3.googleusercontent.com/aida-public/AB6AXuCIOydMCIt9iFaAtXxV3L1XRjCJpm6wYNae7NplRSqtjhwfxVQFycTahm1vcMZgqfliwLkYtWP69XnaoeKAoH6VW6JTm8OrNx-gFItdnAGgBaxIdbf09D8_6vd0GMAhWk1A29mTDDqHOWH-23zsNzGYj-cA-0TmTU1C4xbyVCNa9Ek_R05OtihKnVUM8fQV1OnekAFuMi45hR2yXUnMnS4gRUfez1LqvreSTfmezU2n4ZQ9yQXNW8Q')" }}></div>
-                                    <div className="relative z-10 bg-surface-container-lowest/80 backdrop-blur-md rounded-lg p-5 flex flex-col gap-4">
-                                        <div className="flex justify-between items-start">
-                                            <div>
-                                                <h4 className="font-headline-lg-mobile text-[22px] md:text-headline-lg text-on-background font-bold mb-1" style={{ fontFamily: "'Playfair Display', serif" }}>{escrow.quest.title}</h4>
-                                                <p className="font-body-md text-body-md text-on-surface-variant flex items-center gap-1 text-sm">
-                                                    <span className="material-symbols-outlined text-sm">location_on</span> Zona Sektor Ekspedisi
-                                                </p>
-                                            </div>
-                                            <div className="text-right">
-                                                <p className="font-label-sm text-label-sm text-on-surface-variant mb-1">Staked</p>
-                                                <p className="font-label-sm text-label-sm text-primary-container bg-primary-container/10 px-3 py-1 rounded border border-primary-container/20 inline-block">{formatCoin(escrow.staked_silver)} Perak</p>
-                                            </div>
-                                        </div>
-                                        
-                                        <div className="bg-surface/50 rounded-lg p-3 border border-glass-stroke flex justify-between items-center">
-                                            <span className="font-label-sm text-label-sm text-on-surface-variant">Sisa Waktu</span>
-                                            <span className={`font-label-sm text-label-sm font-bold tracking-wider flex items-center gap-1 ${timer.expired ? 'text-error' : 'animate-blink-red'}`}>
-                                                <span className="material-symbols-outlined text-sm">timer</span>
-                                                {isMounted ? timer.label : '--:--:--'}
-                                            </span>
-                                        </div>
-
-                                        <div className="flex gap-2 w-full mt-2">
-                                            <button
-                                                onClick={() => handleResolveQuest(escrow.id, true)}
-                                                disabled={loading || timer.expired}
-                                                className="flex-1 py-3 rounded-lg bg-primary-container text-on-primary font-label-sm text-label-sm font-bold tracking-widest bloom-gold-intense hover:bg-primary-fixed-dim hover:scale-[1.02] transition-all active:scale-95 disabled:opacity-50"
-                                            >
-                                                [LAPORKAN SUKSES]
-                                            </button>
-                                            <button
-                                                onClick={() => handleResolveQuest(escrow.id, false)}
-                                                disabled={loading}
-                                                className="flex-1 py-3 rounded-lg bg-surface-variant text-error font-label-sm text-label-sm font-bold tracking-widest border border-error/30 hover:bg-error/20 hover:scale-[1.02] transition-all active:scale-95 disabled:opacity-50"
-                                            >
-                                                [GAGAL]
-                                            </button>
-                                        </div>
-                                    </div>
-                                </div>
-                            );
-                        })
+                    {/* Prominent Upgrade Button if not maximum tier */}
+                    {currentUser.license_type !== 'SAUDAGAR' && (
+                        <button
+                            onClick={() => setShowUpgradeModal(true)}
+                            className="mt-3 inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-gradient-to-r from-amber-500/20 via-primary-container/30 to-amber-500/20 border border-primary-container text-primary-container text-xs font-bold uppercase tracking-wider hover:scale-105 active:scale-95 transition-transform shadow-[0_0_15px_rgba(255,215,0,0.3)] animate-pulse"
+                        >
+                            <span className="material-symbols-outlined text-sm">stars</span>
+                            <span>Upgrade Lisensi Saudagar</span>
+                        </button>
                     )}
                 </section>
 
-                {/* Available Quests */}
-                <section className="mt-stack-md flex flex-col gap-4">
-                    <div className="flex justify-between items-end border-b border-glass-stroke pb-2">
-                        <h3 className="font-headline-md text-headline-md text-on-surface flex items-center gap-2" style={{ fontFamily: "'Playfair Display', serif" }}>
-                            <span className="material-symbols-outlined text-on-surface-variant" style={{ fontVariationSettings: "'FILL' 1" }}>map</span>
-                            Misi Harian Tersedia
-                        </h3>
-                    </div>
-                    
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        {quests.map((quest) => (
-                            <div key={quest.id} className="glass-panel rounded-xl p-5 hover:border-primary-container/30 transition-colors flex flex-col justify-between">
-                                <div>
-                                    <h4 className="font-body-lg text-lg font-bold text-on-surface mb-2">{quest.title}</h4>
-                                    <p className="font-body-md text-sm text-on-surface-variant mb-4">{quest.description}</p>
-                                    
-                                    <div className="flex justify-between items-center bg-surface-container-lowest/50 rounded-lg p-3 border border-glass-stroke mb-4">
-                                        <div className="text-center">
-                                            <span className="font-label-sm text-[10px] text-on-surface-variant block mb-1">STAKE</span>
-                                            <span className="font-bold text-sm text-on-surface">{formatCoin(quest.stake_amount_silver)} Perak</span>
-                                        </div>
-                                        <div className="text-center">
-                                            <span className="font-label-sm text-[10px] text-primary-fixed-dim block mb-1">REWARD</span>
-                                            <span className="font-bold text-sm text-primary-container">+{formatCoin(quest.reward_amount_gold)} Emas</span>
-                                        </div>
-                                        <div className="text-center">
-                                            <span className="font-label-sm text-[10px] text-on-surface-variant block mb-1">LIMIT</span>
-                                            <span className="font-bold text-sm text-on-surface">{quest.time_limit_hours} Jam</span>
-                                        </div>
-                                    </div>
-                                </div>
-                                
-                                {wallet && Number(wallet.silver_balance) < Number(quest.stake_amount_silver) ? (
-                                    <button disabled className="w-full py-3 rounded-lg bg-surface-variant text-on-surface-variant font-label-sm text-sm font-bold tracking-widest cursor-not-allowed">
-                                        SALDO PERAK KURANG
-                                    </button>
-                                ) : (
-                                    <button onClick={() => handleStakeQuest(quest.id)} disabled={loading} className="w-full py-3 rounded-lg bg-primary-container text-on-primary font-label-sm text-sm font-bold tracking-widest hover:bg-primary-fixed-dim hover:scale-[1.02] transition-all active:scale-95">
-                                        AMBIL MISI INI
-                                    </button>
-                                )}
-                            </div>
-                        ))}
-                    </div>
-                </section>
+                {/* ========================================================= */}
+                {/* 4. PERSONA SWITCHER QUICK BAR (MULTI-ROLE ADAPTATION)     */}
+                {/* ========================================================= */}
+                <div className="w-full bg-surface-container-lowest/60 border border-glass-stroke rounded-xl p-1.5 flex items-center justify-between gap-1 overflow-x-auto text-[11px] font-bold">
+                    <span className="text-on-surface-variant text-[10px] uppercase pl-2 pr-1 tracking-wider whitespace-nowrap">Peran:</span>
+                    {[
+                        { id: 'UMKM', label: 'UMKM / Bisnis', icon: 'storefront' },
+                        { id: 'PEMUDA', label: 'Pemuda / Agen', icon: 'hub' },
+                        { id: 'GURU', label: 'Guru / Tutor', icon: 'school' },
+                        { id: 'PELAJAR', label: 'Pelajar / Siswa', icon: 'local_library' },
+                    ].map((p) => (
+                        <button
+                            key={p.id}
+                            onClick={() => handleSwitchPersona(p.id)}
+                            disabled={loading}
+                            className={`flex-1 min-w-[95px] py-1.5 px-2 rounded-lg flex items-center justify-center gap-1.5 transition-all ${
+                                activePersona === p.id
+                                    ? 'bg-primary-container text-on-primary shadow-[0_0_10px_rgba(255,215,0,0.4)]'
+                                    : 'text-on-surface-variant hover:text-on-surface hover:bg-white/5'
+                            }`}
+                        >
+                            <span className="material-symbols-outlined text-[13px]">{p.icon}</span>
+                            <span className="whitespace-nowrap">{p.label}</span>
+                        </button>
+                    ))}
+                </div>
 
-                {/* Processing Deep (Mini-games / Features) */}
-                <section className="mt-stack-sm grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div className="glass-panel rounded-xl p-5 border-l-4 border-l-faction-human">
-                        <div className="flex items-center gap-3 mb-4">
-                            <div className="w-10 h-10 rounded-full bg-faction-human/20 flex items-center justify-center text-faction-human border border-faction-human/30">
-                                <span className="material-symbols-outlined" style={{ fontVariationSettings: "'FILL' 1" }}>hub</span>
+                {/* ========================================================= */}
+                {/* 5. MANDATORY DAILY CHECK-IN: KOMPAS PETUALANGAN           */}
+                {/* Gatekeeper untuk membuka misi & retensi harian             */}
+                {/* ========================================================= */}
+                <section className="glass-panel rounded-2xl p-4 border border-primary-container/30 relative overflow-hidden bg-gradient-to-br from-surface-container-high/40 via-surface/60 to-surface-container-lowest/90">
+                    <div className="flex items-center justify-between border-b border-glass-stroke pb-3 mb-3">
+                        <div className="flex items-center gap-2.5">
+                            <div className={`w-9 h-9 rounded-xl flex items-center justify-center ${checkinStatus.has_checked_in ? 'bg-secondary/20 text-secondary border border-secondary/30' : 'bg-primary-container/20 text-primary-container border border-primary-container/30'}`}>
+                                <span className="material-symbols-outlined text-lg" style={{ fontVariationSettings: "'FILL' 1" }}>explore</span>
                             </div>
                             <div>
-                                <h4 className="font-body-lg text-body-lg font-bold text-on-surface">Jaringan Afiliasi</h4>
-                                <p className="font-label-sm text-[10px] text-on-surface-variant">Sistem stabil. Total Downline: {totalDownlines}</p>
+                                <h3 className="font-bold text-sm text-on-surface flex items-center gap-1.5">
+                                    Kompas Harian & Absensi
+                                    {checkinStatus.has_checked_in && (
+                                        <span className="font-mono text-[10px] text-secondary bg-secondary/10 px-2 py-0.5 rounded border border-secondary/20">
+                                            AKTIF
+                                        </span>
+                                    )}
+                                </h3>
+                                <p className="text-[11px] text-on-surface-variant">
+                                    {time_details?.label || 'Horizon Niaga'} • {time_details?.time_range || '05:00 - 23:59 WIB'}
+                                </p>
                             </div>
                         </div>
-                        <div className="w-full h-2 bg-surface-container-highest rounded-full overflow-hidden">
-                            <div className="h-full bg-faction-human relative" style={{ width: '100%' }}>
-                                <div className="absolute inset-0 bg-white/20 animate-[shimmer_2s_infinite]"></div>
-                            </div>
+
+                        {/* Streak Counter Pill */}
+                        <div className="text-right">
+                            <span className="text-[10px] text-on-surface-variant block uppercase">Streak</span>
+                            <span className="font-mono text-sm font-bold text-primary-container flex items-center justify-end gap-1">
+                                🔥 {checkinStatus.streak_count} Hari
+                            </span>
                         </div>
                     </div>
-                    
-                    <div className={`glass-panel rounded-xl p-5 border-l-4 ${transferUnlocked ? 'border-l-secondary opacity-100' : 'border-l-surface-variant opacity-80'}`}>
-                        <div className="flex items-center gap-3 mb-4">
-                            <div className={`w-10 h-10 rounded-full flex items-center justify-center border ${transferUnlocked ? 'bg-secondary/20 text-secondary border-secondary/30' : 'bg-surface-variant/50 text-on-surface-variant border-glass-stroke'}`}>
-                                <span className="material-symbols-outlined" style={{ fontVariationSettings: transferUnlocked ? "'FILL' 1" : "'FILL' 0" }}>{transferUnlocked ? 'check_circle' : 'lock'}</span>
+
+                    {/* Time Window Buff Banner */}
+                    <div className="bg-primary-container/10 border border-primary-container/25 rounded-xl p-2.5 flex items-center justify-between gap-2 mb-3">
+                        <div className="flex items-center gap-2 min-w-0">
+                            <span className="material-symbols-outlined text-primary-container text-base">{time_details?.icon || 'wb_sunny'}</span>
+                            <span className="text-[11px] text-on-surface-variant truncate">
+                                {time_details?.buff || 'Buff Waktu Aktif'}
+                            </span>
+                        </div>
+                        <span className="font-mono text-[10px] font-bold text-primary-container bg-primary-container/20 px-2 py-0.5 rounded whitespace-nowrap">
+                            {time_details?.buff_badge || '+10% XP'}
+                        </span>
+                    </div>
+
+                    {/* Action Button: Check-in / Status */}
+                    {!checkinStatus.has_checked_in ? (
+                        <button
+                            onClick={handleDailyCheckin}
+                            disabled={loading}
+                            className="w-full py-3.5 rounded-xl bg-gradient-to-r from-amber-500 via-primary-container to-amber-400 text-on-primary font-bold text-xs md:text-sm tracking-wider uppercase hover:brightness-110 active:scale-95 transition-all shadow-[0_0_20px_rgba(255,215,0,0.5)] flex items-center justify-center gap-2"
+                        >
+                            <span className="material-symbols-outlined text-lg">touch_app</span>
+                            <span>Aktivasi Kompas Hari Ini (+250 Perak)</span>
+                        </button>
+                    ) : (
+                        <div className="grid grid-cols-3 gap-2 text-center text-[10px]">
+                            <div className="bg-surface/50 border border-glass-stroke rounded-lg p-2">
+                                <span className="text-on-surface-variant block mb-0.5">Hadiah Perak</span>
+                                <strong className="text-on-surface font-mono text-xs">+250 Perak</strong>
                             </div>
-                            <div className="flex-1">
-                                <h4 className="font-body-lg text-body-lg font-bold text-on-surface-variant flex items-center gap-2">
-                                    Fitur Transfer 
-                                    {!transferUnlocked && <span className="font-label-sm text-[10px] text-error bg-error/10 px-2 py-0.5 rounded border border-error/20">Terkunci</span>}
-                                    {transferUnlocked && <span className="font-label-sm text-[10px] text-secondary bg-secondary/10 px-2 py-0.5 rounded border border-secondary/20">Terbuka</span>}
-                                </h4>
-                                {!transferUnlocked && <p className="font-label-sm text-[10px] text-on-surface-variant/70 mt-1">Butuh {Math.max(0, 5 - totalDownlines)} Downline lagi</p>}
+                            <div className="bg-surface/50 border border-glass-stroke rounded-lg p-2">
+                                <span className="text-on-surface-variant block mb-0.5">Poin EXP</span>
+                                <strong className="text-secondary font-mono text-xs">+25 EXP</strong>
+                            </div>
+                            <div className="bg-surface/50 border border-glass-stroke rounded-lg p-2">
+                                <span className="text-on-surface-variant block mb-0.5">Milestone 7d</span>
+                                <strong className="text-primary-container font-mono text-xs">+1 Koin Emas</strong>
                             </div>
                         </div>
-                        {/* Progress Bar */}
-                        <div className="w-full flex flex-col gap-1">
-                            <div className="flex justify-between font-label-sm text-[10px] text-on-surface-variant">
-                                <span>Progress</span>
-                                <span>{Math.min(totalDownlines, 5)}/5</span>
+                    )}
+                </section>
+
+                {/* ========================================================= */}
+                {/* 6. TAB SELECTOR NAVIGATION (MOBILE-FIRST ERGONOMICS)      */}
+                {/* ========================================================= */}
+                <div className="grid grid-cols-4 gap-1.5 bg-surface-container-lowest/80 p-1.5 rounded-xl border border-glass-stroke">
+                    {[
+                        { id: 'QUESTS', label: 'Misi', icon: 'assignment' },
+                        { id: 'NETWORK', label: 'Jaringan', icon: 'diversity_3' },
+                        { id: 'BUSINESS', label: 'Bisnis POS', icon: 'point_of_sale' },
+                        { id: 'MARKET', label: 'Pasar', icon: 'storefront' },
+                    ].map((tab) => (
+                        <button
+                            key={tab.id}
+                            onClick={() => setActiveTab(tab.id as any)}
+                            className={`py-2 px-1 rounded-lg flex flex-col items-center justify-center gap-1 transition-all ${
+                                activeTab === tab.id
+                                    ? 'bg-primary-container/20 border border-primary-container/50 text-primary-container shadow-[0_0_10px_rgba(255,215,0,0.2)]'
+                                    : 'text-on-surface-variant hover:text-on-surface hover:bg-white/5'
+                            }`}
+                        >
+                            <span className="material-symbols-outlined text-base">{tab.icon}</span>
+                            <span className="font-label-sm text-[10px] font-bold uppercase">{tab.label}</span>
+                        </button>
+                    ))}
+                </div>
+
+                {/* ========================================================= */}
+                {/* TAB CONTENT 1: DAFTAR MISI DINAMIS (QUESTS)               */}
+                {/* ========================================================= */}
+                {activeTab === 'QUESTS' && (
+                    <div className="space-y-5 animate-fade-in">
+                        {/* Lock Warning if not checked in */}
+                        {!checkinStatus.has_checked_in && (
+                            <div className="glass-panel border border-amber-500/50 rounded-2xl p-4 text-center space-y-2 bg-amber-500/10">
+                                <span className="material-symbols-outlined text-3xl text-primary-container animate-bounce">lock</span>
+                                <h4 className="font-bold text-sm text-on-surface">Misi Harian Terkunci!</h4>
+                                <p className="text-xs text-on-surface-variant max-w-xs mx-auto">
+                                    Silakan lakukan check-in pada kartu <strong>Kompas Harian</strong> di atas untuk membuka seluruh misi dan mengklaim Koin Emas.
+                                </p>
                             </div>
-                            <div className="w-full h-2 bg-surface-container-highest rounded-full overflow-hidden flex gap-1 p-[1px]">
-                                {[...Array(5)].map((_, i) => (
-                                    <div key={i} className={`h-full flex-1 rounded-sm ${i < totalDownlines ? (i === totalDownlines - 1 ? 'bg-primary-fixed/50 shadow-[0_0_5px_rgba(255,225,109,0.5)]' : 'bg-primary-fixed/50') : 'bg-transparent border border-glass-stroke'}`}></div>
+                        )}
+
+                        {/* Active Escrow Campaign if any */}
+                        {escrows.filter(e => e.status === 'LOCKED').length > 0 && (
+                            <div className="space-y-3">
+                                <h3 className="font-bold text-xs uppercase tracking-wider text-primary-container flex items-center gap-1.5">
+                                    <span className="w-2 h-2 rounded-full bg-primary-container animate-pulse"></span>
+                                    Ekspedisi Berjalan (Escrow Terkunci)
+                                </h3>
+                                {escrows.filter(e => e.status === 'LOCKED').map((escrow) => (
+                                    <div key={escrow.id} className="glass-panel rounded-xl p-4 border border-primary-container/40 space-y-2">
+                                        <div className="flex justify-between items-start">
+                                            <h4 className="font-bold text-sm text-on-surface">{escrow.quest.title}</h4>
+                                            <span className="font-mono text-xs text-error font-bold">
+                                                {isMounted ? getRemainingTime(escrow.expires_at).label : '--:--:--'}
+                                            </span>
+                                        </div>
+                                        <div className="flex justify-between text-xs text-on-surface-variant pt-1 border-t border-glass-stroke">
+                                            <span>Staking: <strong>{formatCoin(escrow.staked_silver)} Perak</strong></span>
+                                            <span className="text-primary-container font-bold">+{formatCoin(escrow.quest.reward_amount_gold)} Emas</span>
+                                        </div>
+                                    </div>
+                                ))}
+                            </div>
+                        )}
+
+                        {/* Group 1: Task Default (Standar Seluruh Pengguna) */}
+                        <div className="space-y-3">
+                            <div className="flex justify-between items-center">
+                                <h4 className="font-bold text-xs text-on-surface uppercase tracking-wider flex items-center gap-1.5">
+                                    <span className="material-symbols-outlined text-sm text-secondary">verified</span>
+                                    Tugas Default (Standar Seluruh Pengguna)
+                                </h4>
+                                <span className="text-[10px] text-on-surface-variant">5 Tugas Harian</span>
+                            </div>
+
+                            <div className="grid grid-cols-1 gap-2.5">
+                                {defaultQuests.map((quest) => (
+                                    <div
+                                        key={quest.id}
+                                        className={`glass-panel rounded-xl p-3.5 border border-glass-stroke flex items-center justify-between gap-3 ${
+                                            !checkinStatus.has_checked_in ? 'opacity-50 pointer-events-none' : ''
+                                        }`}
+                                    >
+                                        <div className="min-w-0 flex-1">
+                                            <h5 className="font-bold text-xs text-on-surface truncate">{quest.title}</h5>
+                                            <p className="text-[11px] text-on-surface-variant truncate">{quest.description}</p>
+                                            <div className="flex items-center gap-2 mt-1 font-mono text-[10px]">
+                                                {quest.stake_amount_silver > 0 ? (
+                                                    <span className="text-on-surface-variant">Stake: {formatCoin(quest.stake_amount_silver)} Perak</span>
+                                                ) : (
+                                                    <span className="text-secondary">Tanpa Stake</span>
+                                                )}
+                                                {quest.reward_amount_gold > 0 && (
+                                                    <span className="text-primary-container font-bold">+{quest.reward_amount_gold} Emas</span>
+                                                )}
+                                            </div>
+                                        </div>
+
+                                        <button
+                                            onClick={() => handleStakeQuest(quest.id)}
+                                            disabled={loading || !checkinStatus.has_checked_in}
+                                            className="px-3 py-1.5 rounded-lg bg-surface-container-high hover:bg-primary-container hover:text-on-primary border border-glass-stroke text-[11px] font-bold whitespace-nowrap transition-colors"
+                                        >
+                                            Ambil
+                                        </button>
+                                    </div>
+                                ))}
+                            </div>
+                        </div>
+
+                        {/* Group 2: Misi Horizon Waktu (Time-Dynamic) */}
+                        <div className="space-y-3">
+                            <div className="flex justify-between items-center">
+                                <h4 className="font-bold text-xs text-on-surface uppercase tracking-wider flex items-center gap-1.5">
+                                    <span className="material-symbols-outlined text-sm text-primary-container">{time_details?.icon || 'schedule'}</span>
+                                    Misi Waktu: {time_details?.label || 'Horizon Fajar'}
+                                </h4>
+                                <span className="font-mono text-[10px] text-primary-container bg-primary-container/10 px-2 py-0.5 rounded border border-primary-container/20">
+                                    {time_details?.buff_badge || '+10% XP'}
+                                </span>
+                            </div>
+
+                            <div className="grid grid-cols-1 gap-2.5">
+                                {timeWindowQuests.map((quest) => (
+                                    <div
+                                        key={quest.id}
+                                        className={`glass-panel rounded-xl p-3.5 border border-primary-container/30 flex items-center justify-between gap-3 ${
+                                            !checkinStatus.has_checked_in ? 'opacity-50 pointer-events-none' : ''
+                                        }`}
+                                    >
+                                        <div className="min-w-0 flex-1">
+                                            <h5 className="font-bold text-xs text-on-surface truncate">{quest.title}</h5>
+                                            <p className="text-[11px] text-on-surface-variant truncate">{quest.description}</p>
+                                            <div className="flex items-center gap-2 mt-1 font-mono text-[10px]">
+                                                <span className="text-on-surface-variant">Stake: {formatCoin(quest.stake_amount_silver)} Perak</span>
+                                                <span className="text-primary-container font-bold">+{quest.reward_amount_gold} Emas</span>
+                                            </div>
+                                        </div>
+
+                                        <button
+                                            onClick={() => handleStakeQuest(quest.id)}
+                                            disabled={loading || !checkinStatus.has_checked_in}
+                                            className="px-3.5 py-1.5 rounded-lg bg-primary-container text-on-primary font-bold text-[11px] whitespace-nowrap hover:scale-105 active:scale-95 transition-transform shadow-[0_0_8px_rgba(255,215,0,0.3)]"
+                                        >
+                                            Eksekusi
+                                        </button>
+                                    </div>
+                                ))}
+                            </div>
+                        </div>
+
+                        {/* Group 3: Misi Persona ({activePersona}) */}
+                        <div className="space-y-3">
+                            <div className="flex justify-between items-center">
+                                <h4 className="font-bold text-xs text-on-surface uppercase tracking-wider flex items-center gap-1.5">
+                                    <span className="material-symbols-outlined text-sm text-secondary">psychology</span>
+                                    Misi Spesifik Persona: {activePersona} (Level {currentUser.level})
+                                </h4>
+                            </div>
+
+                            <div className="grid grid-cols-1 gap-2.5">
+                                {personaQuests.map((quest) => (
+                                    <div
+                                        key={quest.id}
+                                        className={`glass-panel rounded-xl p-3.5 border border-glass-stroke flex items-center justify-between gap-3 ${
+                                            !checkinStatus.has_checked_in ? 'opacity-50 pointer-events-none' : ''
+                                        }`}
+                                    >
+                                        <div className="min-w-0 flex-1">
+                                            <h5 className="font-bold text-xs text-on-surface truncate">{quest.title}</h5>
+                                            <p className="text-[11px] text-on-surface-variant truncate">{quest.description}</p>
+                                            <div className="flex items-center gap-2 mt-1 font-mono text-[10px]">
+                                                <span className="text-on-surface-variant">Stake: {formatCoin(quest.stake_amount_silver)} Perak</span>
+                                                <span className="text-primary-container font-bold">+{quest.reward_amount_gold} Emas</span>
+                                            </div>
+                                        </div>
+
+                                        <button
+                                            onClick={() => handleStakeQuest(quest.id)}
+                                            disabled={loading || !checkinStatus.has_checked_in}
+                                            className="px-3.5 py-1.5 rounded-lg bg-surface-container-high hover:bg-primary-container hover:text-on-primary border border-glass-stroke font-bold text-[11px] whitespace-nowrap transition-colors"
+                                        >
+                                            Ambil Misi
+                                        </button>
+                                    </div>
                                 ))}
                             </div>
                         </div>
                     </div>
-                </section>
-            </main>
+                )}
 
-            {/* Footer Status (User Info) - Sticky above nav */}
-            <section className="fixed bottom-[72px] md:bottom-[88px] left-0 w-full z-40 px-margin-mobile md:px-margin-desktop pointer-events-none">
-                <div className="max-w-container-max mx-auto pointer-events-auto">
-                    <div className="glass-panel rounded-xl p-3 md:p-4 flex items-center justify-between border-t border-t-primary-container/20 shadow-[0_-10px_30px_rgba(0,0,0,0.5)] bg-obsidian-surface/90">
-                        <div className="flex items-center gap-3 md:gap-4">
-                            {/* Avatar with glowing frame */}
-                            <div className="relative w-12 h-12 md:w-14 md:h-14 rounded-lg border-2 border-primary-container p-0.5 bloom-gold bg-surface">
-                                <img alt="User Avatar" className="w-full h-full object-cover rounded-md grayscale-[20%]" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDi47Slkw4S4Y_KgVtZ0EISwFfTSIkSG4_2UXNIGz_TUpZPGsvQ9quu9zXxMlopsBUFeZOhn_yxJcMebklLuAHrdJXZOTxaanMZVSTn0-ghrNi4-HZtK5ZxRZPonkQg3bipaDJJjt0ghwB5GswyeN8IpGyxjzOyGGh3P6dz6mRoq-anKb_pf5frN99lP138Yfr7ElxVoaIt9Mds_TGIwKPmRA516YI1zc5MLi_Su07Z9ZLoMFO-KEQ"/>
-                                <div className="absolute -bottom-2 -right-2 bg-obsidian-surface border border-primary-container text-primary-container font-label-sm text-[10px] w-6 h-6 flex items-center justify-center rounded-full shadow-[0_0_5px_rgba(255,215,0,0.5)] z-10">
-                                    {user.level}
+                {/* ========================================================= */}
+                {/* TAB CONTENT 2: RUANG KENDALI JARINGAN (KARAVAN MASTER)     */}
+                {/* ========================================================= */}
+                {activeTab === 'NETWORK' && (
+                    <div className="space-y-4 animate-fade-in">
+                        <div className="glass-panel rounded-2xl p-4 border border-primary-container/30 space-y-3">
+                            <div className="flex justify-between items-center border-b border-glass-stroke pb-3">
+                                <div>
+                                    <h3 className="font-bold text-sm text-on-surface">Pusat Komando Karavan</h3>
+                                    <p className="text-xs text-on-surface-variant">Kelola downline Level 1 & Level 2</p>
                                 </div>
+                                <span className="font-mono text-xs text-secondary font-bold bg-secondary/10 px-2 py-1 rounded">
+                                    {totalDownlines} Anggota Pasukan
+                                </span>
                             </div>
-                            <div className="flex flex-col">
-                                <h3 className="font-headline-md text-[16px] md:text-[20px] text-primary-container font-bold leading-tight" style={{ fontFamily: "'Playfair Display', serif" }}>{user.name}</h3>
-                                <p className="font-label-sm text-[10px] md:text-xs text-on-surface-variant/80 uppercase tracking-widest">{user.role}</p>
-                                {/* EXP Bar */}
-                                <div className="mt-1 w-32 md:w-48 h-1.5 bg-surface-container-highest rounded-full overflow-hidden relative">
-                                    <div className="h-full bg-secondary relative shadow-[0_0_5px_rgba(102,221,139,0.5)]" style={{ width: `${xpPercentage}%` }}>
-                                        <div className="absolute inset-0 bg-gradient-to-r from-transparent to-white/30"></div>
-                                    </div>
+
+                            {/* Share Link WhatsApp Card */}
+                            <div className="bg-surface-container-lowest/60 border border-glass-stroke rounded-xl p-3 space-y-2">
+                                <span className="text-[10px] uppercase text-on-surface-variant block font-bold">Tautan Referral Karavan Anda:</span>
+                                <div className="flex items-center gap-2">
+                                    <input
+                                        type="text"
+                                        readOnly
+                                        value={referralLink}
+                                        className="w-full bg-surface border border-glass-stroke rounded-lg px-2.5 py-1.5 text-xs text-on-surface-variant font-mono"
+                                    />
+                                    <button
+                                        onClick={() => {
+                                            navigator.clipboard.writeText(referralLink);
+                                            showMsg('Tautan referral berhasil disalin!');
+                                        }}
+                                        className="px-3 py-1.5 rounded-lg bg-surface-variant hover:bg-primary-container hover:text-on-primary text-xs font-bold whitespace-nowrap"
+                                    >
+                                        Salin
+                                    </button>
                                 </div>
-                                <p className="font-label-sm text-[8px] md:text-[10px] text-on-surface-variant mt-0.5 text-right w-32 md:w-48 tracking-widest">EXP: {user.experience_points}/{xpThreshold}</p>
+
+                                <a
+                                    href={`https://wa.me/?text=${encodeURIComponent(waShareText)}`}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    className="w-full mt-2 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs flex items-center justify-center gap-2 transition-all shadow-[0_0_12px_rgba(16,185,129,0.3)]"
+                                >
+                                    <span className="material-symbols-outlined text-base">send</span>
+                                    <span>Bagikan Undangan ke WhatsApp</span>
+                                </a>
+                            </div>
+
+                            {/* Downline Level 1 & 2 Lists */}
+                            <div className="grid grid-cols-2 gap-3 pt-2">
+                                <div className="bg-surface/40 border border-glass-stroke rounded-xl p-3">
+                                    <span className="text-[10px] uppercase text-primary-container block font-bold mb-1">Level 1 (Direct 25%)</span>
+                                    <div className="font-mono text-lg font-bold text-on-surface">{downlines.level_1.length} Mitra</div>
+                                    <p className="text-[10px] text-on-surface-variant mt-1">25% Reward Emas Otomatis</p>
+                                </div>
+                                <div className="bg-surface/40 border border-glass-stroke rounded-xl p-3">
+                                    <span className="text-[10px] uppercase text-secondary block font-bold mb-1">Level 2 (Grand 10%)</span>
+                                    <div className="font-mono text-lg font-bold text-on-surface">{downlines.level_2.length} Mitra</div>
+                                    <p className="text-[10px] text-on-surface-variant mt-1">10% Reward Emas Pasif</p>
+                                </div>
                             </div>
                         </div>
-                        {/* Balances */}
-                        <div className="flex flex-col gap-2 items-end">
-                            <div className="bg-surface-container-lowest/80 border border-glass-stroke rounded px-2 py-1 flex items-center gap-1 min-w-[100px] justify-end">
-                                <span className="font-label-sm text-sm text-on-surface">{wallet ? formatCoin(wallet.silver_balance) : 0}</span>
-                                <span className="material-symbols-outlined text-surface-variant text-[14px]" style={{ fontVariationSettings: "'FILL' 1" }}>circle</span>
+
+                        {/* Transfer Requirement Status */}
+                        <div className="glass-panel rounded-xl p-4 border border-glass-stroke space-y-2">
+                            <div className="flex justify-between items-center text-xs">
+                                <span className="font-bold text-on-surface">Syarat Buka Fitur Transfer Antar-Saudagar</span>
+                                <span className={transferUnlocked ? 'text-secondary font-bold' : 'text-error font-bold'}>
+                                    {Math.min(totalDownlines, 5)}/5 Downline
+                                </span>
                             </div>
-                            <div className="bg-primary-container/10 border border-primary-container/30 rounded px-2 py-1 flex items-center gap-1 min-w-[100px] justify-end shadow-[inset_0_0_5px_rgba(255,215,0,0.1)]">
-                                <span className="font-label-sm text-sm text-primary-fixed-dim font-bold">{wallet ? formatCoin(wallet.gold_balance) : 0}</span>
-                                <span className="material-symbols-outlined text-primary-fixed text-[14px]" style={{ fontVariationSettings: "'FILL' 1" }}>monetization_on</span>
+                            <div className="w-full h-2 bg-surface-container-highest rounded-full overflow-hidden">
+                                <div
+                                    className="h-full bg-primary-container transition-all duration-500"
+                                    style={{ width: `${Math.min((totalDownlines / 5) * 100, 100)}%` }}
+                                ></div>
                             </div>
                         </div>
                     </div>
-                </div>
-            </section>
+                )}
 
-            {/* Shared Component: BottomNavBar */}
-            <nav className="bg-obsidian-surface/60 backdrop-blur-xl text-primary-container font-label-sm text-[10px] uppercase tracking-widest fixed bottom-0 left-0 w-full z-50 flex justify-around items-center px-4 pb-6 pt-2 rounded-t-xl border-t border-glass-stroke shadow-[0_-4px_20px_rgba(255,215,0,0.1)]">
-                <Link href="/dashboard" className="flex flex-col items-center justify-center text-primary-container scale-110 transition-transform hover:text-primary active:scale-95 duration-300 ease-out">
-                    <span className="material-symbols-outlined mb-1" style={{ fontVariationSettings: "'FILL' 1" }}>explore</span>
-                    <span>Quest</span>
-                </Link>
-                <Link href="/auction" className="flex flex-col items-center justify-center text-on-surface-variant/70 hover:text-primary active:scale-95 duration-300 ease-out transition-all">
-                    <span className="material-symbols-outlined mb-1" style={{ fontVariationSettings: "'FILL' 0" }}>storefront</span>
-                    <span>Bursa</span>
-                </Link>
-                <Link href="/digital-goods" className="flex flex-col items-center justify-center text-on-surface-variant/70 hover:text-primary active:scale-95 duration-300 ease-out transition-all">
-                    <span className="material-symbols-outlined mb-1" style={{ fontVariationSettings: "'FILL' 0" }}>phone_iphone</span>
-                    <span>Lebur</span>
-                </Link>
-                <div className="flex flex-col items-center justify-center text-on-surface-variant/70 hover:text-primary active:scale-95 duration-300 ease-out transition-all cursor-pointer">
-                    <span className="material-symbols-outlined mb-1" style={{ fontVariationSettings: "'FILL' 0" }}>person</span>
-                    <span>Profile</span>
-                </div>
-            </nav>
+                {/* ========================================================= */}
+                {/* TAB CONTENT 3: KELOLA BISNIS & POS KASIR PINTAR           */}
+                {/* ========================================================= */}
+                {activeTab === 'BUSINESS' && (
+                    <div className="space-y-4 animate-fade-in">
+                        {/* Financial Header Widget */}
+                        <div className="glass-panel rounded-2xl p-4 border border-primary-container/30 bg-gradient-to-br from-surface-container-high/30 via-surface/60 to-surface-container-lowest/80 space-y-3">
+                            <div className="flex justify-between items-center border-b border-glass-stroke pb-3">
+                                <div>
+                                    <h3 className="font-bold text-sm text-on-surface flex items-center gap-1.5">
+                                        <span className="material-symbols-outlined text-primary-container text-base">point_of_sale</span>
+                                        Ringkasan Kasir & Omzet Hari Ini
+                                    </h3>
+                                    <p className="text-[11px] text-on-surface-variant">Terhubung dengan Unimart.group Cloud POS</p>
+                                </div>
+                                <span className={`font-mono text-[10px] font-bold px-2 py-0.5 rounded border ${posSummary.is_closed ? 'bg-error/10 text-error border-error/20' : 'bg-secondary/10 text-secondary border-secondary/20'}`}>
+                                    {posSummary.is_closed ? 'TUTUP BUKU' : 'KASIR BUKA'}
+                                </span>
+                            </div>
 
-            {/* Modal: Misi Agen Unimart */}
-            {showMissionModal && (
-                <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-md flex items-center justify-center p-4">
-                    <div className="glass-panel w-full max-w-lg rounded-2xl overflow-hidden border border-glass-stroke shadow-2xl relative animate-fade-in flex flex-col max-h-[90vh]">
-                        {/* Header */}
-                        <div className="p-5 border-b border-glass-stroke flex justify-between items-center bg-obsidian-surface/60">
-                            <h3 className="font-headline-md text-xl font-bold text-primary-container flex items-center gap-2" style={{ fontFamily: "'Playfair Display', serif" }}>
-                                <span className="material-symbols-outlined text-primary-container">assignment_ind</span>
-                                Misi Agen Unimart
-                            </h3>
-                            <button onClick={() => setShowMissionModal(false)} className="text-on-surface-variant hover:text-white transition-colors">
-                                <span className="material-symbols-outlined">close</span>
-                            </button>
+                            {/* Key Financial Metrics */}
+                            <div className="grid grid-cols-3 gap-2 text-center font-mono">
+                                <div className="bg-surface/50 border border-glass-stroke rounded-xl p-2.5">
+                                    <span className="text-[9px] text-on-surface-variant block uppercase font-sans mb-0.5">Total Omzet</span>
+                                    <strong className="text-xs md:text-sm text-primary-container font-bold">
+                                        {formatRupiah(posSummary.total_sales)}
+                                    </strong>
+                                </div>
+                                <div className="bg-surface/50 border border-glass-stroke rounded-xl p-2.5">
+                                    <span className="text-[9px] text-on-surface-variant block uppercase font-sans mb-0.5">Transaksi</span>
+                                    <strong className="text-xs md:text-sm text-on-surface font-bold">
+                                        {posSummary.transaction_count} Struk
+                                    </strong>
+                                </div>
+                                <div className="bg-surface/50 border border-glass-stroke rounded-xl p-2.5">
+                                    <span className="text-[9px] text-on-surface-variant block uppercase font-sans mb-0.5">Est. Laba</span>
+                                    <strong className="text-xs md:text-sm text-secondary font-bold">
+                                        {formatRupiah(posSummary.gross_profit)}
+                                    </strong>
+                                </div>
+                            </div>
+
+                            {/* Cashier Action Buttons */}
+                            <div className="grid grid-cols-2 gap-2 pt-1">
+                                <button
+                                    onClick={() => setShowPosModal(true)}
+                                    disabled={loading || posSummary.is_closed}
+                                    className="py-2.5 px-3 rounded-xl bg-primary-container text-on-primary font-bold text-xs flex items-center justify-center gap-1.5 hover:scale-105 active:scale-95 transition-transform shadow-[0_0_10px_rgba(255,215,0,0.3)] disabled:opacity-50"
+                                >
+                                    <span className="material-symbols-outlined text-base">add_shopping_cart</span>
+                                    <span>Catat Transaksi Kasir</span>
+                                </button>
+                                <button
+                                    onClick={handleCloseRegister}
+                                    disabled={loading || posSummary.is_closed}
+                                    className="py-2.5 px-3 rounded-xl bg-surface-variant hover:bg-surface-container-highest border border-glass-stroke text-on-surface font-bold text-xs flex items-center justify-center gap-1.5 active:scale-95 transition-all disabled:opacity-50"
+                                >
+                                    <span className="material-symbols-outlined text-base text-secondary">check_circle</span>
+                                    <span>Tutup Buku Kasir</span>
+                                </button>
+                            </div>
                         </div>
 
-                        {/* Content */}
-                        <div className="p-6 overflow-y-auto space-y-5 flex-grow">
-                            {/* License check */}
-                            {user.license_type !== 'PETUALANG' && user.license_type !== 'SAUDAGAR' ? (
-                                <div className="text-center py-6 space-y-4">
-                                    <span className="material-symbols-outlined text-6xl text-error drop-shadow-[0_0_15px_rgba(235,87,87,0.4)] animate-pulse">lock</span>
-                                    <h4 className="text-lg font-bold text-on-surface">Akses Misi Terkunci!</h4>
-                                    <p className="text-sm text-on-surface-variant max-w-sm mx-auto leading-relaxed">
-                                        Misi rujukan bisnis kasir Unimart hanya tersedia untuk Agen dengan tingkatan lisensi minimal 100 (**Petualang** atau **Saudagar**).
-                                    </p>
-                                    <p className="text-xs text-primary-container/80">Lisensi Anda saat ini: <strong className="underline">{user.license_type || 'NONE'}</strong></p>
-                                </div>
-                            ) : (
-                                <>
-                                    <div className="space-y-2">
-                                        <h4 className="font-bold text-lg text-on-surface">Misi: Registrasi Bisnis Kasir Unimart</h4>
-                                        <p className="text-sm text-on-surface-variant leading-relaxed">
-                                            Daftarkan pemilik bisnis / usaha (Cafe, FnB, Grosiran, Hotel, atau Jasa) di sekitar Anda untuk mengelola keuangan dan kasir penjualan toko mereka menggunakan aplikasi Unimart.group.
-                                        </p>
-                                    </div>
+                        {/* Recent Transactions List */}
+                        <div className="glass-panel rounded-xl p-4 border border-glass-stroke space-y-3">
+                            <div className="flex justify-between items-center text-xs">
+                                <span className="font-bold text-on-surface">Transaksi Kasir Terakhir</span>
+                                <a href="http://unimart.localhost" target="_blank" className="text-primary-container hover:underline text-[11px]">
+                                    Buka Unimart POS ↗
+                                </a>
+                            </div>
 
-                                    {/* Video / Marketing Material Mockup */}
-                                    <div className="glass-panel rounded-xl overflow-hidden border border-glass-stroke relative group h-[180px] bg-black flex items-center justify-center">
-                                        <div className="absolute inset-0 bg-cover bg-center opacity-60 group-hover:scale-105 transition-transform" style={{ backgroundImage: "url('https://lh3.googleusercontent.com/aida-public/AB6AXuDTxY0_r8Qx2aGfPjXwXw6a_hL7J4kR9eL2d9U6Yh9_lMcR8k')" }}></div>
-                                        <div className="absolute inset-0 bg-gradient-to-t from-black via-black/20 to-transparent"></div>
-                                        <span className="material-symbols-outlined text-5xl text-primary-container drop-shadow-[0_0_10px_rgba(255,215,0,0.6)] cursor-pointer z-10 hover:scale-110 transition-transform">play_circle</span>
-                                        <div className="absolute bottom-3 left-3 z-10">
-                                            <span className="font-label-sm text-[10px] text-white/90 bg-black/60 px-2 py-0.5 rounded border border-white/20">Video Promosi Kasir Unimart (2:15)</span>
-                                        </div>
-                                    </div>
-
-                                    {/* Marketing Materials Link */}
-                                    <div className="bg-surface-container-lowest/50 border border-glass-stroke rounded-lg p-3 flex justify-between items-center text-xs">
-                                        <span className="text-on-surface-variant flex items-center gap-1">
-                                            <span className="material-symbols-outlined text-sm">download</span>
-                                            Brosur & Kit Marketing PDF (12 MB)
-                                        </span>
-                                        <a href="#" className="text-primary-container font-bold hover:underline">Unduh</a>
-                                    </div>
-
-                                    {/* Requirements / Economics */}
-                                    <div className="grid grid-cols-2 gap-3 bg-surface-container-lowest/30 rounded-xl p-4 border border-glass-stroke text-sm">
-                                        <div>
-                                            <span className="text-[10px] text-on-surface-variant uppercase block mb-1">Jaminan Staking</span>
-                                            <strong className="text-on-surface">2.500 Perak</strong>
-                                        </div>
-                                        <div>
-                                            <span className="text-[10px] text-primary-fixed-dim uppercase block mb-1">Reward Komisi Agen</span>
-                                            <strong className="text-primary-container">25% Koin Emas (Sub Bulanan)</strong>
-                                        </div>
-                                    </div>
-
-                                    {/* Active Mission Details */}
-                                    {agentMission && (
-                                        <div className="border border-glass-stroke rounded-xl p-4 space-y-3 bg-surface-container-lowest/50">
-                                            <div className="flex justify-between items-center text-xs border-b border-glass-stroke pb-2">
-                                                <span className="text-on-surface-variant">Status Misi</span>
-                                                <span className={`font-bold uppercase tracking-widest px-2 py-0.5 rounded ${
-                                                    agentMission.status === 'active' ? 'text-primary-container bg-primary-container/10 border border-primary-container/20 animate-pulse' :
-                                                    agentMission.status === 'completed' ? 'text-secondary bg-secondary/10 border border-secondary/20' :
-                                                    'text-primary-fixed bg-primary-fixed/20 border border-primary-fixed/30'
-                                                }`}>
-                                                    {agentMission.status === 'active' ? 'Aktif' :
-                                                     agentMission.status === 'completed' ? 'Misi Sukses' : 'Reward Cair'}
+                            <div className="space-y-2">
+                                {posSummary.recent_transactions.map((trx) => (
+                                    <div key={trx.id} className="bg-surface/40 border border-glass-stroke rounded-lg p-2.5 flex items-center justify-between text-xs">
+                                        <div className="min-w-0 flex-1 pr-2">
+                                            <div className="flex items-center gap-2">
+                                                <span className="font-bold text-on-surface truncate">{trx.item}</span>
+                                                <span className="font-mono text-[9px] px-1.5 py-0.2 bg-white/5 rounded border border-white/10 text-on-surface-variant">
+                                                    x{trx.qty}
                                                 </span>
                                             </div>
-
-                                            {agentMission.status === 'active' && (
-                                                <div className="flex justify-between items-center text-sm">
-                                                    <span className="text-on-surface-variant">Batas Waktu Misi</span>
-                                                    <strong className="text-error tracking-wider animate-blink-red">
-                                                        {isMounted ? getMissionRemainingTime(agentMission.expires_at).label : '--:--:--'}
-                                                    </strong>
-                                                </div>
-                                            )}
-
-                                            <div className="text-xs text-on-surface-variant space-y-1">
-                                                <p>• Staking Perak Terkunci: <strong>2.500 Perak</strong></p>
-                                                {agentMission.status !== 'active' && (
-                                                    <p>• Target Bisnis: <strong>{agentMission.business_name}</strong></p>
-                                                )}
-                                                {agentMission.status === 'released' && (
-                                                    <p>• Reward Emas Didapat: <strong className="text-primary-container">+{agentMission.reward_gold_amount} Emas</strong></p>
-                                                )}
-                                            </div>
+                                            <span className="text-[10px] text-on-surface-variant font-mono">{trx.time} • {trx.method}</span>
                                         </div>
-                                    )}
-
-                                    {/* Actions */}
-                                    <div className="pt-2">
-                                        {!agentMission ? (
-                                            <button
-                                                onClick={handleTakeAgentMission}
-                                                disabled={Boolean(loading || (wallet && wallet.silver_balance < 2500))}
-                                                className="w-full py-4 rounded-xl bg-primary-container text-on-primary font-label-sm text-sm font-bold tracking-widest hover:bg-primary-fixed-dim transition-transform hover:scale-[1.02] active:scale-95 disabled:opacity-50"
-                                            >
-                                                [ AMBIL MISI & STAKE 2.500 PERAK ]
-                                            </button>
-                                        ) : agentMission.status === 'active' ? (
-                                            <button
-                                                onClick={() => {
-                                                    setShowSurveyModal(true);
-                                                    setShowMissionModal(false);
-                                                }}
-                                                className="w-full py-4 rounded-xl bg-secondary text-on-secondary font-label-sm text-sm font-bold tracking-widest hover:bg-secondary-fixed hover:scale-[1.02] transition-transform active:scale-95 shadow-[0_0_15px_rgba(102,221,139,0.3)]"
-                                            >
-                                                [ DAFTARKAN BISNIS SEKARANG ]
-                                            </button>
-                                        ) : agentMission.status === 'completed' ? (
-                                            <div className="text-center text-xs text-on-surface-variant py-2">
-                                                Menunggu konfirmasi pendaftaran & pembayaran pertama pemilik bisnis untuk mencairkan jaminan perak dan reward komisi emas.
-                                            </div>
-                                        ) : (
-                                            <button
-                                                onClick={handleTakeAgentMission}
-                                                disabled={Boolean(loading || (wallet && wallet.silver_balance < 2500))}
-                                                className="w-full py-4 rounded-xl bg-primary-container text-on-primary font-label-sm text-sm font-bold tracking-widest hover:bg-primary-fixed-dim transition-transform hover:scale-[1.02] active:scale-95 disabled:opacity-50"
-                                            >
-                                                [ AMBIL MISI BARU ]
-                                            </button>
-                                        )}
+                                        <strong className="font-mono text-primary-container text-xs whitespace-nowrap">
+                                            {formatRupiah(trx.amount)}
+                                        </strong>
                                     </div>
-                                </>
-                            )}
+                                ))}
+                            </div>
                         </div>
                     </div>
-                </div>
-            )}
+                )}
 
-            {/* Modal: Kuesioner Survei Bisnis */}
-            {showSurveyModal && (
-                <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-md flex items-center justify-center p-4">
-                    <div className="glass-panel w-full max-w-md rounded-2xl overflow-hidden border border-glass-stroke shadow-2xl animate-fade-in flex flex-col max-h-[90vh]">
-                        {/* Header */}
-                        <div className="p-5 border-b border-glass-stroke flex justify-between items-center bg-obsidian-surface/60">
-                            <h3 className="font-headline-md text-lg font-bold text-primary-container flex items-center gap-2" style={{ fontFamily: "'Playfair Display', serif" }}>
-                                <span className="material-symbols-outlined text-primary-container">rate_review</span>
-                                Survei Bisnis Baru
-                            </h3>
-                            <button onClick={() => {
-                                setShowSurveyModal(false);
-                                setShowMissionModal(true);
-                            }} className="text-on-surface-variant hover:text-white transition-colors">
-                                <span className="material-symbols-outlined">close</span>
+                {/* ========================================================= */}
+                {/* TAB CONTENT 4: PASAR, GAME & LAYANAN BERLANGGANAN         */}
+                {/* ========================================================= */}
+                {activeTab === 'MARKET' && (
+                    <div className="space-y-4 animate-fade-in">
+                        {/* Golden Vault Banner */}
+                        <div className="glass-panel rounded-2xl overflow-hidden border border-primary-container/40 relative min-h-[160px] p-5 flex flex-col justify-end">
+                            <div className="absolute inset-0 bg-cover bg-center opacity-40 mix-blend-luminosity" style={{ backgroundImage: "url('https://lh3.googleusercontent.com/aida-public/AB6AXuBomh5nZA8r1Hn37i86UlZRJTJTTqOgkVNgNClIrvnNsVm4FLdwG9A0BDaTt6JAO5HC40cuBByuI0cZIKQlibhdE-wSEcUYxFpIVpnIE5oluyoS6p2D2oVA-bhdf7xwLMViQqzNhFLLWoMm1QYKM9ewl_zkzE9_BOmajzRCLR0LcohF_qm9Y0-9T2CHRM1TDxtTVc4bsCxF6IjL5tC0gVPDIoJPeWDOiCMaDwJIR03J4opa5EOpKgk')" }}></div>
+                            <div className="absolute inset-0 bg-gradient-to-t from-obsidian-surface via-obsidian-surface/60 to-transparent"></div>
+                            <div className="relative z-10 space-y-1">
+                                <span className="font-label-sm text-[10px] text-primary-container font-bold tracking-widest uppercase bg-primary-container/20 px-2 py-0.5 rounded border border-primary-container/30">MARKAS BESAR</span>
+                                <h3 className="font-headline-md text-lg font-bold text-on-surface" style={{ fontFamily: "'Playfair Display', serif" }}>The Golden Vault & Ekosistem</h3>
+                                <p className="text-xs text-on-surface-variant">Pusat bursa lelang P2P, lebur koin, dan layanan berlangganan.</p>
+                            </div>
+                        </div>
+
+                        {/* Grid Menu Links */}
+                        <div className="grid grid-cols-2 gap-3">
+                            <Link href="/auction" className="glass-panel rounded-xl p-4 flex flex-col items-center justify-center gap-2 hover:border-primary-container/50 transition-all active:scale-95 group">
+                                <span className="material-symbols-outlined text-2xl text-on-surface-variant group-hover:text-primary-container" style={{ fontVariationSettings: "'FILL' 1" }}>storefront</span>
+                                <span className="text-xs font-bold text-on-surface text-center">Bursa Lelang P2P</span>
+                            </Link>
+
+                            <Link href="/digital-goods" className="glass-panel rounded-xl p-4 flex flex-col items-center justify-center gap-2 hover:border-primary-container/50 transition-all active:scale-95 group">
+                                <span className="material-symbols-outlined text-2xl text-on-surface-variant group-hover:text-primary-container" style={{ fontVariationSettings: "'FILL' 1" }}>phone_iphone</span>
+                                <span className="text-xs font-bold text-on-surface text-center">Lebur Koin & Pulsa</span>
+                            </Link>
+
+                            <a href="/games/harta-karun/index.html" target="_blank" className="glass-panel rounded-xl p-4 flex flex-col items-center justify-center gap-2 hover:border-primary-container/50 transition-all active:scale-95 group">
+                                <span className="material-symbols-outlined text-2xl text-on-surface-variant group-hover:text-primary-container" style={{ fontVariationSettings: "'FILL' 1" }}>casino</span>
+                                <span className="text-xs font-bold text-on-surface text-center">Harta Karun Gunung Mas</span>
+                            </a>
+
+                            <button onClick={() => setShowMissionModal(true)} className="glass-panel rounded-xl p-4 flex flex-col items-center justify-center gap-2 hover:border-primary-container/50 transition-all active:scale-95 group">
+                                <span className="material-symbols-outlined text-2xl text-on-surface-variant group-hover:text-primary-container" style={{ fontVariationSettings: "'FILL' 1" }}>assignment_ind</span>
+                                <span className="text-xs font-bold text-on-surface text-center">Misi Agen Unimart</span>
                             </button>
                         </div>
 
-                        {/* Form */}
-                        <form onSubmit={handleSubmitSurvey} className="p-6 overflow-y-auto space-y-4 flex-grow text-sm">
+                        {/* Subscription Services Catalog Preview */}
+                        <div className="glass-panel rounded-xl p-4 border border-glass-stroke space-y-3">
+                            <div className="flex justify-between items-center">
+                                <h4 className="font-bold text-xs text-on-surface uppercase tracking-wider">Layanan Ekosistem Berlangganan</h4>
+                                <span className="text-[10px] text-primary-container font-bold">Diskon 15% via Koin Emas</span>
+                            </div>
+
+                            <div className="space-y-2 text-xs">
+                                <div className="p-3 rounded-lg bg-surface/50 border border-glass-stroke flex justify-between items-center">
+                                    <div>
+                                        <strong className="block text-on-surface">Unimart POS Juragan Pro</strong>
+                                        <span className="text-[10px] text-on-surface-variant">Kasir Cloud, Stok, QRIS Dinamis & Akuntansi</span>
+                                    </div>
+                                    <button onClick={() => setShowUpgradeModal(true)} className="px-3 py-1 bg-primary-container text-on-primary font-bold text-[10px] rounded-lg">
+                                        Langgan
+                                    </button>
+                                </div>
+
+                                <div className="p-3 rounded-lg bg-surface/50 border border-glass-stroke flex justify-between items-center">
+                                    <div>
+                                        <strong className="block text-on-surface">WaliKelas.id LMS & Tutor</strong>
+                                        <span className="text-[10px] text-on-surface-variant">Booking Jadwal Les & Bank Soal Digital</span>
+                                    </div>
+                                    <button onClick={() => setShowUpgradeModal(true)} className="px-3 py-1 bg-surface-variant text-on-surface font-bold text-[10px] rounded-lg">
+                                        Langgan
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                )}
+            </main>
+
+            {/* ========================================================= */}
+            {/* 7. BOTTOM NAVIGATION BAR (FIXED DOCK)                      */}
+            {/* ========================================================= */}
+            <nav className="bg-obsidian-surface/90 backdrop-blur-xl text-primary-container font-label-sm text-[10px] uppercase tracking-widest fixed bottom-0 left-0 w-full z-40 flex justify-around items-center px-4 pb-5 pt-2 rounded-t-2xl border-t border-glass-stroke shadow-[0_-8px_30px_rgba(0,0,0,0.8)]">
+                <button
+                    onClick={() => setActiveTab('QUESTS')}
+                    className={`flex flex-col items-center justify-center transition-all ${
+                        activeTab === 'QUESTS' ? 'text-primary-container scale-105 font-bold' : 'text-on-surface-variant/70 hover:text-on-surface'
+                    }`}
+                >
+                    <span className="material-symbols-outlined mb-0.5 text-xl" style={{ fontVariationSettings: "'FILL' 1" }}>explore</span>
+                    <span>Misi</span>
+                </button>
+
+                <button
+                    onClick={() => setActiveTab('NETWORK')}
+                    className={`flex flex-col items-center justify-center transition-all ${
+                        activeTab === 'NETWORK' ? 'text-primary-container scale-105 font-bold' : 'text-on-surface-variant/70 hover:text-on-surface'
+                    }`}
+                >
+                    <span className="material-symbols-outlined mb-0.5 text-xl" style={{ fontVariationSettings: "'FILL' 1" }}>diversity_3</span>
+                    <span>Jaringan</span>
+                </button>
+
+                <button
+                    onClick={() => setActiveTab('BUSINESS')}
+                    className={`flex flex-col items-center justify-center transition-all ${
+                        activeTab === 'BUSINESS' ? 'text-primary-container scale-105 font-bold' : 'text-on-surface-variant/70 hover:text-on-surface'
+                    }`}
+                >
+                    <span className="material-symbols-outlined mb-0.5 text-xl" style={{ fontVariationSettings: "'FILL' 1" }}>point_of_sale</span>
+                    <span>Bisnis</span>
+                </button>
+
+                <button
+                    onClick={() => setActiveTab('MARKET')}
+                    className={`flex flex-col items-center justify-center transition-all ${
+                        activeTab === 'MARKET' ? 'text-primary-container scale-105 font-bold' : 'text-on-surface-variant/70 hover:text-on-surface'
+                    }`}
+                >
+                    <span className="material-symbols-outlined mb-0.5 text-xl" style={{ fontVariationSettings: "'FILL' 1" }}>storefront</span>
+                    <span>Pasar</span>
+                </button>
+            </nav>
+
+            {/* ========================================================= */}
+            {/* 8. MODAL: CATAT TRANSAKSI KASIR CEPAT (POS)               */}
+            {/* ========================================================= */}
+            {showPosModal && (
+                <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-md flex items-center justify-center p-4">
+                    <div className="glass-panel w-full max-w-sm rounded-2xl overflow-hidden border border-glass-stroke shadow-2xl p-5 space-y-4 animate-fade-in">
+                        <div className="flex justify-between items-center border-b border-glass-stroke pb-3">
+                            <h3 className="font-bold text-sm text-primary-container flex items-center gap-2">
+                                <span className="material-symbols-outlined text-base">point_of_sale</span>
+                                Catat Transaksi Kasir POS
+                            </h3>
+                            <button onClick={() => setShowPosModal(false)} className="text-on-surface-variant hover:text-white">
+                                <span className="material-symbols-outlined text-lg">close</span>
+                            </button>
+                        </div>
+
+                        <form onSubmit={handleRecordSale} className="space-y-3 text-xs">
                             <div className="space-y-1">
-                                <label className="block text-xs font-bold text-on-surface-variant uppercase">Nama Bisnis / Usaha</label>
+                                <label className="text-on-surface-variant uppercase font-bold text-[10px]">Nama Produk / Pesanan</label>
                                 <input
                                     type="text"
                                     required
-                                    placeholder="Contoh: Kedai Kopi Minang"
-                                    value={surveyData.business_name}
-                                    onChange={e => setSurveyData({...surveyData, business_name: e.target.value})}
-                                    className="w-full p-3 rounded-lg bg-surface border border-glass-stroke text-on-surface focus:border-primary-container focus:outline-none"
+                                    placeholder="Contoh: Kopi Susu Aren Minang"
+                                    value={posForm.item}
+                                    onChange={e => setPosForm({ ...posForm, item: e.target.value })}
+                                    className="w-full p-2.5 rounded-lg bg-surface border border-glass-stroke text-on-surface focus:border-primary-container focus:outline-none text-xs"
                                 />
                             </div>
 
-                            <div className="space-y-1">
-                                <label className="block text-xs font-bold text-on-surface-variant uppercase">Alamat Bisnis</label>
-                                <input
-                                    type="text"
-                                    required
-                                    placeholder="Contoh: Jl. Sudirman No. 45"
-                                    value={surveyData.owner_name} // Reusing field for location/address or simple text
-                                    onChange={e => setSurveyData({...surveyData, owner_name: e.target.value})}
-                                    className="w-full p-3 rounded-lg bg-surface border border-glass-stroke text-on-surface focus:border-primary-container focus:outline-none"
-                                />
-                            </div>
-
-                            <div className="space-y-1">
-                                <label className="block text-xs font-bold text-on-surface-variant uppercase">Jenis Bisnis</label>
-                                <select
-                                    value={surveyData.business_type}
-                                    onChange={e => setSurveyData({...surveyData, business_type: e.target.value})}
-                                    className="w-full p-3 rounded-lg bg-surface border border-glass-stroke text-on-surface focus:border-primary-container focus:outline-none"
-                                >
-                                    <option value="FnB/Café">Café / FnB</option>
-                                    <option value="PnD/Grosiran">Grosiran / PnD</option>
-                                    <option value="Hotel/Wisma">Hotel / Wisma</option>
-                                    <option value="TokoJasa">Toko / Jasa Lainnya</option>
-                                </select>
-                            </div>
-
-                            <div className="border-t border-glass-stroke my-3 pt-3">
-                                <h5 className="font-bold text-xs text-primary-container uppercase mb-2">Informasi Pemilik</h5>
-                            </div>
-
-                            <div className="space-y-1">
-                                <label className="block text-xs font-bold text-on-surface-variant uppercase">Nama Pemilik</label>
-                                <input
-                                    type="text"
-                                    required
-                                    placeholder="Contoh: Datuk Mudo"
-                                    value={surveyData.owner_name}
-                                    onChange={e => setSurveyData({...surveyData, owner_name: e.target.value})}
-                                    className="w-full p-3 rounded-lg bg-surface border border-glass-stroke text-on-surface focus:border-primary-container focus:outline-none"
-                                />
-                            </div>
-
-                            <div className="grid grid-cols-2 gap-3">
+                            <div className="grid grid-cols-2 gap-2">
                                 <div className="space-y-1">
-                                    <label className="block text-xs font-bold text-on-surface-variant uppercase">Umur Pemilik</label>
+                                    <label className="text-on-surface-variant uppercase font-bold text-[10px]">Jumlah (Qty)</label>
                                     <input
                                         type="number"
+                                        min="1"
                                         required
-                                        placeholder="35"
-                                        className="w-full p-3 rounded-lg bg-surface border border-glass-stroke text-on-surface focus:border-primary-container focus:outline-none"
+                                        value={posForm.qty}
+                                        onChange={e => setPosForm({ ...posForm, qty: parseInt(e.target.value) || 1 })}
+                                        className="w-full p-2.5 rounded-lg bg-surface border border-glass-stroke text-on-surface focus:border-primary-container focus:outline-none text-xs"
                                     />
                                 </div>
                                 <div className="space-y-1">
-                                    <label className="block text-xs font-bold text-on-surface-variant uppercase">Jenis Kelamin</label>
-                                    <select className="w-full p-3 rounded-lg bg-surface border border-glass-stroke text-on-surface focus:border-primary-container focus:outline-none">
-                                        <option value="L">Laki-laki</option>
-                                        <option value="P">Perempuan</option>
-                                    </select>
+                                    <label className="text-on-surface-variant uppercase font-bold text-[10px]">Total Nominal (Rp)</label>
+                                    <input
+                                        type="number"
+                                        min="1000"
+                                        step="1000"
+                                        required
+                                        value={posForm.amount}
+                                        onChange={e => setPosForm({ ...posForm, amount: parseFloat(e.target.value) || 0 })}
+                                        className="w-full p-2.5 rounded-lg bg-surface border border-glass-stroke text-on-surface focus:border-primary-container focus:outline-none text-xs"
+                                    />
                                 </div>
                             </div>
 
                             <div className="space-y-1">
-                                <label className="block text-xs font-bold text-on-surface-variant uppercase">Email Pemilik</label>
-                                <input
-                                    type="email"
-                                    required
-                                    placeholder="pemilik@bisnis.com"
-                                    value={surveyData.owner_email}
-                                    onChange={e => setSurveyData({...surveyData, owner_email: e.target.value})}
-                                    className="w-full p-3 rounded-lg bg-surface border border-glass-stroke text-on-surface focus:border-primary-container focus:outline-none"
-                                />
-                            </div>
-
-                            <div className="space-y-1">
-                                <label className="block text-xs font-bold text-on-surface-variant uppercase">No. WhatsApp / Kontak</label>
-                                <input
-                                    type="tel"
-                                    required
-                                    placeholder="081234567890"
-                                    value={surveyData.owner_phone}
-                                    onChange={e => setSurveyData({...surveyData, owner_phone: e.target.value})}
-                                    className="w-full p-3 rounded-lg bg-surface border border-glass-stroke text-on-surface focus:border-primary-container focus:outline-none"
-                                />
-                            </div>
-
-                            <div className="space-y-1">
-                                <label className="block text-xs font-bold text-on-surface-variant uppercase">Upload QRIS Payment (Opsional)</label>
-                                <input
-                                    type="file"
-                                    accept="image/*"
-                                    className="w-full text-xs text-on-surface-variant file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-xs file:font-semibold file:bg-primary-container file:text-on-primary hover:file:bg-primary-fixed-dim"
-                                />
+                                <label className="text-on-surface-variant uppercase font-bold text-[10px]">Metode Pembayaran</label>
+                                <select
+                                    value={posForm.method}
+                                    onChange={e => setPosForm({ ...posForm, method: e.target.value })}
+                                    className="w-full p-2.5 rounded-lg bg-surface border border-glass-stroke text-on-surface focus:border-primary-container focus:outline-none text-xs"
+                                >
+                                    <option value="QRIS">QRIS Dinamis (Mandeh / Bank)</option>
+                                    <option value="TUNAI">Uang Tunai (Cash)</option>
+                                    <option value="KOIN_EMAS">Voucher Koin Emas PitiCoin</option>
+                                </select>
                             </div>
 
                             <button
                                 type="submit"
                                 disabled={loading}
-                                className="w-full mt-4 py-4 rounded-xl bg-secondary text-on-secondary font-label-sm text-sm font-bold tracking-widest hover:bg-secondary-fixed hover:scale-[1.02] transition-transform active:scale-95 shadow-[0_0_15px_rgba(102,221,139,0.3)]"
+                                className="w-full mt-2 py-3 rounded-xl bg-primary-container text-on-primary font-bold text-xs uppercase tracking-wider hover:brightness-110 active:scale-95 transition-all shadow-[0_0_12px_rgba(255,215,0,0.4)]"
                             >
-                                [ KIRIM PENDAFTARAN BISNIS ]
+                                Simpan Transaksi Penjualan
                             </button>
                         </form>
+                    </div>
+                </div>
+            )}
+
+            {/* ========================================================= */}
+            {/* 9. MODAL: UPGRADE LISENSI & BERLANGGANAN LAYANAN           */}
+            {/* ========================================================= */}
+            {showUpgradeModal && (
+                <div className="fixed inset-0 z-50 bg-black/85 backdrop-blur-md flex items-center justify-center p-4">
+                    <div className="glass-panel w-full max-w-md rounded-2xl overflow-hidden border border-primary-container/40 shadow-2xl p-5 space-y-4 animate-fade-in max-h-[90vh] overflow-y-auto">
+                        <div className="flex justify-between items-center border-b border-glass-stroke pb-3">
+                            <h3 className="font-bold text-sm text-primary-container flex items-center gap-2" style={{ fontFamily: "'Playfair Display', serif" }}>
+                                <span className="material-symbols-outlined text-primary-container">stars</span>
+                                Upgrade Tingkatan Lisensi Saudagar
+                            </h3>
+                            <button onClick={() => setShowUpgradeModal(false)} className="text-on-surface-variant hover:text-white">
+                                <span className="material-symbols-outlined text-lg">close</span>
+                            </button>
+                        </div>
+
+                        <p className="text-xs text-on-surface-variant leading-relaxed">
+                            Tingkatkan lisensi Anda untuk membuka akses ke komisi Karavan Downline 2-Level, seluruh paket misi, dan modul Kasir POS Unimart Juragan Pro.
+                        </p>
+
+                        <div className="space-y-3 text-xs">
+                            {/* Option 1: Petualang */}
+                            <div className="p-3.5 rounded-xl border border-glass-stroke bg-surface/50 space-y-2">
+                                <div className="flex justify-between items-center">
+                                    <div>
+                                        <strong className="text-sm font-bold text-on-surface">Paket Petualang</strong>
+                                        <span className="block text-[10px] text-on-surface-variant">Komisi L1 25% + 100.000 Perak</span>
+                                    </div>
+                                    <div className="text-right">
+                                        <span className="font-bold text-primary-container font-mono text-xs">Rp 100.000</span>
+                                        <span className="text-[10px] text-on-surface-variant block font-mono">atau 80 Emas</span>
+                                    </div>
+                                </div>
+                                <button
+                                    onClick={() => handleUpgradeLicense('PETUALANG', 'GOLD')}
+                                    disabled={loading}
+                                    className="w-full py-2 rounded-lg bg-surface-variant hover:bg-primary-container hover:text-on-primary font-bold text-xs transition-colors"
+                                >
+                                    Upgrade Petualang (80 Koin Emas)
+                                </button>
+                            </div>
+
+                            {/* Option 2: Saudagar (Max Tier) */}
+                            <div className="p-3.5 rounded-xl border-2 border-primary-container bg-primary-container/10 space-y-2 shadow-[0_0_15px_rgba(255,215,0,0.15)]">
+                                <div className="flex justify-between items-center">
+                                    <div>
+                                        <div className="flex items-center gap-1.5">
+                                            <strong className="text-sm font-bold text-primary-container">Paket Saudagar Inti</strong>
+                                            <span className="text-[9px] bg-primary-container text-on-primary px-1.5 py-0.2 rounded font-bold">MAX</span>
+                                        </div>
+                                        <span className="block text-[10px] text-on-surface-variant">Komisi L1 25% + L2 10% + 200k Perak + POS Pro</span>
+                                    </div>
+                                    <div className="text-right">
+                                        <span className="font-bold text-primary-fixed-dim font-mono text-xs">Rp 200.000</span>
+                                        <span className="text-[10px] text-primary-container block font-mono">atau 150 Emas (-25%)</span>
+                                    </div>
+                                </div>
+                                <button
+                                    onClick={() => handleUpgradeLicense('SAUDAGAR', 'GOLD')}
+                                    disabled={loading}
+                                    className="w-full py-2.5 rounded-lg bg-primary-container text-on-primary font-bold text-xs uppercase tracking-wider hover:brightness-110 active:scale-95 transition-all shadow-[0_0_12px_rgba(255,215,0,0.4)]"
+                                >
+                                    Upgrade Saudagar Inti (150 Koin Emas)
+                                </button>
+                            </div>
+                        </div>
                     </div>
                 </div>
             )}

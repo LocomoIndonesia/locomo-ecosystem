@@ -70,13 +70,45 @@ class DashboardController extends Controller
             $passiveIncome += intval($e->quest->reward_amount_gold * 10 / 100);
         }
 
+        $now = \Carbon\Carbon::now('Asia/Jakarta');
+        $today = $now->toDateString();
+        $timeDetails = \App\Http\Controllers\CheckinController::getTimeWindowDetails($now);
+
+        $todayCheckin = \App\Models\UserCheckin::where('user_id', $user->id)
+            ->where('checkin_date', $today)
+            ->first();
+
+        $latestCheckin = \App\Models\UserCheckin::where('user_id', $user->id)
+            ->orderBy('checkin_date', 'desc')
+            ->first();
+
+        $currentStreak = 0;
+        if ($todayCheckin) {
+            $currentStreak = $todayCheckin->streak_count;
+        } elseif ($latestCheckin) {
+            $yesterday = $now->copy()->subDay()->toDateString();
+            if ($latestCheckin->checkin_date->toDateString() === $yesterday) {
+                $currentStreak = $latestCheckin->streak_count;
+            }
+        }
+
+        $checkinData = [
+            'has_checked_in' => (bool) $todayCheckin,
+            'today_checkin' => $todayCheckin,
+            'streak_count' => $currentStreak,
+            'time_window' => $timeDetails,
+        ];
+
         $userData = [
             'id' => $userWithWallet->id,
             'name' => $userWithWallet->name,
+            'username' => $userWithWallet->username,
             'whatsapp' => $userWithWallet->whatsapp,
             'role' => $userWithWallet->role,
             'faction' => $userWithWallet->faction,
             'role_class' => $userWithWallet->role_class,
+            'persona' => $userWithWallet->persona ?? 'UMKM',
+            'subscription_tier' => $userWithWallet->subscription_tier ?? 'FREE',
             'license_type' => $userWithWallet->license_type,
             'license_status' => $userWithWallet->license_status,
             'level' => $userWithWallet->level,
@@ -88,6 +120,8 @@ class DashboardController extends Controller
             'wallet' => $userWithWallet->wallet,
             'escrows' => $escrows,
             'quests' => $quests,
+            'checkin_status' => $checkinData,
+            'time_details' => $timeDetails,
             'global_pool' => $lp,
             'downlines' => [
                 'level_1' => $level1,

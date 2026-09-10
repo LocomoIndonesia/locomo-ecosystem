@@ -49,6 +49,17 @@ Route::middleware('auth')->group(function () {
     // Saudagar Consultation & Q&A Panel
     Route::get('/api/consultation/my', [\App\Http\Controllers\ConsultationController::class, 'getMyConsultation'])->name('consultation.my');
     Route::post('/api/consultation/reply', [\App\Http\Controllers\ConsultationController::class, 'replyToAdmin'])->name('consultation.reply');
+
+    // Daily Check-in & Time-Window Horizons
+    Route::get('/api/checkin/status', [\App\Http\Controllers\CheckinController::class, 'getStatus'])->name('checkin.status');
+    Route::post('/api/checkin', [\App\Http\Controllers\CheckinController::class, 'checkin'])->name('checkin.perform');
+
+    // POS Kasir Pintar & Business Hub
+    Route::get('/api/pos/summary', [\App\Http\Controllers\PosController::class, 'getSummary'])->name('pos.summary');
+    Route::post('/api/pos/transaction', [\App\Http\Controllers\PosController::class, 'recordTransaction'])->name('pos.transaction');
+    Route::post('/api/pos/close-register', [\App\Http\Controllers\PosController::class, 'closeRegister'])->name('pos.close-register');
+    Route::post('/api/user/switch-persona', [\App\Http\Controllers\PosController::class, 'switchPersona'])->name('user.switch-persona');
+    Route::post('/api/user/upgrade-license', [\App\Http\Controllers\PosController::class, 'upgradeLicense'])->name('user.upgrade-license');
 });
 
 // APIs that bypass auth middleware (with their own internal keys or mock triggers)
