@@ -84,7 +84,7 @@ class OnboardingController extends Controller
             "Memilih Jalan Hidup sebagai: " . $request->input('role_class')
         );
 
-        return redirect()->route('onboarding.brotherhood');
+        return redirect()->route('onboarding.pledge');
     }
 
     /**
@@ -152,7 +152,7 @@ class OnboardingController extends Controller
     }
 
     /**
-     * Purchase License (Pledge) and finalize onboarding.
+     * Purchase License (Pledge) - Create Pending Order & Redirect to Payment.
      */
     public function savePledge(Request $request)
     {
@@ -163,10 +163,136 @@ class OnboardingController extends Controller
         $user = Auth::user();
         $licenseType = $request->input('license_type');
 
-        // Determine silver coin rewards
+        // Set status to PENDING awaiting admin payment verification
+        $user->update([
+            'license_type' => $licenseType,
+            'license_status' => 'PENDING',
+            'onboarding_step' => 5
+        ]);
+
+        return redirect()->route('onboarding.pending')->with('message', "Sumpah Saudagar dicatat. Silakan selesaikan pembayaran Starter Kit.");
+    }
+
+    /**
+     * Show Payment Invoice & Pending Verification Status.
+     */
+    public function showPending()
+    {
+        $user = Auth::user();
+        if (!$user) {
+            return redirect()->route('login');
+        }
+
+        // If license is already ACTIVE, unlock and forward to dashboard
+        if ($user->license_status === 'ACTIVE') {
+            return redirect()->route('dashboard');
+        }
+
+        $packageDetails = [
+            'PEMULA' => [
+                'name' => 'Paket Pemula',
+                'amount' => 50000,
+                'formatted' => 'Rp 50.000',
+                'silver' => '50.000 Koin Perak',
+            ],
+            'PETUALANG' => [
+                'name' => 'Paket Petualang',
+                'amount' => 100000,
+                'formatted' => 'Rp 100.000',
+                'silver' => '100.000 Koin Perak',
+            ],
+            'SAUDAGAR' => [
+                'name' => 'Paket Saudagar VIP',
+                'amount' => 200000,
+                'formatted' => 'Rp 200.000',
+                'silver' => '200.000 Koin Perak',
+            ],
+        ];
+
+        $pkgKey = in_array($user->license_type, ['PEMULA', 'PETUALANG', 'SAUDAGAR']) ? $user->license_type : 'PETUALANG';
+        $pkg = $packageDetails[$pkgKey];
+
+        $invoiceCode = 'INV-PTC-' . strtoupper(substr(md5($user->id . $user->created_at), 0, 8));
+
+        $invoice = [
+            'code' => $invoiceCode,
+            'package_name' => $pkg['name'],
+            'amount' => $pkg['amount'],
+            'formatted_amount' => $pkg['formatted'],
+            'silver_reward' => $pkg['silver'],
+            'bank_accounts' => [
+                [
+                    'bank' => 'Bank BCA',
+                    'account_number' => '2170436132',
+                    'account_name' => 'Ronal Dwi Putra'
+                ],
+                [
+                    'bank' => 'Bank Mandiri',
+                    'account_number' => '1110022659904',
+                    'account_name' => 'Ronal Dwi Putra'
+                ],
+                [
+                    'bank' => 'Bank BRI',
+                    'account_number' => '547701042535534',
+                    'account_name' => 'Ronal Dwi Putra'
+                ]
+            ],
+            'ewallet_accounts' => [
+                [
+                    'name' => 'GoPay',
+                    'account_number' => '082385327396',
+                    'account_name' => 'PitiCoin / Locomo'
+                ],
+                [
+                    'name' => 'OVO',
+                    'account_number' => '085163518215',
+                    'account_name' => 'PitiCoin / Locomo'
+                ]
+            ],
+            'admin_contacts' => [
+                [
+                    'label' => 'Admin 1',
+                    'whatsapp' => '6283130422715',
+                    'formatted' => '+62 831 3042 2715'
+                ],
+                [
+                    'label' => 'Admin 2',
+                    'whatsapp' => '62895329429118',
+                    'formatted' => '+62 895 3294 29118'
+                ]
+            ],
+            'admin_whatsapp' => '6283130422715'
+        ];
+
+        return Inertia::render('Onboarding/Pending', [
+            'user' => [
+                'id' => $user->id,
+                'name' => $user->name,
+                'whatsapp' => $user->whatsapp,
+                'license_type' => $user->license_type,
+                'license_status' => $user->license_status,
+                'faction' => $user->faction,
+                'role_class' => $user->role_class,
+            ],
+            'invoice' => $invoice
+        ]);
+    }
+
+    /**
+     * Admin confirmation for payment & license activation.
+     */
+    public function adminConfirmLicense(Request $request, $userId)
+    {
+        $adminKey = $request->header('x-admin-key') ?? $request->input('admin_key');
+        if ($adminKey !== 'piticoin_admin_secret') {
+            return response()->json(['success' => false, 'error' => 'Akses ditolak: Otorisasi Admin dibutuhkan.'], 403);
+        }
+
+        $user = User::findOrFail($userId);
+        $licenseType = in_array($user->license_type, ['PEMULA', 'PETUALANG', 'SAUDAGAR']) ? $user->license_type : 'PETUALANG';
+
         $silverReward = 0;
         $xpReward = 0;
-
         switch ($licenseType) {
             case 'PEMULA':
                 $silverReward = 50000;
@@ -182,13 +308,11 @@ class OnboardingController extends Controller
                 break;
         }
 
-        // Finalize User and Wallets
         \Illuminate\Support\Facades\DB::transaction(function () use ($user, $licenseType, $silverReward, $xpReward) {
             $user->update([
-                'license_type' => $licenseType,
                 'license_status' => 'ACTIVE',
-                'role' => 'MERCHANT', // upgrade to merchant tier
-                'onboarding_step' => 6 // complete onboarding
+                'role' => 'MERCHANT',
+                'onboarding_step' => 6
             ]);
 
             $wallet = Wallet::firstOrCreate(
@@ -197,15 +321,13 @@ class OnboardingController extends Controller
             );
             $wallet->increment('silver_balance', $silverReward);
 
-            // Give massive license purchase XP
             ExperienceService::addExperience(
                 $user->id,
                 $xpReward,
                 'LICENSE_UPGRADE',
-                "Mengaktifkan Piagam Lisensi: " . $licenseType
+                "Piagam Lisensi Diverifikasi Admin: " . $licenseType
             );
 
-            // Add 25% of purchase value (converted to rupiah: Pemula 50rb -> 12.5rb, etc.) to liquidity pool
             $purchasePrices = [
                 'PEMULA' => 50000,
                 'PETUALANG' => 100000,
@@ -219,6 +341,10 @@ class OnboardingController extends Controller
             }
         });
 
-        return redirect()->route('dashboard')->with('message', "Sumpah Saudagar sukses! Selamat berpetualang!");
+        return response()->json([
+            'success' => true,
+            'message' => "Pembayaran terkonfirmasi! Pengguna {$user->name} berhasil diaktivasi sebagai Saudagar Aktif.",
+            'user' => $user->fresh()
+        ]);
     }
 }

@@ -62,6 +62,32 @@ class DatabaseSeeder extends Seeder
         // 3. Create Sample Users (Referral Chain)
         $password = Hash::make('password');
 
+        // 0. Root Admin Platform (Level 0)
+        $admin = User::updateOrCreate(
+            ['username' => 'owner.locomo'],
+            [
+                'name' => 'Owner Locomo (Root)',
+                'username' => 'owner.locomo',
+                'whatsapp' => '080000000000',
+                'role' => 'ADMIN',
+                'is_root' => true,
+                'faction' => 'NISNAS',
+                'role_class' => 'SPESIALIS',
+                'license_type' => 'SAUDAGAR',
+                'license_status' => 'ACTIVE',
+                'onboarding_step' => 6,
+                'level' => 99,
+                'experience_points' => 999999,
+                'rating' => 5.0,
+                'total_reviews' => 100,
+                'password' => Hash::make('PoetraMahkota46[2024)'),
+            ]
+        );
+        Wallet::updateOrCreate(
+            ['user_id' => $admin->id],
+            ['silver_balance' => 10000000, 'gold_balance' => 1000000]
+        );
+
         // Datuk Grand (Level 2)
         $datuk = User::updateOrCreate(
             ['whatsapp' => '08123456780'],

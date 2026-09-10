@@ -1,14 +1,14 @@
 {
-  "project_name": "unimart.group",
+  "project_name": "piticoin.id",
   "version": "1.0.0",
   "owner": "The Orchestrator",
-  "description": "Platform SaaS Multi-Tenant Kasir Pintar (POS) & Asisten Bisnis Pintar",
+  "description": "Platform Gamifikasi Simulasi Perburuan Harta Karun Gunung Mas & Gateway Ekosistem Locomo",
   "tech_stack": {
     "language": "PHP 8.4",
     "framework": "Laravel 13",
-    "database": "PostgreSQL",
-    "cache": "File",
-    "frontend": "Blade / Alpine.js"
+    "database": "PostgreSQL 15",
+    "cache": "Database / Redis",
+    "frontend": "React / Inertia.js / Tailwind CSS / PixiJS"
   },
   "guardrails": [
     {

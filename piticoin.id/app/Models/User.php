@@ -13,8 +13,10 @@ class User extends Authenticatable
 
     protected $fillable = [
         'name',
+        'username',
         'whatsapp',
         'role',
+        'is_root',
         'upline_id',
         'grand_upline_id',
         'password',
@@ -25,6 +27,8 @@ class User extends Authenticatable
         'onboarding_step',
         'level',
         'experience_points',
+        'rating',
+        'total_reviews',
     ];
 
     protected $hidden = [
@@ -72,5 +76,10 @@ class User extends Authenticatable
     public function agentMissions()
     {
         return $this->hasMany(AgentMission::class, 'user_id');
+    }
+
+    public function consultations()
+    {
+        return $this->hasMany(Consultation::class, 'user_id');
     }
 }

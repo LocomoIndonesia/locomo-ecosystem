@@ -3,12 +3,14 @@
   "system_version": "9.2.0-enterprise",
   "system_health": "healthy",
   "env_status": "running",
-  "current_phase": "UNIMART_MVP_FOUNDATION",
-  "active_strategy": "unimart_caffe_mvp",
-  "global_goal": "Finishing Unimart.group landing page and F&B Caffe MVP business flow",
+  "current_phase": "PITICOIN_ROOT_ADMIN_AND_EXPEDITION_CONTROL",
+  "active_strategy": "gunung_mas_simulation_locomo_entryway",
+  "global_goal": "Merancang & Mengimplementasikan User Flow Ekspedisi Gunung Mas & Root Control Center PitiCoin.id sebagai Pintu Masuk Ekosistem Locomo",
   "tasks": [
-    { "id": "PHASE_1", "status": "IN_PROGRESS", "label": "Unimart.group Landing Page & Business Flow Design" },
-    { "id": "PHASE_2", "status": "PENDING", "label": "Unimart.group F&B Caffe MVP Implementation" }
+    { "id": "PHASE_1", "status": "COMPLETED", "label": "Analisis Logika Bisnis & Perancangan User Flow Ekspedisi Gunung Mas" },
+    { "id": "PHASE_2", "status": "COMPLETED", "label": "Implementasi & Integrasi Onboarding Flow (Step 1 - Step 5)" },
+    { "id": "PHASE_3", "status": "COMPLETED", "label": "Admin Root Level 0 Management Panel & Consultation/Q&A System" },
+    { "id": "PHASE_4", "status": "IN_PROGRESS", "label": "Integrasi Dynamic Missions, Hourly Angpao, & Multi-Persona Ecosystem" }
   ],
-  "priorities": ["Unimart.group Interactive Landing Page", "F&B Cafe MVP Business Process Design", "Database Migration and Seeders for Cafe MVP"]
+  "priorities": ["Admin Root Level 0 Control & Verification", "Konsultasi & Notifikasi Private Saudagar", "Dynamic Mission Categories & Hourly Angpao"]
 }

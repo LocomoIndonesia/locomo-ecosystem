@@ -699,7 +699,7 @@ export default function Conqueror({
                                         {!agentMission ? (
                                             <button
                                                 onClick={handleTakeAgentMission}
-                                                disabled={loading || (wallet && wallet.silver_balance < 2500)}
+                                                disabled={Boolean(loading || (wallet && wallet.silver_balance < 2500))}
                                                 className="w-full py-4 rounded-xl bg-primary-container text-on-primary font-label-sm text-sm font-bold tracking-widest hover:bg-primary-fixed-dim transition-transform hover:scale-[1.02] active:scale-95 disabled:opacity-50"
                                             >
                                                 [ AMBIL MISI & STAKE 2.500 PERAK ]
@@ -721,7 +721,7 @@ export default function Conqueror({
                                         ) : (
                                             <button
                                                 onClick={handleTakeAgentMission}
-                                                disabled={loading || (wallet && wallet.silver_balance < 2500)}
+                                                disabled={Boolean(loading || (wallet && wallet.silver_balance < 2500))}
                                                 className="w-full py-4 rounded-xl bg-primary-container text-on-primary font-label-sm text-sm font-bold tracking-widest hover:bg-primary-fixed-dim transition-transform hover:scale-[1.02] active:scale-95 disabled:opacity-50"
                                             >
                                                 [ AMBIL MISI BARU ]

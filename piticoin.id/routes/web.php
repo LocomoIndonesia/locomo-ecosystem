@@ -30,6 +30,7 @@ Route::middleware('auth')->group(function () {
     Route::post('/onboarding/brotherhood', [\App\Http\Controllers\OnboardingController::class, 'saveBrotherhood']);
     Route::get('/onboarding/pledge', [\App\Http\Controllers\OnboardingController::class, 'showPledge'])->name('onboarding.pledge');
     Route::post('/onboarding/pledge', [\App\Http\Controllers\OnboardingController::class, 'savePledge']);
+    Route::get('/onboarding/pending', [\App\Http\Controllers\OnboardingController::class, 'showPending'])->name('onboarding.pending');
 
     // Auction Routes
     Route::get('/auction', [\App\Http\Controllers\AuctionController::class, 'index'])->name('auction.index');
@@ -38,11 +39,22 @@ Route::middleware('auth')->group(function () {
     // Digital Goods Routes
     Route::get('/digital-goods', [\App\Http\Controllers\DigitalGoodsController::class, 'index'])->name('digital-goods.index');
     Route::post('/api/digital-goods/redeem', [\App\Http\Controllers\DigitalGoodsController::class, 'redeem'])->name('digital-goods.redeem');
+
+    // Admin Root Level 0 Management Panel
+    Route::get('/admin', [\App\Http\Controllers\AdminDashboardController::class, 'index'])->name('admin.dashboard');
+    Route::post('/admin/approve-license/{userId}', [\App\Http\Controllers\AdminDashboardController::class, 'approveLicense'])->name('admin.approve-license');
+    Route::get('/admin/consultations/{userId}', [\App\Http\Controllers\AdminDashboardController::class, 'getConsultation'])->name('admin.consultations.get');
+    Route::post('/admin/messages/send', [\App\Http\Controllers\AdminDashboardController::class, 'sendMessage'])->name('admin.messages.send');
+
+    // Saudagar Consultation & Q&A Panel
+    Route::get('/api/consultation/my', [\App\Http\Controllers\ConsultationController::class, 'getMyConsultation'])->name('consultation.my');
+    Route::post('/api/consultation/reply', [\App\Http\Controllers\ConsultationController::class, 'replyToAdmin'])->name('consultation.reply');
 });
 
 // APIs that bypass auth middleware (with their own internal keys or mock triggers)
 Route::post('/api/quests/resolve', [QuestController::class, 'resolve'])->name('quests.resolve');
 Route::post('/api/payment/webhook', [PaymentController::class, 'webhook'])->name('payment.webhook');
+Route::post('/api/admin/confirm-license/{userId}', [\App\Http\Controllers\OnboardingController::class, 'adminConfirmLicense'])->name('admin.confirm-license');
 
 // KOA Atlas Inspector API Routes
 Route::get('/api/koa-atlas/{name}', [\App\Http\Controllers\KoaAtlasController::class, 'load'])->name('koa-atlas.load');

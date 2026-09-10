@@ -42,13 +42,22 @@ class LoginRequest extends FormRequest
     {
         $this->ensureIsNotRateLimited();
 
-        if (! Auth::attempt($this->only('whatsapp', 'password'), $this->boolean('remember'))) {
+        $identifier = $this->input('whatsapp');
+        $password = $this->input('password');
+
+        $user = \App\Models\User::where('whatsapp', $identifier)
+            ->orWhere('username', $identifier)
+            ->first();
+
+        if (! $user || ! \Illuminate\Support\Facades\Hash::check($password, $user->password)) {
             RateLimiter::hit($this->throttleKey());
 
             throw ValidationException::withMessages([
                 'whatsapp' => __('auth.failed'),
             ]);
         }
+
+        Auth::login($user, $this->boolean('remember'));
 
         RateLimiter::clear($this->throttleKey());
     }

@@ -36,7 +36,20 @@ class RegisteredUserController extends Controller
         $request->validate([
             'name' => 'required|string|max:255',
             'whatsapp' => 'required|string|max:255|unique:'.User::class,
-            'password' => ['required', 'confirmed', Rules\Password::defaults()],
+            'password' => [
+                'required',
+                'confirmed',
+                Rules\Password::min(8)
+                    ->letters()
+                    ->numbers(),
+            ],
+        ], [
+            'name.required' => 'Nama lengkap wajib diisi.',
+            'whatsapp.required' => 'Nomor WhatsApp wajib diisi.',
+            'whatsapp.unique' => 'Nomor WhatsApp ini sudah terdaftar.',
+            'password.required' => 'Password wajib diisi.',
+            'password.confirmed' => 'Konfirmasi password tidak cocok dengan password.',
+            'password.min' => 'Password minimal harus 8 karakter.',
         ]);
 
         $uplineId = null;
@@ -75,6 +88,6 @@ class RegisteredUserController extends Controller
 
         Auth::login($user);
 
-        return redirect(route('dashboard', absolute: false));
+        return redirect(route('onboarding.awakening', absolute: false));
     }
 }

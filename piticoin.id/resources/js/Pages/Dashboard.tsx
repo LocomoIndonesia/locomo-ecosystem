@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Head, router } from '@inertiajs/react';
-import { Coins, Flame, Map, Users, ArrowRight, Shield, Award, LogOut } from 'lucide-react';
+import { Coins, Flame, Map, Users, ArrowRight, Shield, Award, LogOut, MessageSquare, Send, X, RefreshCw } from 'lucide-react';
 
 interface DashboardProps {
     user: {
@@ -60,6 +60,56 @@ export default function Dashboard({
     const [animatedFiat, setAnimatedFiat] = useState<number>(
         Number(global_pool?.total_fiat_in_bank || 500000) - Number(global_pool?.total_gold_in_circulation || 0)
     );
+
+    // Consultation & Q&A States
+    const [showConsultModal, setShowConsultModal] = useState(false);
+    const [consultMessages, setConsultMessages] = useState<any[]>([]);
+    const [consultLoading, setConsultLoading] = useState(false);
+    const [consultInput, setConsultInput] = useState('');
+    const [sendingConsult, setSendingConsult] = useState(false);
+
+    const openConsultation = async () => {
+        setShowConsultModal(true);
+        setConsultLoading(true);
+        try {
+            const res = await fetch(route('consultation.my'));
+            const data = await res.json();
+            setConsultMessages(data.messages || []);
+        } catch (err) {
+            console.error('Failed to load consultation messages', err);
+        } finally {
+            setConsultLoading(false);
+        }
+    };
+
+    const handleSendConsultation = async (e: React.FormEvent) => {
+        e.preventDefault();
+        if (!consultInput.trim()) return;
+
+        setSendingConsult(true);
+        try {
+            const res = await fetch(route('consultation.reply'), {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': (document.querySelector('meta[name="csrf-token"]') as HTMLMetaElement)?.content || '',
+                },
+                body: JSON.stringify({
+                    message: consultInput.trim(),
+                    subject: 'Konsultasi Saudagar',
+                }),
+            });
+            const data = await res.json();
+            if (data.success && data.message) {
+                setConsultMessages(prev => [...prev, data.message]);
+                setConsultInput('');
+            }
+        } catch (err) {
+            console.error('Error sending message', err);
+        } finally {
+            setSendingConsult(false);
+        }
+    };
 
     // Client mount detection to avoid hydration mismatches
     useEffect(() => {
@@ -219,9 +269,19 @@ export default function Dashboard({
                         <span className="username">{user.name}</span>
                         <div style={{ fontSize: '0.65rem', color: '#a0aec0' }}>WA: {user.whatsapp}</div>
                     </div>
-                    <span className={`user-badge ${user.role === 'MERCHANT' ? 'badge-merchant' : 'badge-guest'}`}>
-                        {user.role === 'MERCHANT' ? 'Merchant Tier' : 'Free Tier'}
-                    </span>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                        <button
+                            onClick={openConsultation}
+                            className="btn btn-secondary"
+                            style={{ fontSize: '0.7rem', padding: '0.35rem 0.65rem', display: 'flex', alignItems: 'center', gap: '0.35rem', borderColor: 'rgba(255,215,0,0.4)', color: '#ffd700' }}
+                        >
+                            <MessageSquare size={13} />
+                            <span>Konsultasi Admin (Q&A)</span>
+                        </button>
+                        <span className={`user-badge ${user.role === 'MERCHANT' ? 'badge-merchant' : 'badge-guest'}`}>
+                            {user.role === 'MERCHANT' ? 'Merchant Tier' : 'Free Tier'}
+                        </span>
+                    </div>
                 </div>
 
                 <div className="balances-grid">
@@ -495,6 +555,171 @@ export default function Dashboard({
                     )}
                 </div>
             </div>
+
+            {/* Consultation Modal for Saudagar */}
+            {showConsultModal && (
+                <div style={{
+                    position: 'fixed',
+                    top: 0,
+                    left: 0,
+                    right: 0,
+                    bottom: 0,
+                    backgroundColor: 'rgba(0,0,0,0.8)',
+                    backdropFilter: 'blur(4px)',
+                    zIndex: 9999,
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    padding: '1rem'
+                }}>
+                    <div style={{
+                        backgroundColor: '#121216',
+                        border: '1px solid rgba(255,215,0,0.3)',
+                        borderRadius: '16px',
+                        width: '100%',
+                        maxWidth: '550px',
+                        maxHeight: '85vh',
+                        display: 'flex',
+                        flexDirection: 'column',
+                        overflow: 'hidden',
+                        boxShadow: '0 10px 40px rgba(0,0,0,0.8)'
+                    }}>
+                        {/* Header */}
+                        <div style={{
+                            padding: '1rem',
+                            borderBottom: '1px solid rgba(255,255,255,0.1)',
+                            backgroundColor: '#16161e',
+                            display: 'flex',
+                            justifyContent: 'space-between',
+                            alignItems: 'center'
+                        }}>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                                <MessageSquare size={18} color="#ffd700" />
+                                <div>
+                                    <h3 style={{ margin: 0, fontSize: '0.9rem', color: '#fff', fontWeight: 'bold' }}>Konsultasi & Q&A Admin Platform</h3>
+                                    <span style={{ fontSize: '0.65rem', color: '#a0aec0' }}>Jalur pesan pribadi dengan Administrator Level 0</span>
+                                </div>
+                            </div>
+                            <button
+                                onClick={() => setShowConsultModal(false)}
+                                style={{ background: 'none', border: 'none', color: '#a0aec0', cursor: 'pointer', padding: '0.25rem' }}
+                            >
+                                <X size={18} />
+                            </button>
+                        </div>
+
+                        {/* Message list */}
+                        <div style={{
+                            flex: 1,
+                            padding: '1rem',
+                            overflowY: 'auto',
+                            minHeight: '260px',
+                            maxHeight: '380px',
+                            backgroundColor: '#0a0a0c',
+                            display: 'flex',
+                            flexDirection: 'column',
+                            gap: '0.75rem'
+                        }}>
+                            {consultLoading ? (
+                                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100%', color: '#a0aec0', fontSize: '0.8rem', gap: '0.5rem' }}>
+                                    <RefreshCw size={14} className="animate-spin" />
+                                    <span>Memuat pesan konsultasi...</span>
+                                </div>
+                            ) : consultMessages.length === 0 ? (
+                                <div style={{ textAlign: 'center', margin: 'auto', color: '#718096', fontSize: '0.75rem' }}>
+                                    <MessageSquare size={28} style={{ margin: '0 auto 0.5rem auto', opacity: 0.5 }} />
+                                    <p style={{ margin: 0 }}>Belum ada pesan konsultasi.</p>
+                                    <p style={{ margin: '0.25rem 0 0 0', fontSize: '0.7rem' }}>Ajukan pertanyaan atau konsultasi seputar strategi ekspedisi dan lisensi Anda.</p>
+                                </div>
+                            ) : (
+                                consultMessages.map((msg) => {
+                                    const isAdmin = msg.sender_role === 'ADMIN';
+                                    return (
+                                        <div
+                                            key={msg.id}
+                                            style={{
+                                                alignSelf: isAdmin ? 'flex-start' : 'flex-end',
+                                                maxWidth: '85%',
+                                                display: 'flex',
+                                                flexDirection: 'column',
+                                                alignItems: isAdmin ? 'flex-start' : 'flex-end'
+                                            }}
+                                        >
+                                            <div style={{ fontSize: '0.65rem', color: '#a0aec0', marginBottom: '0.2rem' }}>
+                                                {isAdmin ? '👑 Administrator Platform' : 'Anda'} • {new Date(msg.created_at).toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' })}
+                                            </div>
+                                            <div style={{
+                                                backgroundColor: isAdmin ? '#1e1c12' : '#232332',
+                                                color: isAdmin ? '#ffd700' : '#fff',
+                                                border: isAdmin ? '1px solid rgba(255,215,0,0.3)' : '1px solid rgba(255,255,255,0.1)',
+                                                borderRadius: '12px',
+                                                padding: '0.65rem 0.85rem',
+                                                fontSize: '0.75rem',
+                                                lineHeight: 1.5,
+                                                whiteSpace: 'pre-wrap'
+                                            }}>
+                                                {msg.subject && (
+                                                    <div style={{ fontWeight: 'bold', fontSize: '0.7rem', marginBottom: '0.25rem', color: isAdmin ? '#f6ad55' : '#a0aec0' }}>
+                                                        {msg.subject}
+                                                    </div>
+                                                )}
+                                                {msg.message}
+                                            </div>
+                                        </div>
+                                    );
+                                })
+                            )}
+                        </div>
+
+                        {/* Input form */}
+                        <form onSubmit={handleSendConsultation} style={{
+                            padding: '0.75rem',
+                            borderTop: '1px solid rgba(255,255,255,0.1)',
+                            backgroundColor: '#16161e',
+                            display: 'flex',
+                            gap: '0.5rem'
+                        }}>
+                            <input
+                                type="text"
+                                value={consultInput}
+                                onChange={(e) => setConsultInput(e.target.value)}
+                                placeholder="Ketik pertanyaan atau konsultasi untuk Admin..."
+                                style={{
+                                    flex: 1,
+                                    backgroundColor: '#0a0a0c',
+                                    border: '1px solid rgba(255,255,255,0.15)',
+                                    borderRadius: '8px',
+                                    padding: '0.5rem 0.75rem',
+                                    fontSize: '0.75rem',
+                                    color: '#fff',
+                                    outline: 'none'
+                                }}
+                            />
+                            <button
+                                type="submit"
+                                disabled={sendingConsult || !consultInput.trim()}
+                                style={{
+                                    backgroundColor: '#ffd700',
+                                    color: '#000',
+                                    fontWeight: 'bold',
+                                    border: 'none',
+                                    borderRadius: '8px',
+                                    padding: '0.5rem 0.85rem',
+                                    fontSize: '0.75rem',
+                                    cursor: 'pointer',
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    gap: '0.35rem',
+                                    opacity: (!consultInput.trim() || sendingConsult) ? 0.5 : 1
+                                }}
+                            >
+                                <Send size={13} />
+                                <span>Kirim</span>
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            )}
         </div>
     );
 }

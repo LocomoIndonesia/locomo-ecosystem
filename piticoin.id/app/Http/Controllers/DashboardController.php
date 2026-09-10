@@ -25,6 +25,11 @@ class DashboardController extends Controller
         // 1. Fetch User and Wallet details
         $userWithWallet = User::with('wallet')->find($user->id);
 
+        // If license status is PENDING, lock user in pending payment verification page
+        if ($userWithWallet && $userWithWallet->license_status === 'PENDING') {
+            return redirect()->route('onboarding.pending');
+        }
+
         // 2. Fetch Active and Completed Escrow Transactions
         $escrows = EscrowTransaction::where('user_id', $user->id)
             ->with('quest')
