@@ -1,12 +1,13 @@
-import { useEffect, useState, FormEventHandler } from 'react';
+import { useState, FormEventHandler } from 'react';
 import Checkbox from '@/Components/Checkbox';
 import InputError from '@/Components/InputError';
 import GuestLayout from '@/Layouts/GuestLayout';
 import { Head, Link, useForm } from '@inertiajs/react';
-import { Lock, Phone, ArrowRight, Eye, EyeOff, User as UserIcon } from 'lucide-react';
+import { Lock, Phone, ArrowRight, Eye, EyeOff } from 'lucide-react';
 
 export default function Login({ status }: { status?: string }) {
     const [showPassword, setShowPassword] = useState(false);
+
     const { data, setData, post, processing, errors, reset } = useForm({
         whatsapp: '',
         password: '',
@@ -22,7 +23,7 @@ export default function Login({ status }: { status?: string }) {
 
     return (
         <GuestLayout>
-            <Head title="Masuk Dasbor" />
+            <Head title="Masuk Dasbor - PITICOIN.ID" />
 
             {/* Header Titles */}
             <div className="text-center mb-6">
@@ -30,7 +31,7 @@ export default function Login({ status }: { status?: string }) {
                     Selamat Datang Kembali
                 </h2>
                 <p className="font-body-md text-sm text-on-surface-variant">
-                    Masuk untuk melanjutkan ke Ekspedisi Gunung Mas atau Panel Admin
+                    Masuk untuk melanjutkan ke Ekspedisi Gunung Mas
                 </p>
             </div>
 
@@ -41,11 +42,11 @@ export default function Login({ status }: { status?: string }) {
             )}
 
             <form onSubmit={submit} className="flex flex-col gap-4">
-                {/* Input: WhatsApp or Username */}
+                {/* Input: WhatsApp */}
                 <div className="flex flex-col gap-2">
                     <label htmlFor="whatsapp" className="font-label-sm text-[11px] text-primary font-bold tracking-widest uppercase flex items-center gap-1.5">
-                        <UserIcon size={14} className="text-primary-container" />
-                        Nomor WhatsApp / Username
+                        <Phone size={14} className="text-primary-container" />
+                        Nomor WhatsApp
                     </label>
                     <div className="relative flex items-center bg-[#0c0c0c] border border-glass-stroke rounded-lg focus-within:border-primary-container focus-within:shadow-[0_0_12px_rgba(255,215,0,0.15)] transition-all duration-300 shadow-[inset_2px_2px_5px_rgba(0,0,0,0.7),inset_-1px_-1px_3px_rgba(255,255,255,0.05)] overflow-hidden">
                         <input
@@ -57,7 +58,7 @@ export default function Login({ status }: { status?: string }) {
                             autoComplete="username"
                             required
                             onChange={(e) => setData('whatsapp', e.target.value)}
-                            placeholder="Contoh: 08123456782 atau owner.locomo"
+                            placeholder="Contoh: 08123456782"
                         />
                     </div>
                     <InputError message={errors.whatsapp} className="mt-1 text-xs text-error font-semibold" />
@@ -100,32 +101,37 @@ export default function Login({ status }: { status?: string }) {
                             name="remember"
                             checked={data.remember}
                             onChange={(e) => setData('remember', e.target.checked)}
-                            className="rounded border-glass-stroke bg-[#0c0c0c] text-primary-container focus:ring-0 focus:ring-offset-0"
                         />
-                        <span className="font-body-md text-xs text-on-surface-variant">
-                            Ingat saya
-                        </span>
+                        <span className="font-body-md text-xs text-on-surface-variant">Ingat saya</span>
                     </label>
                 </div>
 
-                {/* Submit button */}
+                {/* Submit Action */}
                 <button
                     type="submit"
-                    className="w-full bg-primary-container text-obsidian-surface font-label-sm text-xs font-bold uppercase tracking-widest py-4 rounded-xl shadow-[0_0_15px_rgba(255,215,0,0.3)] hover:shadow-[0_0_25px_rgba(255,215,0,0.5)] hover:scale-[1.02] active:scale-95 transition-all duration-300 flex justify-center items-center gap-2 border border-transparent hover:border-white/20 disabled:opacity-50 disabled:cursor-not-allowed"
                     disabled={processing}
+                    className="w-full relative overflow-hidden group bg-gradient-to-r from-[#e5a93c] via-[#ffd700] to-[#b38329] text-[#121212] font-label-md font-bold text-sm tracking-wider uppercase py-4 rounded-xl shadow-[0_4px_20px_rgba(255,215,0,0.3)] hover:shadow-[0_6px_25px_rgba(255,215,0,0.5)] transition-all duration-300 active:scale-[0.98] disabled:opacity-50 flex items-center justify-center gap-2 mt-2"
                 >
-                    <span>MASUK DASBOR</span>
-                    <ArrowRight size={16} />
+                    <span className="relative z-10 flex items-center gap-2">
+                        {processing ? 'Memproses...' : 'Masuk Dasbor'}
+                        {!processing && <ArrowRight size={16} className="group-hover:translate-x-1 transition-transform" />}
+                    </span>
+                    <div className="absolute inset-0 bg-white/20 translate-y-full group-hover:translate-y-0 transition-transform duration-300" />
                 </button>
+            </form>
 
-                {/* Footer link */}
-                <div className="text-center mt-4 text-xs font-body-md space-y-1">
-                    <p className="text-on-surface-variant">Belum terdaftar sebagai Saudagar?</p>
-                    <Link href={route('register')} className="text-white hover:text-primary-container underline transition-colors font-bold">
+            {/* Footer Referral / Register */}
+            <div className="text-center mt-6">
+                <p className="font-body-md text-xs text-on-surface-variant">
+                    Belum terdaftar sebagai Saudagar?{' '}
+                    <Link
+                        href={route('register')}
+                        className="text-white font-bold hover:text-primary-container transition-colors underline underline-offset-4"
+                    >
                         Daftar Akun Baru
                     </Link>
-                </div>
-            </form>
+                </p>
+            </div>
         </GuestLayout>
     );
 }

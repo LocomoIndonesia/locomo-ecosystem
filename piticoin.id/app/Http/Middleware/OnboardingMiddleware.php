@@ -16,6 +16,11 @@ class OnboardingMiddleware
     {
         $user = Auth::user();
         if ($user) {
+            // ADMIN root platform bypasses onboarding checks
+            if ($user->role === 'ADMIN') {
+                return $next($request);
+            }
+
             $step = intval($user->onboarding_step);
 
             // If user has not completed onboarding (step < 6)
