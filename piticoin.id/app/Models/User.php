@@ -24,6 +24,8 @@ class User extends Authenticatable
         'role_class',
         'license_type',
         'license_status',
+        'persona',
+        'subscription_tier',
         'onboarding_step',
         'level',
         'experience_points',
@@ -81,5 +83,10 @@ class User extends Authenticatable
     public function consultations()
     {
         return $this->hasMany(Consultation::class, 'user_id');
+    }
+
+    public function checkins()
+    {
+        return $this->hasMany(UserCheckin::class, 'user_id');
     }
 }

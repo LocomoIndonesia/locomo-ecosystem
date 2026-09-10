@@ -18,6 +18,11 @@ class Quest extends Model
         'reward_amount_gold',
         'time_limit_hours',
         'is_active',
+        'quest_category',
+        'target_persona',
+        'time_window',
+        'min_level',
+        'parameters',
     ];
 
     protected $casts = [
@@ -25,6 +30,8 @@ class Quest extends Model
         'reward_amount_gold' => 'integer',
         'time_limit_hours' => 'integer',
         'is_active' => 'boolean',
+        'min_level' => 'integer',
+        'parameters' => 'array',
     ];
 
     public function escrowTransactions()
