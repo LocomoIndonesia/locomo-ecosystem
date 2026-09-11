@@ -253,29 +253,32 @@ export default function AdminDashboard({
     };
 
     // Filter Helpers
-    const filteredPending = pendingUsers.filter(u => 
-        u.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        (u.username && u.username.toLowerCase().includes(searchQuery.toLowerCase())) ||
-        u.whatsapp.includes(searchQuery)
+    const q = (searchQuery || '').toLowerCase().trim();
+
+    const filteredPending = (pendingUsers || []).filter(u => 
+        (u?.name || '').toLowerCase().includes(q) ||
+        (u?.username || '').toLowerCase().includes(q) ||
+        String(u?.whatsapp || '').includes(q)
     );
 
-    const filteredActive = activeSaudagars.filter(u => 
-        u.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        (u.username && u.username.toLowerCase().includes(searchQuery.toLowerCase())) ||
-        u.whatsapp.includes(searchQuery)
+    const filteredActive = (activeSaudagars || []).filter(u => 
+        (u?.name || '').toLowerCase().includes(q) ||
+        (u?.username || '').toLowerCase().includes(q) ||
+        String(u?.whatsapp || '').includes(q)
     );
 
-    const filteredServices = services.filter(s =>
-        s.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        s.code.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        s.category.toLowerCase().includes(searchQuery.toLowerCase())
+    const filteredServices = (services || []).filter(s =>
+        (s?.name || '').toLowerCase().includes(q) ||
+        (s?.code || '').toLowerCase().includes(q) ||
+        (s?.category || '').toLowerCase().includes(q)
     );
 
-    const filteredOrders = orders.filter(o =>
-        o.order_number.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        (o.service?.name && o.service.name.toLowerCase().includes(searchQuery.toLowerCase())) ||
-        (o.user?.name && o.user.name.toLowerCase().includes(searchQuery.toLowerCase()))
-    );
+    const filteredOrders = (orders || []).filter(o => {
+        const orderNum = o?.order_number || (o as any)?.license_code || '';
+        const sName = o?.service?.name || '';
+        const uName = o?.user?.name || '';
+        return orderNum.toLowerCase().includes(q) || sName.toLowerCase().includes(q) || uName.toLowerCase().includes(q);
+    });
 
     // Approve License Action
     const handleApprove = (userId: string, userName: string) => {
@@ -284,7 +287,7 @@ export default function AdminDashboard({
         }
 
         setProcessingId(userId);
-        router.post(route('admin.approve-license', { userId }), {}, {
+        router.post(`/admin/approve-license/${userId}`, {}, {
             preserveScroll: true,
             onFinish: () => setProcessingId(null)
         });
@@ -296,7 +299,7 @@ export default function AdminDashboard({
         setChatLoading(true);
         setChatMessages([]);
         try {
-            const res = await fetch(route('admin.consultations.get', { userId: saudagar.id }));
+            const res = await fetch(`/admin/consultations/${saudagar.id}`);
             const data = await res.json();
             if (data.messages) {
                 setChatMessages(data.messages);
@@ -315,7 +318,7 @@ export default function AdminDashboard({
 
         setSendingMessage(true);
         try {
-            const res = await fetch(route('admin.messages.send'), {
+            const res = await fetch('/admin/messages/send', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -410,7 +413,7 @@ export default function AdminDashboard({
                     </div>
 
                     <Link
-                        href={route('dashboard')}
+                        href="/dashboard"
                         className="px-3 py-1.5 rounded-lg bg-white/5 hover:bg-white/10 text-gray-300 hover:text-white border border-white/10 text-xs transition-colors flex items-center gap-1.5"
                     >
                         <span>Dasbor User</span>
@@ -418,7 +421,7 @@ export default function AdminDashboard({
                     </Link>
 
                     <Link
-                        href={route('logout')}
+                        href="/logout"
                         method="post"
                         as="button"
                         className="px-3 py-1.5 rounded-lg bg-red-950/40 hover:bg-red-900/60 text-red-300 border border-red-800/40 text-xs transition-colors"
@@ -540,7 +543,7 @@ export default function AdminDashboard({
                         </div>
                         <div className="flex items-baseline gap-1.5">
                             <span className="text-base lg:text-lg font-bold font-mono text-slate-200 truncate">
-                                {stats.total_silver.toLocaleString('id-ID')}
+                                {Number(stats?.total_silver || 0).toLocaleString('id-ID')}
                             </span>
                         </div>
                     </div>

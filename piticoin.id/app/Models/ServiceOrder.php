@@ -36,9 +36,15 @@ class ServiceOrder extends Model
     ];
 
     protected $appends = [
+        'order_number',
         'remaining_amount_gold',
         'remaining_amount_fiat',
     ];
+
+    public function getOrderNumberAttribute(): string
+    {
+        return $this->license_code ?: ('ORD-' . substr($this->id, 0, 8));
+    }
 
     public function getRemainingAmountGoldAttribute(): float
     {
