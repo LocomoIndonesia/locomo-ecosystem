@@ -17,6 +17,7 @@ interface ServiceItem {
     icon?: string;
     category: string;
     service_type: 'INTERNAL' | 'EXTERNAL';
+    description?: string;
     price_gold: number;
     price_fiat: number;
     allows_installments: boolean;

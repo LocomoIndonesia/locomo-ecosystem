@@ -35,6 +35,21 @@ class ServiceOrder extends Model
         'order_data' => 'array',
     ];
 
+    protected $appends = [
+        'remaining_amount_gold',
+        'remaining_amount_fiat',
+    ];
+
+    public function getRemainingAmountGoldAttribute(): float
+    {
+        return max(0, (float) $this->total_amount_gold - (float) $this->paid_amount_gold);
+    }
+
+    public function getRemainingAmountFiatAttribute(): float
+    {
+        return max(0, (float) $this->total_amount_fiat - (float) $this->paid_amount_fiat);
+    }
+
     public function service(): BelongsTo
     {
         return $this->belongsTo(EcosystemService::class, 'service_id');

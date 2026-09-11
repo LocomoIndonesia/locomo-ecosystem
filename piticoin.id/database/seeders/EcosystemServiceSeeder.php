@@ -261,5 +261,101 @@ class EcosystemServiceSeeder extends Seeder
                 ],
             ]
         );
+
+        // 4. Internal Product: Paket Umroh Barokah & Maqbul 2026
+        EcosystemService::updateOrCreate(
+            ['code' => 'umroh-barokah'],
+            [
+                'name' => 'Paket Umroh Barokah & Maqbul 2026',
+                'icon' => 'card_travel',
+                'category' => 'UMROH',
+                'service_type' => 'INTERNAL',
+                'description' => 'Program ibadah Umroh 12 hari plus fasilitas hotel bintang 5 Mekkah & Madinah, bimbingan mutawwif bersertifikat, visa resmi Kemenag, dan bonus perlengkapan ibadah eksekutif. Mendukung pembayaran bertahap (cicilan) dan bagi hasil profit sharing multi-level real-time.',
+                'price_gold' => 20000,
+                'price_fiat' => 25000000,
+                'allows_installments' => true,
+                'min_down_payment_gold' => 4000,
+                'min_down_payment_fiat' => 5000000,
+                'commission_rules' => [
+                    'depth' => 3,
+                    'levels' => [
+                        ['level' => 1, 'percentage' => 10], // L1 sponsor langsung: 10% (2.000 Emas / Rp 2.500.000)
+                        ['level' => 2, 'percentage' => 5],  // L2 upline: 5% (1.000 Emas / Rp 1.250.000)
+                        ['level' => 3, 'percentage' => 2.5], // L3 grand upline: 2.5% (500 Emas / Rp 625.000)
+                    ],
+                ],
+                'status' => 'ACTIVE',
+                'is_active' => true,
+                'wizard_schema' => [
+                    'steps' => [
+                        [
+                            'id' => 'pilgrim_profile',
+                            'title' => 'Data Calon Jamaah Umroh',
+                            'description' => 'Lengkapi identitas jamaah sesuai dokumen paspor resmi',
+                            'fields' => [
+                                [
+                                    'name' => 'passport_name',
+                                    'label' => 'Nama Sesuai Paspor',
+                                    'type' => 'text',
+                                    'required' => true,
+                                    'placeholder' => 'Contoh: MUHAMMAD RIDWAN BIN ABDULLAH',
+                                ],
+                                [
+                                    'name' => 'passport_number',
+                                    'label' => 'Nomor Paspor RI (Opsional jika belum jadi)',
+                                    'type' => 'text',
+                                    'required' => false,
+                                    'placeholder' => 'Contoh: X1234567',
+                                ],
+                                [
+                                    'name' => 'gender',
+                                    'label' => 'Jenis Kelamin Jamaah',
+                                    'type' => 'select',
+                                    'required' => true,
+                                    'options' => ['Laki-Laki (Ikhwan)', 'Perempuan (Akhwat)'],
+                                ],
+                                [
+                                    'name' => 'uniform_size',
+                                    'label' => 'Ukuran Seragam / Batik / Gamis',
+                                    'type' => 'select',
+                                    'required' => true,
+                                    'options' => ['S', 'M', 'L', 'XL', 'XXL', 'XXXL'],
+                                ],
+                            ],
+                        ],
+                        [
+                            'id' => 'room_selection',
+                            'title' => 'Pilihan Kamar & Jadwal Keberangkatan',
+                            'description' => 'Tentukan tipe kamar hotel di Mekkah/Madinah dan periode keberangkatan',
+                            'fields' => [
+                                [
+                                    'name' => 'room_type',
+                                    'label' => 'Tipe Kamar Hotel Bintang 5',
+                                    'type' => 'select',
+                                    'required' => true,
+                                    'options' => [
+                                        'Quad (Sekamar Berempat)',
+                                        'Triple (Sekamar Bertiga)',
+                                        'Double (Sekamar Berdua)',
+                                    ],
+                                ],
+                                [
+                                    'name' => 'departure_season',
+                                    'label' => 'Periode Jadwal Keberangkatan',
+                                    'type' => 'select',
+                                    'required' => true,
+                                    'options' => [
+                                        'Syawal 1447 H / April 2026',
+                                        'Muharram 1448 H / Juli 2026',
+                                        'Rabiul Awal 1448 H / September 2026',
+                                        'Rajab 1448 H / Desember 2026 (Akhir Tahun)',
+                                    ],
+                                ],
+                            ],
+                        ],
+                    ],
+                ],
+            ]
+        );
     }
 }

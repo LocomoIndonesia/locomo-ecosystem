@@ -24,6 +24,7 @@ interface OnboardWizardProps {
         code: string;
         icon: string;
         category: string;
+        service_type?: 'INTERNAL' | 'EXTERNAL';
         description: string;
         wizard_schema?: {
             steps?: WizardStep[];
@@ -31,6 +32,9 @@ interface OnboardWizardProps {
         price_gold: number;
         price_fiat: number;
         service_url?: string;
+        allows_installments?: boolean;
+        min_down_payment_gold?: number;
+        min_down_payment_fiat?: number;
     };
     auth_user: {
         id: string;
@@ -69,6 +73,8 @@ export default function OnboardWizard({
 
     // Payment step state (STRICT TOKENOMICS: GOLD or FIAT only, no SILVER)
     const [paymentMethod, setPaymentMethod] = useState<'GOLD' | 'FIAT'>('GOLD');
+    const [paymentType, setPaymentType] = useState<'FULL' | 'INSTALLMENT'>('FULL');
+    const [customDownPayment, setCustomDownPayment] = useState<string>('');
     const [isSuccess, setIsSuccess] = useState(false);
     const [generatedLicense, setGeneratedLicense] = useState<any>(null);
     const [redirectUrl, setRedirectUrl] = useState<string | null>(null);
@@ -92,6 +98,17 @@ export default function OnboardWizard({
     };
 
     const currentPricing = resolveTierPrices();
+
+    // Installment DP calculations
+    const minDpGold = service.min_down_payment_gold || Math.round(currentPricing.gold * 0.2);
+    const minDpFiat = service.min_down_payment_fiat || Math.round(currentPricing.fiat * 0.2);
+    const minDp = paymentMethod === 'GOLD' ? minDpGold : minDpFiat;
+    const isInstallment = paymentType === 'INSTALLMENT' && !!service.allows_installments;
+    const effectiveDp = customDownPayment !== '' ? Math.max(minDp, Number(customDownPayment) || minDp) : minDp;
+    const currentCharge = isInstallment ? effectiveDp : (paymentMethod === 'GOLD' ? currentPricing.gold : currentPricing.fiat);
+    const remainingBalance = isInstallment
+        ? Math.max(0, (paymentMethod === 'GOLD' ? currentPricing.gold : currentPricing.fiat) - currentCharge)
+        : 0;
 
     // Live verification lookup for identifier
     useEffect(() => {
@@ -197,6 +214,8 @@ export default function OnboardWizard({
                     beneficiary_identifier: identifier,
                     beneficiary_name: newUserName,
                     payment_method: paymentMethod,
+                    payment_type: isInstallment ? 'INSTALLMENT' : 'FULL',
+                    down_payment_amount: isInstallment ? currentCharge : undefined,
                     form_data: formData,
                 }),
             });
@@ -621,6 +640,62 @@ export default function OnboardWizard({
                                     </div>
                                 </div>
 
+                                {/* Scheme Selector: FULL vs INSTALLMENT (if enabled) */}
+                                {service.allows_installments && (
+                                    <div className="space-y-2">
+                                        <span className="text-xs font-bold text-on-surface uppercase tracking-wider block">
+                                            Skema Pembayaran
+                                        </span>
+                                        <div className="grid grid-cols-2 gap-3">
+                                            <button
+                                                type="button"
+                                                onClick={() => setPaymentType('FULL')}
+                                                className={`p-3 rounded-xl border text-left transition-all ${
+                                                    paymentType === 'FULL'
+                                                        ? 'bg-primary-container/20 border-primary-container text-white'
+                                                        : 'bg-surface/50 border-glass-stroke text-on-surface-variant hover:bg-white/5'
+                                                }`}
+                                            >
+                                                <div className="flex items-center justify-between mb-1">
+                                                    <span className="text-xs font-bold text-white flex items-center gap-1.5">
+                                                        <span className="material-symbols-outlined text-sm text-emerald-400">check_circle</span>
+                                                        Bayar Lunas
+                                                    </span>
+                                                    <span className="text-[9px] px-1.5 py-0.2 rounded font-mono bg-emerald-500/20 text-emerald-300">
+                                                        100%
+                                                    </span>
+                                                </div>
+                                                <p className="text-[10px] text-on-surface-variant">
+                                                    Pelunasan penuh sekaligus. Lisensi & status langsung 100% tuntas.
+                                                </p>
+                                            </button>
+
+                                            <button
+                                                type="button"
+                                                onClick={() => setPaymentType('INSTALLMENT')}
+                                                className={`p-3 rounded-xl border text-left transition-all ${
+                                                    paymentType === 'INSTALLMENT'
+                                                        ? 'bg-indigo-500/20 border-indigo-500 text-white'
+                                                        : 'bg-surface/50 border-glass-stroke text-on-surface-variant hover:bg-white/5'
+                                                }`}
+                                            >
+                                                <div className="flex items-center justify-between mb-1">
+                                                    <span className="text-xs font-bold text-white flex items-center gap-1.5">
+                                                        <span className="material-symbols-outlined text-sm text-indigo-400">schedule</span>
+                                                        Bayar Bertahap
+                                                    </span>
+                                                    <span className="text-[9px] px-1.5 py-0.2 rounded font-mono bg-indigo-500/20 text-indigo-300">
+                                                        CICILAN
+                                                    </span>
+                                                </div>
+                                                <p className="text-[10px] text-on-surface-variant">
+                                                    Mulai dengan Uang Muka (DP). Sisa dapat dicicil kapan saja.
+                                                </p>
+                                            </button>
+                                        </div>
+                                    </div>
+                                )}
+
                                 {/* Payment Methods Selector: GOLD vs FIAT only */}
                                 <div className="space-y-3">
                                     <span className="text-xs font-bold text-on-surface uppercase tracking-wider block">
@@ -647,7 +722,7 @@ export default function OnboardWizard({
                                                 </span>
                                             </div>
                                             <div className="text-sm font-mono font-bold text-on-surface">
-                                                {currentPricing.gold} Koin Emas
+                                                {isInstallment ? `${currentCharge.toLocaleString('id-ID')} Emas (DP)` : `${currentPricing.gold} Koin Emas`}
                                             </div>
                                             <div className="text-[10px] text-on-surface-variant mt-1">
                                                 Saldo Emas Anda: <strong className="font-mono text-primary-container">{gold_balance} Emas</strong>
@@ -673,7 +748,7 @@ export default function OnboardWizard({
                                                 </span>
                                             </div>
                                             <div className="text-sm font-mono font-bold text-on-surface">
-                                                {formatRupiah(currentPricing.fiat)}
+                                                {isInstallment ? `${formatRupiah(currentCharge)} (DP)` : formatRupiah(currentPricing.fiat)}
                                             </div>
                                             <div className="text-[10px] text-on-surface-variant mt-1">
                                                 QRIS Dinamis & Virtual Account Bank
@@ -682,19 +757,56 @@ export default function OnboardWizard({
                                     </div>
                                 </div>
 
-                                {paymentMethod === 'GOLD' && gold_balance < currentPricing.gold && (
+                                {/* Custom Down Payment Input (If Installment) */}
+                                {isInstallment && (
+                                    <div className="p-4 bg-indigo-500/10 border border-indigo-500/30 rounded-xl space-y-3">
+                                        <div className="flex items-center justify-between">
+                                            <label className="text-xs font-bold text-indigo-300 uppercase tracking-wider flex items-center gap-1.5">
+                                                <span className="material-symbols-outlined text-sm">payments</span>
+                                                Nominal Uang Muka (DP Termin 1)
+                                            </label>
+                                            <span className="text-[10px] font-mono text-indigo-300">
+                                                Min. {paymentMethod === 'GOLD' ? `${minDp} Emas` : formatRupiah(minDp)}
+                                            </span>
+                                        </div>
+
+                                        <input
+                                            type="number"
+                                            step="any"
+                                            value={customDownPayment}
+                                            onChange={(e) => setCustomDownPayment(e.target.value)}
+                                            placeholder={`Minimal ${minDp}`}
+                                            className="w-full px-3.5 py-2.5 bg-black/40 border border-indigo-500/40 rounded-xl text-white font-mono text-sm focus:outline-none focus:border-indigo-400"
+                                        />
+
+                                        <div className="flex justify-between text-[11px] font-mono border-t border-indigo-500/20 pt-2 text-indigo-200">
+                                            <span>Sisa Tagihan Berikutnya:</span>
+                                            <span className="font-bold text-white">
+                                                {paymentMethod === 'GOLD'
+                                                    ? `${remainingBalance.toLocaleString('id-ID')} Emas`
+                                                    : formatRupiah(remainingBalance)}
+                                            </span>
+                                        </div>
+
+                                        <p className="text-[10px] text-indigo-300/80 leading-relaxed">
+                                            💡 Komisi afiliasi untuk jaringan sponsor Anda akan <b>langsung dibagikan secara proporsional</b> dari pembayaran uang muka ini.
+                                        </p>
+                                    </div>
+                                )}
+
+                                {paymentMethod === 'GOLD' && gold_balance < currentCharge && (
                                     <div className="p-3 rounded-xl bg-amber-500/10 border border-amber-500/30 text-xs text-on-surface space-y-1">
                                         <strong className="text-primary-container block">Saldo Koin Emas Kurang</strong>
                                         <p className="text-[11px] text-on-surface-variant">
-                                            Anda memiliki {gold_balance} Emas, dibutuhkan {currentPricing.gold} Emas. Silakan pilih pembayaran Rupiah atau lebur koin / ikuti misi terlebih dahulu.
+                                            Anda memiliki {gold_balance} Emas, dibutuhkan {currentCharge} Emas. Silakan pilih pembayaran Rupiah atau lebur koin / ikuti misi terlebih dahulu.
                                         </p>
                                     </div>
                                 )}
 
                                 <button
                                     onClick={handleSubmitOrder}
-                                    disabled={loading || (paymentMethod === 'GOLD' && gold_balance < currentPricing.gold)}
-                                    className="w-full py-3.5 rounded-xl bg-gradient-to-r from-amber-500 via-primary-container to-amber-400 text-on-primary font-bold text-xs uppercase tracking-wider hover:brightness-110 active:scale-95 transition-all shadow-[0_0_15px_rgba(255,215,0,0.4)] disabled:opacity-50 flex items-center justify-center gap-2"
+                                    disabled={loading || (paymentMethod === 'GOLD' && gold_balance < currentCharge)}
+                                    className="w-full py-3.5 rounded-xl bg-gradient-to-r from-amber-500 via-primary-container to-amber-400 text-on-primary font-bold text-xs uppercase tracking-wider hover:brightness-110 active:scale-95 transition-all shadow-[0_0_15px_rgba(255,215,0,0.4)] disabled:opacity-50 flex items-center justify-center gap-2 cursor-pointer"
                                 >
                                     {loading ? (
                                         <>
@@ -704,7 +816,11 @@ export default function OnboardWizard({
                                     ) : (
                                         <>
                                             <span className="material-symbols-outlined text-base">check_circle</span>
-                                            <span>Bayar & Terbitkan Lisensi Sekarang</span>
+                                            <span>
+                                                {isInstallment
+                                                    ? `Bayar DP & Mulai Paket Sekarang (${paymentMethod === 'GOLD' ? `${currentCharge} Emas` : formatRupiah(currentCharge)})`
+                                                    : 'Bayar & Terbitkan Lisensi Sekarang'}
+                                            </span>
                                         </>
                                     )}
                                 </button>
