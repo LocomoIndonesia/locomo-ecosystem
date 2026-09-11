@@ -89,4 +89,19 @@ class User extends Authenticatable
     {
         return $this->hasMany(UserCheckin::class, 'user_id');
     }
+
+    public function ownedServices()
+    {
+        return $this->hasMany(EcosystemService::class, 'owner_id');
+    }
+
+    public function serviceOrders()
+    {
+        return $this->hasMany(ServiceOrder::class, 'user_id');
+    }
+
+    public function affiliateCommissions()
+    {
+        return $this->hasMany(AffiliateCommission::class, 'upline_user_id');
+    }
 }

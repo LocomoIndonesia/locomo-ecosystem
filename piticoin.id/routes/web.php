@@ -65,6 +65,17 @@ Route::middleware('auth')->group(function () {
     Route::post('/api/services/check-beneficiary', [\App\Http\Controllers\ServiceHubController::class, 'checkBeneficiary'])->name('services.check-beneficiary');
     Route::get('/services/{code}/onboard', [\App\Http\Controllers\ServiceHubController::class, 'showOnboard'])->name('services.onboard');
     Route::post('/services/{code}/submit', [\App\Http\Controllers\ServiceHubController::class, 'submitOnboard'])->name('services.submit');
+    Route::post('/api/services/orders/{orderId}/pay-installment', [\App\Http\Controllers\ServiceHubController::class, 'payInstallment'])->name('services.orders.pay-installment');
+
+    // Marketing Admin Portal (Affiliate Owners & Product Principals)
+    Route::prefix('marketing')->name('marketing.')->group(function () {
+        Route::get('/', [\App\Http\Controllers\Marketing\MarketingPortalController::class, 'dashboard'])->name('dashboard');
+        Route::get('/services/create', [\App\Http\Controllers\Marketing\MarketingPortalController::class, 'createService'])->name('services.create');
+        Route::post('/services', [\App\Http\Controllers\Marketing\MarketingPortalController::class, 'storeService'])->name('services.store');
+        Route::get('/services/{id}/edit', [\App\Http\Controllers\Marketing\MarketingPortalController::class, 'editService'])->name('services.edit');
+        Route::put('/services/{id}', [\App\Http\Controllers\Marketing\MarketingPortalController::class, 'updateService'])->name('services.update');
+        Route::get('/transactions', [\App\Http\Controllers\Marketing\MarketingPortalController::class, 'transactions'])->name('transactions');
+    });
 });
 
 // APIs that bypass auth middleware (with their own internal keys or mock triggers)
