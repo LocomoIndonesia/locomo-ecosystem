@@ -115,6 +115,12 @@ class DashboardController extends Controller
             'experience_points' => $userWithWallet->experience_points,
         ];
 
+        $ledgerEntries = \App\Models\LedgerEntry::where('wallet_id', $user->id)
+            ->with('ledger')
+            ->orderBy('created_at', 'desc')
+            ->take(50)
+            ->get();
+
         $props = [
             'user' => $userData,
             'wallet' => $userWithWallet->wallet,
@@ -128,6 +134,7 @@ class DashboardController extends Controller
                 'level_2' => $level2,
             ],
             'passive_income' => $passiveIncome,
+            'ledger_entries' => $ledgerEntries,
         ];
 
         if ($userWithWallet->license_status !== 'ACTIVE') {
