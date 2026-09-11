@@ -1,0 +1,205 @@
+/* ==========================================================================
+   MAIN STYLESHEET - LANGKISAU PANGKAS ONLINE
+   Warm Coastal Palette: Sand Cream, Deep Ocean, Rich Leather Amber, Emerald Trust
+   ========================================================================== */
+
+:root {
+    --color-warmbg: #fbf9f5;
+    --color-warmbg-subtle: #f4efe6;
+    --color-charcoal: #1c1917;
+    --color-stone-muted: #57534e;
+    --color-ocean-900: #0c4a6e;
+    --color-ocean-800: #075985;
+    --color-ocean-600: #0284c7;
+    --color-ocean-100: #e0f2fe;
+    --color-ocean-50: #f0f9ff;
+    --color-amber-900: #451a03;
+    --color-amber-800: #78350f;
+    --color-amber-700: #92400e;
+    --color-amber-600: #b45309;
+    --color-amber-500: #d97706;
+    --color-amber-100: #fef3c7;
+    --color-amber-50: #fffbeb;
+    --color-emerald: #047857;
+    --color-emerald-light: #ecfdf5;
+    --shadow-soft: 0 4px 20px -2px rgba(28, 25, 23, 0.06), 0 2px 6px -1px rgba(28, 25, 23, 0.04);
+    --shadow-card: 0 10px 30px -5px rgba(7, 89, 133, 0.08), 0 4px 10px -2px rgba(7, 89, 133, 0.04);
+    --shadow-elevated: 0 20px 40px -10px rgba(7, 89, 133, 0.15);
+}
+
+/* Base Setup */
+html, body {
+    overflow-x: hidden;
+    max-width: 100vw;
+}
+
+body {
+    background-color: var(--color-warmbg);
+    color: var(--color-charcoal);
+    font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+}
+
+h1, h2, h3, .font-serif-title {
+    font-family: 'Playfair Display', Georgia, serif;
+}
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+    width: 7px;
+    height: 7px;
+}
+::-webkit-scrollbar-track {
+    background: #f1ede4;
+}
+::-webkit-scrollbar-thumb {
+    background: #b45309;
+    border-radius: 9999px;
+}
+::-webkit-scrollbar-thumb:hover {
+    background: #92400e;
+}
+
+/* Glassmorphism Classes */
+.glass-card {
+    background: rgba(255, 255, 255, 0.92);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid rgba(231, 229, 228, 0.8);
+}
+
+.glass-dark {
+    background: rgba(12, 74, 110, 0.88);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+}
+
+.glass-header {
+    background: rgba(255, 255, 255, 0.88);
+    backdrop-filter: blur(14px);
+    -webkit-backdrop-filter: blur(14px);
+}
+
+/* Reading Progress Bar */
+#reading-progress {
+    position: fixed;
+    top: 0;
+    left: 0;
+    height: 3px;
+    width: 0%;
+    background: linear-gradient(90deg, #b45309, #0284c7, #047857);
+    z-index: 9999;
+    transition: width 0.1s ease-out;
+}
+
+/* Chart Canvas Container */
+.chart-container {
+    position: relative;
+    width: 100%;
+    max-width: 600px;
+    margin-left: auto;
+    margin-right: auto;
+    height: 310px;
+}
+
+@media (min-width: 768px) {
+    .chart-container {
+        height: 350px;
+    }
+}
+
+/* Range Slider Styling */
+input[type=range] {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 100%;
+    height: 8px;
+    border-radius: 9999px;
+    background: #e2dcd2;
+    outline: none;
+}
+input[type=range]::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    background: #075985;
+    border: 3px solid #ffffff;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.25);
+    cursor: pointer;
+    transition: transform 0.15s ease, background-color 0.15s ease;
+}
+input[type=range]::-webkit-slider-thumb:hover {
+    transform: scale(1.15);
+    background: #0284c7;
+}
+
+/* Sticky Mobile Action Bar */
+.mobile-bottom-bar {
+    display: none;
+}
+@media (max-width: 768px) {
+    .mobile-bottom-bar {
+        display: flex;
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        z-index: 45;
+        background: rgba(255, 255, 255, 0.95);
+        backdrop-filter: blur(12px);
+        -webkit-backdrop-filter: blur(12px);
+        border-top: 1px solid #e7e5e4;
+        box-shadow: 0 -4px 16px rgba(0, 0, 0, 0.08);
+        padding: 10px 16px;
+        padding-bottom: calc(10px + env(safe-area-inset-bottom, 0px));
+    }
+    body {
+        padding-bottom: 74px;
+    }
+}
+
+/* Bank Account Card */
+.bank-card {
+    transition: all 0.2s ease-in-out;
+    border: 1px solid #e7e5e4;
+}
+.bank-card:hover {
+    border-color: #075985;
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-card);
+}
+
+/* Copy Toast */
+#copyToast {
+    position: fixed;
+    bottom: 90px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 99999;
+    pointer-events: none;
+}
+
+@media (min-width: 769px) {
+    #copyToast {
+        bottom: 30px;
+    }
+}
+
+/* Equipment Card Hover */
+.equipment-item-card {
+    transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.equipment-item-card:hover {
+    transform: translateY(-2px);
+}
+
+/* Modal Backdrop */
+.modal-overlay {
+    background: rgba(12, 23, 35, 0.75);
+    backdrop-filter: blur(6px);
+    -webkit-backdrop-filter: blur(6px);
+}

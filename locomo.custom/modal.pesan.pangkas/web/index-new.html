@@ -1,0 +1,1251 @@
+<!DOCTYPE html>
+<html lang="id" class="h-full">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Buku Proposal Interaktif - Langkisau Pangkas Online</title>
+    
+    <!-- Primary Meta Tags -->
+    <meta name="title" content="Buku Proposal Interaktif - Langkisau Pangkas Online">
+    <meta name="description" content="Pengalaman membaca proposal interaktif: Bantuan modal usaha & pemberdayaan SDM pemuda Pesisir Selatan, serta pemesanan pangkas rambut door-to-door.">
+    <link rel="canonical" href="https://pangkas.unimart.group">
+
+    <!-- Open Graph / WhatsApp / Social -->
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://pangkas.unimart.group">
+    <meta property="og:title" content="Buku Proposal Interaktif - Langkisau Pangkas Online">
+    <meta property="og:description" content="Simak proposal interaktif slide demi slide: Menopang perjuangan pemuda Pesisir Selatan & layanan pangkas rambut panggilan digital.">
+    <meta property="og:image" content="https://pangkas.unimart.group/assets/images/og-thumbnail.jpg">
+    <meta property="og:image:width" content="1200">
+    <meta property="og:image:height" content="630">
+
+    <!-- Twitter Card -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="Buku Proposal Interaktif - Langkisau Pangkas Online">
+    <meta name="twitter:description" content="Buku proposal interaktif: Bantuan modal usaha & booking pangkas rambut online Pesisir Selatan.">
+    <meta name="twitter:image" content="https://pangkas.unimart.group/assets/images/og-thumbnail.jpg">
+
+    <meta name="theme-color" content="#075985">
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>💈</text></svg>">
+
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Chart.js CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,600;0,700;0,800;1,400;1,600&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+
+    <!-- Custom CSS Modules -->
+    <link rel="stylesheet" href="css/animations.css?v=20260905.1705">
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        amberbrand: {
+                            50: '#fffbeb',
+                            100: '#fef3c7',
+                            500: '#d97706',
+                            600: '#b45309',
+                            700: '#92400e',
+                            800: '#78350f',
+                            900: '#451a03',
+                        },
+                        ocean: {
+                            50: '#f0f9ff',
+                            100: '#e0f2fe',
+                            600: '#0284c7',
+                            800: '#075985',
+                            900: '#0c4a6e',
+                            950: '#082f49',
+                        },
+                        warmbg: '#faf7f2',
+                        charcoal: '#1c1917',
+                        emeraldtrust: '#047857'
+                    },
+                    fontFamily: {
+                        sans: ['Plus Jakarta Sans', 'sans-serif'],
+                        serif: ['Playfair Display', 'serif']
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        body, html {
+            height: 100%;
+            overflow: hidden;
+            background-color: #0f172a;
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        .book-container {
+            background: #faf7f2;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.4), 0 0 0 1px rgba(255, 255, 255, 0.1);
+        }
+
+        .page-content-scroll::-webkit-scrollbar {
+            width: 5px;
+        }
+        .page-content-scroll::-webkit-scrollbar-track {
+            background: #f1ede4;
+        }
+        .page-content-scroll::-webkit-scrollbar-thumb {
+            background: #b45309;
+            border-radius: 9999px;
+        }
+
+        .book-page {
+            display: none;
+            opacity: 0;
+            transform: translateX(20px);
+            transition: opacity 0.35s cubic-bezier(0.16, 1, 0.3, 1), transform 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        .book-page.active {
+            display: flex;
+            opacity: 1;
+            transform: translateX(0);
+        }
+
+        .book-page.prev-anim {
+            transform: translateX(-20px);
+        }
+
+        /* Cover Leather Effect */
+        .cover-texture {
+            background: radial-gradient(circle at 50% 20%, #0f3e5c 0%, #082f49 60%, #041c2c 100%);
+            border: 2px solid rgba(217, 119, 6, 0.4);
+            box-shadow: inset 0 0 40px rgba(0, 0, 0, 0.6);
+        }
+
+        /* Shimmer Gold */
+        .gold-border {
+            border: 1px solid rgba(217, 119, 6, 0.5);
+            box-shadow: 0 0 15px rgba(217, 119, 6, 0.15);
+        }
+
+        /* Glass panel */
+        .glass-panel {
+            background: rgba(255, 255, 255, 0.94);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(231, 229, 228, 0.8);
+        }
+    </style>
+</head>
+<body class="h-full flex flex-col justify-between text-charcoal select-none antialiased">
+
+    <!-- Top Header Bar -->
+    <header class="h-14 sm:h-16 bg-slate-900/90 backdrop-blur-md border-b border-slate-800 px-4 flex items-center justify-between z-30 flex-shrink-0 text-white">
+        <div class="flex items-center space-x-3">
+            <button onclick="openTOC()" class="w-9 h-9 rounded-xl bg-slate-800 hover:bg-slate-700 text-amber-400 flex items-center justify-center transition-colors shadow-sm" title="Daftar Isi">
+                📑
+            </button>
+            <div class="leading-tight">
+                <span class="font-serif font-bold text-xs sm:text-sm text-white block">LANGKISAU PANGKAS ONLINE</span>
+                <span id="pageTitleNav" class="text-[11px] text-amber-400 font-semibold truncate max-w-[180px] sm:max-w-md block">
+                    Sampul Proposal
+                </span>
+            </div>
+        </div>
+
+        <div class="flex items-center space-x-2 sm:space-x-3 text-xs">
+            <span id="pageCounter" class="bg-slate-800 text-slate-300 font-mono px-2.5 py-1 rounded-lg border border-slate-700 text-[11px]">
+                1 / 8
+            </span>
+            <a href="index.html" class="bg-gradient-to-r from-ocean-800 to-ocean-900 hover:from-ocean-700 hover:to-ocean-800 text-amber-300 hover:text-white px-2.5 sm:px-3 py-1.5 rounded-xl font-bold text-[11px] sm:text-xs flex items-center space-x-1.5 border border-amber-400/40 shadow-sm transition-all active:scale-95" title="Kembali ke Halaman Web Utama">
+                <span>🌐</span>
+                <span class="tracking-tight">Web Utama</span>
+            </a>
+            <button onclick="goToPage(7)" class="bg-gradient-to-r from-amberbrand-700 to-amberbrand-600 text-white px-2.5 sm:px-3 py-1.5 rounded-xl font-bold text-[11px] sm:text-xs shadow-sm flex items-center space-x-1 hover:brightness-110 active:scale-95 transition-all">
+                <span>🤝</span>
+                <span>Aksi</span>
+            </button>
+        </div>
+    </header>
+
+    <!-- Main Book Frame Viewport -->
+    <main class="flex-1 w-full max-w-5xl mx-auto p-2 sm:p-4 md:p-6 overflow-hidden flex flex-col justify-center items-center relative">
+        
+        <!-- Book Frame Outer Wrapper -->
+        <div id="bookContainer" class="book-container w-full h-full max-h-[850px] rounded-2xl sm:rounded-3xl overflow-hidden flex flex-col relative border border-stone-200">
+
+            <!-- PAGE 0: COVER SAMPUL PROPOSAL -->
+            <div id="page-0" class="book-page active flex-col w-full h-full cover-texture text-white p-6 sm:p-10 justify-between relative overflow-y-auto page-content-scroll">
+                
+                <div class="flex justify-between items-center text-xs text-ocean-200 border-b border-ocean-800/80 pb-3">
+                    <span class="font-semibold tracking-wider uppercase">Dokumen Resmi 2026</span>
+                    <span class="bg-amber-500/20 text-amber-300 border border-amber-500/30 px-3 py-0.5 rounded-full font-bold">Pesisir Selatan</span>
+                </div>
+
+                <div class="my-auto text-center space-y-5 max-w-2xl mx-auto py-6">
+                    <div class="w-20 h-20 sm:w-24 sm:h-24 bg-gradient-to-br from-amber-400 to-amber-700 rounded-3xl mx-auto flex items-center justify-center text-4xl sm:text-5xl shadow-2xl gold-border animate-float">
+                        💈
+                    </div>
+
+                    <div class="space-y-2">
+                        <span class="text-xs uppercase tracking-[0.25em] font-bold text-amber-400">Proposal Bantuan Modal Usaha & Kemitraan SDM</span>
+                        <h1 class="text-3xl sm:text-4xl md:text-5xl font-serif font-bold text-white tracking-tight leading-tight">
+                            Langkisau Pangkas Online
+                        </h1>
+                        <p class="text-xs sm:text-sm text-ocean-100 italic max-w-lg mx-auto">
+                            "Pangkas Sederhana Beradaptasi Teknologi: Menjemput Nafkah Halal Demi Keluarga & Pemberdayaan Pemuda Pesisir Selatan"
+                        </p>
+                    </div>
+
+                    <div class="pt-2 flex flex-wrap justify-center gap-2 text-[11px] font-semibold text-ocean-200">
+                        <span class="bg-white/10 px-3 py-1 rounded-full border border-white/15">👤 Pangeran Indra Sakti</span>
+                        <span class="bg-white/10 px-3 py-1 rounded-full border border-white/15">🎯 Target Kit: Rp 4.500.000</span>
+                        <span class="bg-white/10 px-3 py-1 rounded-full border border-white/15">🤝 Skema Qardhul Hasan</span>
+                    </div>
+
+                    <div class="pt-4 flex flex-col sm:flex-row justify-center gap-3">
+                        <button onclick="nextPage()" class="bg-gradient-to-r from-amber-500 via-amber-600 to-amber-700 hover:from-amber-600 hover:to-amber-800 text-white font-bold px-8 py-3.5 rounded-2xl shadow-xl transition-all transform hover:scale-105 active:scale-95 flex items-center justify-center space-x-2 text-sm">
+                            <span>Buka & Pelajari Proposal</span>
+                            <span>→</span>
+                        </button>
+                        <button onclick="goToBookingPangkas()" class="bg-white/10 hover:bg-white/20 text-white font-semibold px-6 py-3.5 rounded-2xl border border-white/20 transition-all text-sm flex items-center justify-center space-x-1.5">
+                            <span>✂️</span>
+                            <span>Pesan Pangkas / Salurkan Donasi</span>
+                        </button>
+                    </div>
+
+                    <div class="pt-2">
+                        <a href="index.html" class="inline-flex items-center space-x-1.5 text-xs text-amber-300/90 hover:text-white bg-white/10 hover:bg-white/20 px-4 py-1.5 rounded-full border border-white/20 transition-all shadow-sm">
+                            <span>🌐</span>
+                            <span>Buka Halaman Web Lengkap (index.html)</span>
+                        </a>
+                    </div>
+                </div>
+
+                <div class="text-center text-[10px] text-ocean-300/80 border-t border-ocean-800/80 pt-3">
+                    Gunakan tombol di bawah, klik panah, atau geser (swipe) layar untuk membuka halaman selanjutnya.
+                </div>
+            </div>
+
+            <!-- PAGE 1: MUKADDIMAH & SENTUHAN DUNSANAK -->
+            <div id="page-1" class="book-page flex-col w-full h-full bg-warmbg p-6 sm:p-10 justify-between overflow-y-auto page-content-scroll">
+                <div class="border-b border-stone-200 pb-3 flex justify-between items-center text-xs text-stone-500">
+                    <span class="font-bold uppercase tracking-wider text-amberbrand-800">Bab 1 : Sentuhan Hati & Nilai Dunsanak</span>
+                    <span>Halaman 2</span>
+                </div>
+
+                <div class="space-y-5 my-auto max-w-3xl mx-auto py-4">
+                    <div class="text-center sm:text-left space-y-1">
+                        <span class="text-xs font-bold uppercase tracking-widest text-ocean-800">Ikhtiar Pemuda Nagari</span>
+                        <h2 class="text-2xl sm:text-3xl font-serif font-bold text-stone-900">
+                            Menopang yang Berjuang Agar Tidak Terhenti di Tengah Jalan
+                        </h2>
+                    </div>
+
+                    <div class="bg-white p-5 rounded-2xl border border-stone-200 shadow-sm space-y-3">
+                        <p class="text-stone-700 text-xs sm:text-sm leading-relaxed">
+                            Saya hanyalah seorang pemuda sederhana. Di pundak saya, ada senyum orang tua dan keluarga tercinta yang harus dinafkahi dengan cara yang halal, beradab, dan bermartabat. Setiap ketukan pintu rumah pelanggan adalah untaian doa dan ikhtiar yang terus diperjuangkan.
+                        </p>
+                        <p class="text-stone-700 text-xs sm:text-sm leading-relaxed">
+                            Bagai keteguhan <strong>Bukit Langkisau</strong> yang memandang lautan lepas Pesisir Selatan, usaha ini hadir membuktikan bahwa pekerja lapangan mampu menguasai teknologi modern dan tidak boleh dipandang sebelah mata.
+                        </p>
+                    </div>
+
+                    <!-- Voice Note Interactive Player -->
+                    <div class="bg-gradient-to-r from-amberbrand-50 to-orange-50 p-4 rounded-2xl border border-amber-200 flex flex-col sm:flex-row items-center justify-between gap-4">
+                        <div class="flex items-center space-x-3 text-left">
+                            <button id="bookVoiceBtn" onclick="toggleBookVoice()" class="w-12 h-12 bg-amberbrand-700 hover:bg-amberbrand-800 text-white rounded-full flex items-center justify-center text-xl shadow-md active:scale-95 transition-all flex-shrink-0">
+                                <span id="bookVoiceIcon">▶️</span>
+                            </button>
+                            <div>
+                                <h4 class="font-bold text-stone-900 text-xs sm:text-sm">Pesan Suara Dari Inisiator</h4>
+                                <span id="bookVoiceStatus" class="text-[11px] text-amber-800 font-semibold block">Dengarkan Rekaman Curahan Hati</span>
+                            </div>
+                        </div>
+                        <div class="w-full sm:w-48 bg-stone-200 rounded-full h-1.5 overflow-hidden">
+                            <div id="bookVoiceBar" class="bg-amberbrand-700 h-full rounded-full transition-all duration-300" style="width: 0%;"></div>
+                        </div>
+                    </div>
+
+                    <!-- Quote Minang Box -->
+                    <div class="bg-ocean-900 text-white p-4 sm:p-5 rounded-2xl text-center sm:text-left flex items-center space-x-4">
+                        <span class="text-3xl hidden sm:block">🌊</span>
+                        <div>
+                            <p class="font-serif italic text-xs sm:text-sm text-amber-300">"Kaba baiak baimbauan, kaba buruak bahambauan. Saciok bak ayam, sadanciang bak basi."</p>
+                            <span class="text-[11px] text-stone-300 block mt-1">Dukungan sanak keluarga adalah pelita yang menguatkan tekad perjuangan ini.</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="border-t border-stone-200 pt-3 flex justify-between items-center text-xs text-stone-400">
+                    <button onclick="prevPage()" class="hover:text-stone-800">← Kembali ke Sampul</button>
+                    <button onclick="nextPage()" class="font-bold text-ocean-800 hover:text-ocean-950">Lanjut ke Model Usaha →</button>
+                </div>
+            </div>
+
+            <!-- PAGE 2: MODEL LAYANAN & PANGKAS DOOR-TO-DOOR -->
+            <div id="page-2" class="book-page flex-col w-full h-full bg-warmbg p-6 sm:p-10 justify-between overflow-y-auto page-content-scroll">
+                <div class="border-b border-stone-200 pb-3 flex justify-between items-center text-xs text-stone-500">
+                    <span class="font-bold uppercase tracking-wider text-ocean-800">Bab 2 : Konsep & Model Layanan</span>
+                    <span>Halaman 3</span>
+                </div>
+
+                <div class="space-y-4 my-auto max-w-3xl mx-auto py-3">
+                    <div class="text-center sm:text-left space-y-1">
+                        <span class="text-xs font-bold uppercase tracking-widest text-emeraldtrust">Inovasi Layanan Panggilan</span>
+                        <h2 class="text-2xl sm:text-3xl font-serif font-bold text-stone-900">
+                            Pangkas Rambut Home Visit Berbasis Digital
+                        </h2>
+                    </div>
+
+                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-3.5">
+                        <div class="bg-white p-4 rounded-2xl border border-stone-200 shadow-sm space-y-2">
+                            <span class="text-3xl">🏠</span>
+                            <h4 class="font-bold text-stone-900 text-sm">Kenyamanan di Rumah</h4>
+                            <p class="text-xs text-stone-600 leading-relaxed">Pelanggan tidak perlu repot antre di jalan. Barber datang tepat waktu membawa kursi dan perlengkapan higienis.</p>
+                        </div>
+                        <div class="bg-white p-4 rounded-2xl border border-stone-200 shadow-sm space-y-2">
+                            <span class="text-3xl">📱</span>
+                            <h4 class="font-bold text-stone-900 text-sm">Reservasi Digital WhatsApp</h4>
+                            <p class="text-xs text-stone-600 leading-relaxed">Pemesanan terjadwal secara rapi lewat pesan WhatsApp & katalog gaya rambut online interaktif.</p>
+                        </div>
+                        <div class="bg-white p-4 rounded-2xl border border-stone-200 shadow-sm space-y-2">
+                            <span class="text-3xl">✨</span>
+                            <h4 class="font-bold text-stone-900 text-sm">Standar Higienis Pro</h4>
+                            <p class="text-xs text-stone-600 leading-relaxed">Mesin WAHL USA & gunting Kasho selalu disterilisasi sebelum dan sesudah melayani setiap anggota keluarga.</p>
+                        </div>
+                    </div>
+
+                    <div class="bg-gradient-to-r from-emerald-50 to-teal-50 p-4 rounded-2xl border border-emerald-200 flex flex-col sm:flex-row items-center justify-between gap-3">
+                        <div class="text-xs sm:text-sm text-emerald-950 text-center sm:text-left">
+                            <strong>Tarif Pangkas Panggilan:</strong> <span class="text-amberbrand-800 font-extrabold text-base">Rp 30.000 / Orang</span>
+                            <span class="block text-stone-600 text-[11px]">Sangat terjangkau untuk anak-anak, dewasa, orang tua, maupun instansi kantor.</span>
+                        </div>
+                        <button onclick="goToBookingPangkas()" class="bg-emerald-700 hover:bg-emerald-800 text-white font-bold px-4 py-2 rounded-xl text-xs whitespace-nowrap shadow active:scale-95 transition-all">
+                            ✂️ Pesan Pangkas Online
+                        </button>
+                    </div>
+                </div>
+
+                <div class="border-t border-stone-200 pt-3 flex justify-between items-center text-xs text-stone-400">
+                    <button onclick="prevPage()" class="hover:text-stone-800">← Bab Sebelumnya</button>
+                    <button onclick="nextPage()" class="font-bold text-ocean-800 hover:text-ocean-950">Lanjut ke Rincian Alat →</button>
+                </div>
+            </div>
+
+            <!-- PAGE 3: RINCIAN ALAT & STARTER KIT (DENGAN FOTO ASLI) -->
+            <div id="page-3" class="book-page flex-col w-full h-full bg-warmbg p-6 sm:p-10 justify-between overflow-y-auto page-content-scroll">
+                <div class="border-b border-stone-200 pb-3 flex justify-between items-center text-xs text-stone-500">
+                    <span class="font-bold uppercase tracking-wider text-amberbrand-800">Bab 3 : Transparansi Kebutuhan Alat</span>
+                    <span>Halaman 4</span>
+                </div>
+
+                <div class="space-y-4 my-auto max-w-3xl mx-auto py-2">
+                    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2">
+                        <div>
+                            <span class="text-xs font-bold uppercase tracking-widest text-amberbrand-700">Anggaran Pengadaan</span>
+                            <h2 class="text-2xl sm:text-3xl font-serif font-bold text-stone-900">
+                                Starter Kit SDM Profesional (Rp 4.500.000)
+                            </h2>
+                        </div>
+                        <button onclick="openEquipmentImageModal()" class="bg-amber-100 hover:bg-amber-200 text-amber-900 font-bold px-3 py-1.5 rounded-xl border border-amber-300 text-xs flex items-center space-x-1">
+                            <span>🖼️</span>
+                            <span>Buka Foto Katalog</span>
+                        </button>
+                    </div>
+
+                    <!-- Compact Interactive Item List -->
+                    <div class="space-y-2 max-h-[300px] overflow-y-auto pr-1" id="bookItemList">
+                        <!-- Populated by JS -->
+                    </div>
+
+                    <!-- Total Selected Commitment Bar -->
+                    <div class="bg-white p-3.5 rounded-2xl border border-stone-200 shadow-sm flex flex-col sm:flex-row justify-between items-center gap-3">
+                        <div>
+                            <span class="text-[11px] text-stone-500 block">Total Komitmen Item Dipilih:</span>
+                            <span id="bookSelectedTotal" class="text-xl font-extrabold text-amberbrand-700">Rp 0</span>
+                        </div>
+                        <button onclick="applyBookSponsorship()" class="bg-gradient-to-r from-amberbrand-700 to-amberbrand-800 text-white font-bold px-5 py-2.5 rounded-xl text-xs shadow hover:brightness-110 active:scale-95 transition-all">
+                            Sponsori Item Dipilih →
+                        </button>
+                    </div>
+                </div>
+
+                <div class="border-t border-stone-200 pt-3 flex justify-between items-center text-xs text-stone-400">
+                    <button onclick="prevPage()" class="hover:text-stone-800">← Bab Sebelumnya</button>
+                    <button onclick="nextPage()" class="font-bold text-ocean-800 hover:text-ocean-950">Lanjut ke Kalkulator ROI →</button>
+                </div>
+            </div>
+
+            <!-- PAGE 4: KALKULATOR ROI & SIMULASI QARDHUL HASAN -->
+            <div id="page-4" class="book-page flex-col w-full h-full bg-warmbg p-6 sm:p-10 justify-between overflow-y-auto page-content-scroll">
+                <div class="border-b border-stone-200 pb-3 flex justify-between items-center text-xs text-stone-500">
+                    <span class="font-bold uppercase tracking-wider text-emeraldtrust">Bab 4 : Rasionalitas Bisnis & Kelayakan</span>
+                    <span>Halaman 5</span>
+                </div>
+
+                <div class="space-y-4 my-auto max-w-3xl mx-auto py-2">
+                    <div class="text-center sm:text-left space-y-1">
+                        <span class="text-xs font-bold uppercase tracking-widest text-emeraldtrust">Simulasi Pengembalian Modal</span>
+                        <h2 class="text-2xl sm:text-3xl font-serif font-bold text-stone-900">
+                            Kalkulator Daya Balik Qardhul Hasan
+                        </h2>
+                    </div>
+
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <!-- Sliders -->
+                        <div class="bg-white p-4 rounded-2xl border border-stone-200 shadow-sm space-y-4">
+                            <div>
+                                <div class="flex justify-between text-xs font-bold text-stone-800 mb-1">
+                                    <span>Hari Kerja (Senin - Jumat):</span>
+                                    <span id="bookWeekdayVal" class="text-ocean-800">5 Orang / Hari</span>
+                                </div>
+                                <input type="range" id="bookWeekdayInput" min="2" max="12" value="5" class="w-full">
+                            </div>
+
+                            <div>
+                                <div class="flex justify-between text-xs font-bold text-stone-800 mb-1">
+                                    <span>Akhir Pekan (Sabtu - Minggu):</span>
+                                    <span id="bookWeekendVal" class="text-ocean-800">8 Orang / Hari</span>
+                                </div>
+                                <input type="range" id="bookWeekendInput" min="4" max="16" value="8" class="w-full">
+                            </div>
+
+                            <div class="pt-2 border-t border-stone-100 text-xs space-y-1.5">
+                                <div class="flex justify-between">
+                                    <span class="text-stone-500">Estimasi Omset:</span>
+                                    <span id="bookMonthlyRev" class="font-bold text-stone-900">Rp 5.160.000</span>
+                                </div>
+                                <div class="flex justify-between">
+                                    <span class="text-stone-500">Cicilan Modal:</span>
+                                    <span class="font-bold text-emeraldtrust">Rp 1.000.000 / Bln</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Payback Result Box -->
+                        <div class="bg-gradient-to-br from-emerald-800 to-teal-950 text-white p-5 rounded-2xl flex flex-col justify-between shadow-sm">
+                            <div class="space-y-1">
+                                <span class="text-[11px] text-emerald-200 uppercase font-bold tracking-wider">Target Waktu Lunas</span>
+                                <h3 id="bookPaybackMonths" class="text-3xl sm:text-4xl font-extrabold text-amber-300">4.5 Bulan</h3>
+                                <p class="text-xs text-stone-200 leading-relaxed">Pinjaman pokok Rp 4.500.000 terbayar lunas 100% tanpa bunga/riba.</p>
+                            </div>
+
+                            <div class="mt-4 pt-3 border-t border-white/20 text-[11px] text-stone-300">
+                                💡 Sistem pangkas harian menghasilkan arus kas harian yang stabil dan risiko sangat terukur.
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="border-t border-stone-200 pt-3 flex justify-between items-center text-xs text-stone-400">
+                    <button onclick="prevPage()" class="hover:text-stone-800">← Bab Sebelumnya</button>
+                    <button onclick="nextPage()" class="font-bold text-ocean-800 hover:text-ocean-950">Lanjut ke Visi SDM →</button>
+                </div>
+            </div>
+
+            <!-- PAGE 5: VISI PEMBERDAYAAN PEMUDA PESISIR -->
+            <div id="page-5" class="book-page flex-col w-full h-full bg-warmbg p-6 sm:p-10 justify-between overflow-y-auto page-content-scroll">
+                <div class="border-b border-stone-200 pb-3 flex justify-between items-center text-xs text-stone-500">
+                    <span class="font-bold uppercase tracking-wider text-ocean-800">Bab 5 : Visi SDM Daerah</span>
+                    <span>Halaman 6</span>
+                </div>
+
+                <div class="space-y-4 my-auto max-w-3xl mx-auto py-2">
+                    <div class="text-center sm:text-left space-y-1">
+                        <span class="text-xs font-bold uppercase tracking-widest text-ocean-800">Regenerasi Pemuda Lokal</span>
+                        <h2 class="text-2xl sm:text-3xl font-serif font-bold text-stone-900">
+                            Laboratorium Keterampilan Mandiri
+                        </h2>
+                    </div>
+
+                    <!-- 4 Steps Roadmap Grid -->
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                        <div class="bg-white p-3.5 rounded-2xl border border-stone-200 flex items-start space-x-3">
+                            <span class="w-8 h-8 rounded-full bg-ocean-800 text-white font-bold flex items-center justify-center text-xs flex-shrink-0">1</span>
+                            <div>
+                                <h4 class="font-bold text-stone-900 text-xs sm:text-sm">Standardisasi Kit</h4>
+                                <p class="text-[11px] text-stone-600">Pengadaan 1 set alat pangkas standar pro sebagai modal utama operasional.</p>
+                            </div>
+                        </div>
+
+                        <div class="bg-white p-3.5 rounded-2xl border border-stone-200 flex items-start space-x-3">
+                            <span class="w-8 h-8 rounded-full bg-ocean-800 text-white font-bold flex items-center justify-center text-xs flex-shrink-0">2</span>
+                            <div>
+                                <h4 class="font-bold text-stone-900 text-xs sm:text-sm">Pelatihan Tekno-Barber</h4>
+                                <p class="text-[11px] text-stone-600">Merekrut pemuda Pesisir Selatan untuk dilatih potong rambut & etika digital.</p>
+                            </div>
+                        </div>
+
+                        <div class="bg-white p-3.5 rounded-2xl border border-stone-200 flex items-start space-x-3">
+                            <span class="w-8 h-8 rounded-full bg-amberbrand-700 text-white font-bold flex items-center justify-center text-xs flex-shrink-0">3</span>
+                            <div>
+                                <h4 class="font-bold text-stone-900 text-xs sm:text-sm">Penyaluran Kit Pemuda</h4>
+                                <p class="text-[11px] text-stone-600">Pemuda yang lulus dibekali paket alat untuk langsung melayani pelanggan.</p>
+                            </div>
+                        </div>
+
+                        <div class="bg-white p-3.5 rounded-2xl border border-stone-200 flex items-start space-x-3">
+                            <span class="w-8 h-8 rounded-full bg-emeraldtrust text-white font-bold flex items-center justify-center text-xs flex-shrink-0">4</span>
+                            <div>
+                                <h4 class="font-bold text-stone-900 text-xs sm:text-sm">Kemandirian Ekonomi</h4>
+                                <p class="text-[11px] text-stone-600">Pemuda memiliki penghasilan halal, menafkahi keluarga, dan berdaya.</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="bg-ocean-50 p-4 rounded-2xl border border-ocean-200 text-xs text-ocean-950">
+                        🤝 <strong>Dampak Jangka Panjang:</strong> 1 Starter kit hari ini adalah bibit terbukanya lapangan kerja mandiri bagi puluhan pemuda di kampung halaman.
+                    </div>
+                </div>
+
+                <div class="border-t border-stone-200 pt-3 flex justify-between items-center text-xs text-stone-400">
+                    <button onclick="prevPage()" class="hover:text-stone-800">← Bab Sebelumnya</button>
+                    <button onclick="nextPage()" class="font-bold text-ocean-800 hover:text-ocean-950">Lanjut ke Akad & Rekening →</button>
+                </div>
+            </div>
+
+            <!-- PAGE 6: SKEMA AKAD & NOMOR REKENING -->
+            <div id="page-6" class="book-page flex-col w-full h-full bg-warmbg p-6 sm:p-10 justify-between overflow-y-auto page-content-scroll">
+                <div class="border-b border-stone-200 pb-3 flex justify-between items-center text-xs text-stone-500">
+                    <span class="font-bold uppercase tracking-wider text-amberbrand-800">Bab 6 : Akad Syariah & Rekening Resmi</span>
+                    <span>Halaman 7</span>
+                </div>
+
+                <div class="space-y-4 my-auto max-w-3xl mx-auto py-2">
+                    <div class="text-center sm:text-left space-y-1">
+                        <span class="text-xs font-bold uppercase tracking-widest text-amberbrand-700">Pilihan Saluran Kebaikan</span>
+                        <h2 class="text-2xl sm:text-3xl font-serif font-bold text-stone-900">
+                            Akad Syariah & Info Rekening
+                        </h2>
+                    </div>
+
+                    <!-- 3 Schemes Compact Box -->
+                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-2.5 text-xs">
+                        <div class="bg-white p-3 rounded-xl border border-stone-200 space-y-1">
+                            <span class="font-bold text-ocean-800 block">1. Qardhul Hasan</span>
+                            <p class="text-stone-600 text-[11px]">Pinjaman kebaikan tanpa bunga, dikembalikan bertahap Rp 1 Jt/bln hingga lunas.</p>
+                        </div>
+                        <div class="bg-white p-3 rounded-xl border border-stone-200 space-y-1">
+                            <span class="font-bold text-amberbrand-800 block">2. Sedekah Jariyah</span>
+                            <p class="text-stone-600 text-[11px]">Hibah alat produktif yang pahalanya terus mengalir di setiap helai rambut yang dipotong.</p>
+                        </div>
+                        <div class="bg-white p-3 rounded-xl border border-stone-200 space-y-1">
+                            <span class="font-bold text-emeraldtrust block">3. CSR / Rantau</span>
+                            <p class="text-stone-600 text-[11px]">Kemitraan tokoh daerah untuk pengadaan starter kit pemuda binaan berikutnya.</p>
+                        </div>
+                    </div>
+
+                    <!-- Bank Accounts List with 1-Click Copy -->
+                    <div class="space-y-2 max-h-[220px] overflow-y-auto pr-1">
+                        <!-- BNI -->
+                        <div class="bg-white p-3 rounded-xl border border-stone-200 flex items-center justify-between shadow-sm">
+                            <div class="flex items-center space-x-2.5">
+                                <span class="text-xl">🏦</span>
+                                <div>
+                                    <h5 class="font-bold text-stone-900 text-xs">Bank Negara Indonesia (BNI)</h5>
+                                    <span class="font-mono font-bold text-ocean-900 text-xs sm:text-sm">2021806943</span>
+                                    <span class="text-[10px] text-stone-500 block">a.n Pangeran Indra Sakti</span>
+                                </div>
+                            </div>
+                            <button onclick="copyBankAccount('2021806943', 'BNI')" class="bg-ocean-800 hover:bg-ocean-900 text-white text-[11px] font-semibold px-2.5 py-1.5 rounded-lg active:scale-95 transition-all flex items-center space-x-1">
+                                <span>📋</span><span>Salin</span>
+                            </button>
+                        </div>
+
+                        <!-- BRI -->
+                        <div class="bg-white p-3 rounded-xl border border-stone-200 flex items-center justify-between shadow-sm">
+                            <div class="flex items-center space-x-2.5">
+                                <span class="text-xl">🏛️</span>
+                                <div>
+                                    <h5 class="font-bold text-stone-900 text-xs">Bank Rakyat Indonesia (BRI)</h5>
+                                    <span class="font-mono font-bold text-ocean-900 text-xs sm:text-sm">548301045144533</span>
+                                    <span class="text-[10px] text-stone-500 block">a.n Pangeran Indra Sakti</span>
+                                </div>
+                            </div>
+                            <button onclick="copyBankAccount('548301045144533', 'BRI')" class="bg-ocean-800 hover:bg-ocean-900 text-white text-[11px] font-semibold px-2.5 py-1.5 rounded-lg active:scale-95 transition-all flex items-center space-x-1">
+                                <span>📋</span><span>Salin</span>
+                            </button>
+                        </div>
+
+                        <!-- SeaBank -->
+                        <div class="bg-white p-3 rounded-xl border border-stone-200 flex items-center justify-between shadow-sm">
+                            <div class="flex items-center space-x-2.5">
+                                <span class="text-xl">💳</span>
+                                <div>
+                                    <h5 class="font-bold text-stone-900 text-xs">SeaBank</h5>
+                                    <span class="font-mono font-bold text-ocean-900 text-xs sm:text-sm">901458844863</span>
+                                    <span class="text-[10px] text-stone-500 block">a.n Pangeran Indra Sakti</span>
+                                </div>
+                            </div>
+                            <button onclick="copyBankAccount('901458844863', 'SeaBank')" class="bg-ocean-800 hover:bg-ocean-900 text-white text-[11px] font-semibold px-2.5 py-1.5 rounded-lg active:scale-95 transition-all flex items-center space-x-1">
+                                <span>📋</span><span>Salin</span>
+                            </button>
+                        </div>
+
+                        <!-- DANA -->
+                        <div class="bg-white p-3 rounded-xl border border-stone-200 flex items-center justify-between shadow-sm">
+                            <div class="flex items-center space-x-2.5">
+                                <span class="text-xl">📱</span>
+                                <div>
+                                    <h5 class="font-bold text-stone-900 text-xs">DANA (e-Wallet)</h5>
+                                    <span class="font-mono font-bold text-ocean-900 text-xs sm:text-sm">081270362459</span>
+                                    <span class="text-[10px] text-stone-500 block">a.n Pangeran Indra Sakti</span>
+                                </div>
+                            </div>
+                            <button onclick="copyBankAccount('081270362459', 'DANA')" class="bg-emerald-700 hover:bg-emerald-800 text-white text-[11px] font-semibold px-2.5 py-1.5 rounded-lg active:scale-95 transition-all flex items-center space-x-1">
+                                <span>📋</span><span>Salin</span>
+                            </button>
+                        </div>
+
+                        <!-- GoPay -->
+                        <div class="bg-white p-3 rounded-xl border border-stone-200 flex items-center justify-between shadow-sm">
+                            <div class="flex items-center space-x-2.5">
+                                <span class="text-xl">⚡</span>
+                                <div>
+                                    <h5 class="font-bold text-stone-900 text-xs">GoPay (e-Wallet)</h5>
+                                    <span class="font-mono font-bold text-ocean-900 text-xs sm:text-sm">0895329429118</span>
+                                    <span class="text-[10px] text-stone-500 block">a.n Pangeran Indra Sakti</span>
+                                </div>
+                            </div>
+                            <button onclick="copyBankAccount('0895329429118', 'GoPay')" class="bg-emerald-700 hover:bg-emerald-800 text-white text-[11px] font-semibold px-2.5 py-1.5 rounded-lg active:scale-95 transition-all flex items-center space-x-1">
+                                <span>📋</span><span>Salin</span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="border-t border-stone-200 pt-3 flex justify-between items-center text-xs text-stone-400">
+                    <button onclick="prevPage()" class="hover:text-stone-800">← Bab Sebelumnya</button>
+                    <button onclick="nextPage()" class="font-bold text-amberbrand-700 hover:text-amberbrand-800">Lanjut ke Form Dukungan & Pesan Pangkas →</button>
+                </div>
+            </div>
+
+            <!-- PAGE 7: CALL TO ACTION GANDA (DUKUNGAN MODAL & PESAN PANGKAS) -->
+            <div id="page-7" class="book-page flex-col w-full h-full bg-gradient-to-br from-slate-900 via-ocean-950 to-slate-900 text-white p-5 sm:p-8 justify-between overflow-y-auto page-content-scroll">
+                
+                <div class="border-b border-white/10 pb-3 flex justify-between items-center text-xs text-ocean-200">
+                    <span class="font-bold uppercase tracking-wider text-amber-400">Bab 7 : Hubungi, Donasi & Pesan Pangkas</span>
+                    <span>Halaman Terakhir</span>
+                </div>
+
+                <div class="my-auto max-w-2xl mx-auto py-2 space-y-4 w-full">
+                    <div class="text-center space-y-1">
+                        <h2 class="text-2xl sm:text-3xl font-serif font-bold text-white">
+                            Mari Terhubung Bersama Kami
+                        </h2>
+                        <p class="text-xs text-ocean-200">
+                            Pilih opsi interaksi yang Anda inginkan di bawah ini:
+                        </p>
+                    </div>
+
+                    <!-- 2 Mode Switcher: Donasi vs Pesan Pangkas -->
+                    <div class="flex rounded-2xl bg-white/10 p-1 border border-white/15">
+                        <button id="btnModeDonate" onclick="switchActionTab('donate')" class="flex-1 py-2.5 rounded-xl font-bold text-xs sm:text-sm bg-amberbrand-600 text-white shadow transition-all flex items-center justify-center space-x-1.5">
+                            <span>🤝</span>
+                            <span>Salurkan Dukungan / Modal</span>
+                        </button>
+                        <button id="btnModeBook" onclick="switchActionTab('book')" class="flex-1 py-2.5 rounded-xl font-semibold text-xs sm:text-sm text-ocean-200 hover:text-white transition-all flex items-center justify-center space-x-1.5">
+                            <span>✂️</span>
+                            <span>Pesan Pangkas Online</span>
+                        </button>
+                    </div>
+
+                    <!-- FORM 1: DUKUNGAN MODAL / PINJAMAN QARDHUL HASAN -->
+                    <form id="bookPledgeForm" onsubmit="handleBookPledgeSubmit(event)" class="space-y-3 bg-white/10 p-4 sm:p-5 rounded-2xl border border-white/20">
+                        <div>
+                            <label class="block text-[11px] font-semibold text-ocean-200 mb-1">Kontak WhatsApp Tujuan:</label>
+                            <select id="bookTargetPhone" class="w-full bg-slate-900 border border-white/20 rounded-xl px-3 py-2 text-white text-xs font-semibold">
+                                <option value="6281378053239">📞 WA Utama: Pangeran Indra Sakti (0813-7805-3239)</option>
+                                <option value="62895329429118">📞 WA Alternatif: 0895-3294-29118</option>
+                            </select>
+                        </div>
+
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                            <div>
+                                <label class="block text-[11px] font-semibold text-ocean-200 mb-1">Nama Anda / Instansi:</label>
+                                <input type="text" id="bookDonorName" required placeholder="Nama Lengkap / Dunsanak" class="w-full bg-white/10 border border-white/20 rounded-xl px-3 py-2 text-white placeholder-stone-400 text-xs focus:ring-1 focus:ring-amber-400 focus:outline-none">
+                            </div>
+                            <div>
+                                <label class="block text-[11px] font-semibold text-ocean-200 mb-1">Skema:</label>
+                                <select id="bookDonorScheme" class="w-full bg-slate-900 border border-white/20 rounded-xl px-3 py-2 text-white text-xs">
+                                    <option value="Pinjaman Qardhul Hasan">Pinjaman Qardhul Hasan</option>
+                                    <option value="Sedekah Jariyah / Hibah">Sedekah Jariyah / Hibah Alat</option>
+                                    <option value="Sponsor Item Alat">Sponsor Item Alat</option>
+                                    <option value="Program CSR / Tokoh Daerah">Program CSR / Tokoh Daerah</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                            <div>
+                                <label class="block text-[11px] font-semibold text-ocean-200 mb-1">Nominal Komitmen (Rp):</label>
+                                <input type="text" id="bookDonorAmount" placeholder="Contoh: 4.500.000 atau Sukarela" class="w-full bg-white/10 border border-white/20 rounded-xl px-3 py-2 text-white placeholder-stone-400 text-xs focus:ring-1 focus:ring-amber-400 focus:outline-none">
+                            </div>
+                            <div>
+                                <label class="block text-[11px] font-semibold text-ocean-200 mb-1">No. WhatsApp Anda:</label>
+                                <input type="tel" id="bookDonorPhone" placeholder="0812xxxxxxx" class="w-full bg-white/10 border border-white/20 rounded-xl px-3 py-2 text-white placeholder-stone-400 text-xs focus:ring-1 focus:ring-amber-400 focus:outline-none">
+                            </div>
+                        </div>
+
+                        <button type="submit" class="w-full bg-gradient-to-r from-amberbrand-600 to-amberbrand-700 hover:from-amberbrand-700 hover:to-amberbrand-800 text-white font-bold py-3 rounded-xl shadow-lg transition-all text-xs sm:text-sm flex items-center justify-center space-x-2 active:scale-98 animate-pulse-glow">
+                            <span>📱</span>
+                            <span>Kirim Dukungan Modal via WhatsApp</span>
+                        </button>
+                    </form>
+
+                    <!-- FORM 2: BOOKING PANGKAS ONLINE DOOR-TO-DOOR -->
+                    <form id="bookOrderForm" onsubmit="handleBookOrderSubmit(event)" class="hidden space-y-3 bg-white/10 p-4 sm:p-5 rounded-2xl border border-white/20">
+                        <div>
+                            <label class="block text-[11px] font-semibold text-emerald-300 mb-1">Pilih Kontak WhatsApp Tujuan:</label>
+                            <select id="bookOrderTargetPhone" class="w-full bg-slate-900 border border-white/20 rounded-xl px-3 py-2 text-white text-xs font-semibold">
+                                <option value="6281378053239">📞 WhatsApp Utama: Pangeran Indra Sakti (0813-7805-3239)</option>
+                                <option value="62895329429118">📞 WhatsApp Alternatif: 0895-3294-29118</option>
+                            </select>
+                        </div>
+
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                            <div>
+                                <label class="block text-[11px] font-semibold text-emerald-300 mb-1">Nama Pemesan:</label>
+                                <input type="text" id="orderClientName" required placeholder="Nama Anda / Kepala Keluarga" class="w-full bg-white/10 border border-white/20 rounded-xl px-3 py-2 text-white placeholder-stone-400 text-xs focus:ring-1 focus:ring-emerald-400 focus:outline-none">
+                            </div>
+                            <div>
+                                <label class="block text-[11px] font-semibold text-emerald-300 mb-1">Jumlah Orang:</label>
+                                <select id="orderClientCount" class="w-full bg-slate-900 border border-white/20 rounded-xl px-3 py-2 text-white text-xs">
+                                    <option value="1 Orang (Rp 30.000)">1 Orang (Rp 30.000)</option>
+                                    <option value="2 Orang (Rp 60.000)">2 Orang (Rp 60.000)</option>
+                                    <option value="3 Orang (Rp 90.000)">3 Orang (Rp 90.000)</option>
+                                    <option value="4 Orang atau Lebih">Paket Keluarga (4+ Orang)</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                            <div>
+                                <label class="block text-[11px] font-semibold text-emerald-300 mb-1">Rencana Tanggal & Jam:</label>
+                                <input type="text" id="orderClientTime" placeholder="Contoh: Besok Siang jam 14:00" class="w-full bg-white/10 border border-white/20 rounded-xl px-3 py-2 text-white placeholder-stone-400 text-xs focus:ring-1 focus:ring-emerald-400 focus:outline-none">
+                            </div>
+                            <div>
+                                <label class="block text-[11px] font-semibold text-emerald-300 mb-1">Lokasi / Alamat Panggilan:</label>
+                                <input type="text" id="orderClientAddress" required placeholder="Contoh: Jl. Ilyas Yakub, Painan" class="w-full bg-white/10 border border-white/20 rounded-xl px-3 py-2 text-white placeholder-stone-400 text-xs focus:ring-1 focus:ring-emerald-400 focus:outline-none">
+                            </div>
+                        </div>
+
+                        <div>
+                            <label class="block text-[11px] font-semibold text-emerald-300 mb-1">Catatan Tambahan (Opsional):</label>
+                            <input type="text" id="orderClientNotes" placeholder="Contoh: Potong rambut anak balita + rapihkan jenggot" class="w-full bg-white/10 border border-white/20 rounded-xl px-3 py-2 text-white placeholder-stone-400 text-xs focus:ring-1 focus:ring-emerald-400 focus:outline-none">
+                        </div>
+
+                        <button type="submit" class="w-full bg-gradient-to-r from-emerald-600 to-teal-700 hover:from-emerald-700 hover:to-teal-800 text-white font-bold py-3 rounded-xl shadow-lg transition-all text-xs sm:text-sm flex items-center justify-center space-x-2 active:scale-98">
+                            <span>✂️</span>
+                            <span>Pesan Pangkas Online via WhatsApp</span>
+                        </button>
+                    </form>
+
+                    <div class="text-center text-[11px] text-stone-300">
+                        📞 Kontak Langsung: <strong>0813-7805-3239</strong> / <strong>0895-3294-29118</strong>
+                    </div>
+                </div>
+
+                <div class="border-t border-white/10 pt-3 flex flex-wrap gap-2 justify-between items-center text-xs text-ocean-300">
+                    <button onclick="prevPage()" class="hover:text-white">← Bab Sebelumnya</button>
+                    <a href="index.html" class="font-bold text-amber-300 hover:text-white flex items-center space-x-1 bg-white/10 px-3 py-1 rounded-lg border border-white/15 transition-colors">
+                        <span>🌐</span>
+                        <span>Buka Web Utama</span>
+                    </a>
+                    <button onclick="goToPage(0)" class="font-bold text-amber-400 hover:text-amber-300">↺ Baca Ulang</button>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- Left & Right Floating Quick Navigation Controls -->
+        <button onclick="prevPage()" id="btnFloatingPrev" class="hidden md:flex absolute left-0 top-1/2 -translate-y-1/2 -translate-x-3 w-12 h-12 rounded-full bg-slate-900/90 text-white border border-slate-700 items-center justify-center shadow-2xl hover:bg-slate-800 hover:scale-110 active:scale-95 transition-all z-20" title="Halaman Sebelumnya (Panah Kiri)">
+            ❮
+        </button>
+        <button onclick="nextPage()" id="btnFloatingNext" class="hidden md:flex absolute right-0 top-1/2 -translate-y-1/2 translate-x-3 w-12 h-12 rounded-full bg-slate-900/90 text-white border border-slate-700 items-center justify-center shadow-2xl hover:bg-slate-800 hover:scale-110 active:scale-95 transition-all z-20" title="Halaman Selanjutnya (Panah Kanan)">
+            ❯
+        </button>
+    </main>
+
+    <!-- Bottom Interactive Book Navigation Bar -->
+    <footer class="h-16 sm:h-18 bg-slate-900/95 backdrop-blur-md border-t border-slate-800 px-4 py-2 flex flex-col justify-between z-30 flex-shrink-0">
+        
+        <!-- Interactive Progress Dots / Chapter Bar -->
+        <div class="flex items-center justify-between gap-1 max-w-2xl mx-auto w-full">
+            <button onclick="goToPage(0)" class="page-dot flex-1 h-1.5 rounded-full bg-amber-500 transition-all" title="Sampul"></button>
+            <button onclick="goToPage(1)" class="page-dot flex-1 h-1.5 rounded-full bg-slate-700 transition-all" title="Bab 1 : Narasi Hati"></button>
+            <button onclick="goToPage(2)" class="page-dot flex-1 h-1.5 rounded-full bg-slate-700 transition-all" title="Bab 2 : Model Usaha"></button>
+            <button onclick="goToPage(3)" class="page-dot flex-1 h-1.5 rounded-full bg-slate-700 transition-all" title="Bab 3 : Starter Kit"></button>
+            <button onclick="goToPage(4)" class="page-dot flex-1 h-1.5 rounded-full bg-slate-700 transition-all" title="Bab 4 : Kalkulator ROI"></button>
+            <button onclick="goToPage(5)" class="page-dot flex-1 h-1.5 rounded-full bg-slate-700 transition-all" title="Bab 5 : Visi SDM"></button>
+            <button onclick="goToPage(6)" class="page-dot flex-1 h-1.5 rounded-full bg-slate-700 transition-all" title="Bab 6 : Akad & Rekening"></button>
+            <button onclick="goToPage(7)" class="page-dot flex-1 h-1.5 rounded-full bg-slate-700 transition-all" title="Bab 7 : Aksi & Pesan"></button>
+        </div>
+
+        <div class="flex items-center justify-between max-w-2xl mx-auto w-full pt-1">
+            <button onclick="prevPage()" class="text-xs text-slate-300 hover:text-white font-semibold flex items-center space-x-1 px-3 py-1 rounded-lg hover:bg-slate-800 transition-colors">
+                <span>❮</span>
+                <span class="hidden sm:inline">Sebelumnya</span>
+            </button>
+
+            <span id="pageBottomLabel" class="text-[11px] text-amber-400 font-medium truncate max-w-[200px] text-center">
+                Sampul Proposal
+            </span>
+
+            <button onclick="nextPage()" class="text-xs text-amber-400 hover:text-amber-300 font-bold flex items-center space-x-1 px-3 py-1 rounded-lg hover:bg-slate-800 transition-colors">
+                <span class="hidden sm:inline">Selanjutnya</span>
+                <span>❯</span>
+            </button>
+        </div>
+    </footer>
+
+    <!-- Chapter / Table of Contents Drawer Modal -->
+    <div id="tocModal" class="modal-overlay fixed inset-0 z-50 hidden items-center justify-center p-4 animate-fade-in" onclick="closeTOC()">
+        <div class="bg-slate-900 border border-slate-700 w-full max-w-md rounded-3xl p-6 text-white shadow-2xl space-y-4" onclick="event.stopPropagation()">
+            <div class="flex justify-between items-center pb-3 border-b border-slate-800">
+                <div class="flex items-center space-x-2">
+                    <span class="text-xl">📑</span>
+                    <h3 class="font-serif font-bold text-base">Daftar Isi Proposal Interaktif</h3>
+                </div>
+                <button onclick="closeTOC()" class="text-slate-400 hover:text-white text-xl">✕</button>
+            </div>
+
+            <div class="space-y-1.5 max-h-[60vh] overflow-y-auto pr-1 text-xs">
+                <button onclick="goToPage(0); closeTOC();" class="w-full text-left p-2.5 rounded-xl hover:bg-slate-800 flex justify-between items-center transition-colors">
+                    <span>📖 Sampul Eksekutif Proposal</span>
+                    <span class="text-slate-500 font-mono">Hal 1</span>
+                </button>
+                <button onclick="goToPage(1); closeTOC();" class="w-full text-left p-2.5 rounded-xl hover:bg-slate-800 flex justify-between items-center transition-colors">
+                    <span>❤️ Bab 1: Mukaddimah & Sentuhan Dunsanak</span>
+                    <span class="text-slate-500 font-mono">Hal 2</span>
+                </button>
+                <button onclick="goToPage(2); closeTOC();" class="w-full text-left p-2.5 rounded-xl hover:bg-slate-800 flex justify-between items-center transition-colors">
+                    <span>🏠 Bab 2: Konsep Layanan Pangkas Home Visit</span>
+                    <span class="text-slate-500 font-mono">Hal 3</span>
+                </button>
+                <button onclick="goToPage(3); closeTOC();" class="w-full text-left p-2.5 rounded-xl hover:bg-slate-800 flex justify-between items-center transition-colors">
+                    <span>🧰 Bab 3: Starter Kit Alat (Rp 4.500.000)</span>
+                    <span class="text-slate-500 font-mono">Hal 4</span>
+                </button>
+                <button onclick="goToPage(4); closeTOC();" class="w-full text-left p-2.5 rounded-xl hover:bg-slate-800 flex justify-between items-center transition-colors">
+                    <span>📊 Bab 4: Kalkulator ROI & Qardhul Hasan</span>
+                    <span class="text-slate-500 font-mono">Hal 5</span>
+                </button>
+                <button onclick="goToPage(5); closeTOC();" class="w-full text-left p-2.5 rounded-xl hover:bg-slate-800 flex justify-between items-center transition-colors">
+                    <span>🌱 Bab 5: Visi Pemberdayaan Pemuda Pesisir</span>
+                    <span class="text-slate-500 font-mono">Hal 6</span>
+                </button>
+                <button onclick="goToPage(6); closeTOC();" class="w-full text-left p-2.5 rounded-xl hover:bg-slate-800 flex justify-between items-center transition-colors">
+                    <span>🏦 Bab 6: Akad Syariah & Nomor Rekening</span>
+                    <span class="text-slate-500 font-mono">Hal 7</span>
+                </button>
+                <button onclick="goToPage(7); closeTOC();" class="w-full text-left p-2.5 rounded-xl hover:bg-slate-800 flex justify-between items-center transition-colors font-bold text-amber-400">
+                    <span>📱 Bab 7: Hubungi, Donasi & Pesan Pangkas</span>
+                    <span class="text-amber-500 font-mono">Hal 8</span>
+                </button>
+            </div>
+
+            <div class="pt-3 border-t border-slate-800">
+                <a href="index.html" class="w-full bg-slate-800 hover:bg-slate-700 text-amber-300 hover:text-white font-bold py-2.5 px-4 rounded-xl flex items-center justify-center space-x-2 text-xs border border-amber-400/30 transition-all shadow-sm">
+                    <span>🌐</span>
+                    <span>Buka Tampilan Web Utama (index.html)</span>
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Persistent Floating Action Button: Pesan Pangkas Online -->
+    <div id="floatingBookingBtn" class="fixed right-3 sm:right-6 bottom-16 sm:bottom-20 z-40">
+        <button onclick="goToBookingPangkas()" class="bg-gradient-to-r from-emerald-600 via-emerald-700 to-teal-800 hover:from-emerald-500 hover:to-teal-700 text-white font-bold px-3.5 sm:px-4 py-2 sm:py-2.5 rounded-full shadow-2xl border border-emerald-300/40 flex items-center space-x-1.5 sm:space-x-2 text-xs sm:text-sm active:scale-95 transition-all animate-pulse-glow group" title="Pesan Layanan Pangkas Online">
+            <span class="text-sm sm:text-base group-hover:scale-125 transition-transform">✂️</span>
+            <span class="tracking-wide">Pesan Pangkas Online</span>
+        </button>
+    </div>
+
+    <!-- Lightbox Modal for Equipment Image -->
+    <div id="equipmentImageModal" class="modal-overlay fixed inset-0 z-50 hidden items-center justify-center p-3 sm:p-6 animate-fade-in" onclick="closeEquipmentImageModal()">
+        <div class="bg-white w-full max-w-4xl max-h-[92vh] rounded-3xl shadow-2xl flex flex-col overflow-hidden border border-stone-200" onclick="event.stopPropagation()">
+            <div class="bg-stone-900 text-white px-5 py-4 flex items-center justify-between">
+                <div class="flex items-center space-x-2">
+                    <span class="text-xl">💈</span>
+                    <div>
+                        <h4 class="font-serif font-bold text-sm sm:text-base">Lampiran Visual: Starter Kit SDM Profesional</h4>
+                        <span class="text-[11px] text-stone-400">Langkisau Pangkas Online</span>
+                    </div>
+                </div>
+                <button onclick="closeEquipmentImageModal()" class="text-stone-400 hover:text-white text-2xl font-bold px-3 py-1">✕</button>
+            </div>
+            <div class="flex-1 bg-stone-900 overflow-y-auto p-4 flex items-center justify-center">
+                <img src="assets/images/item_perlengkapan.jpg" alt="Katalog Starter Kit" class="max-w-full max-h-[75vh] object-contain rounded-xl shadow-lg">
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast Notification -->
+    <div id="copyToast" class="hidden bg-stone-900 text-white text-xs sm:text-sm font-semibold px-5 py-3 rounded-2xl shadow-2xl border border-stone-700 fixed bottom-20 left-1/2 -translate-x-1/2 z-50 flex items-center space-x-2">
+        <span class="text-base text-emerald-400">✅</span>
+        <span id="toastMessage">Berhasil disalin!</span>
+    </div>
+
+    <!-- Shared Data (Cache-Busted with Versioning) -->
+    <script src="js/data.js?v=20260905.1705"></script>
+
+    <!-- Interactive Book Controller Script -->
+    <script>
+        let currentPageIndex = 0;
+        const totalPages = 8;
+        const pageTitles = [
+            "Sampul Proposal",
+            "Bab 1 : Sentuhan Hati & Dunsanak",
+            "Bab 2 : Konsep & Model Layanan",
+            "Bab 3 : Starter Kit Alat (Rp 4.5 Jt)",
+            "Bab 4 : Kalkulator Kelayakan ROI",
+            "Bab 5 : Visi Keberdayaan SDM",
+            "Bab 6 : Akad Syariah & Rekening",
+            "Bab 7 : Form Dukungan & Pesan Pangkas"
+        ];
+
+        let bookSelectedIds = [];
+        let isBookAudioPlaying = false;
+        let bookAudioTimer = null;
+        let bookAudioSecs = 0;
+
+        function goToBookingPangkas() {
+            goToPage(7);
+            switchActionTab('book');
+            setTimeout(() => {
+                const input = document.getElementById('orderClientName');
+                if (input) {
+                    input.focus();
+                    input.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                }
+            }, 150);
+        }
+
+        function updateBookUI() {
+            // Update Active Page
+            for (let i = 0; i < totalPages; i++) {
+                const p = document.getElementById(`page-${i}`);
+                if (p) {
+                    p.classList.remove('active');
+                }
+            }
+            const activePage = document.getElementById(`page-${currentPageIndex}`);
+            if (activePage) {
+                activePage.classList.add('active');
+            }
+
+            // Update Titles & Progress
+            const titleNav = document.getElementById('pageTitleNav');
+            const bottomLabel = document.getElementById('pageBottomLabel');
+            const counter = document.getElementById('pageCounter');
+
+            if (titleNav) titleNav.innerText = pageTitles[currentPageIndex];
+            if (bottomLabel) bottomLabel.innerText = pageTitles[currentPageIndex];
+            if (counter) counter.innerText = `${currentPageIndex + 1} / ${totalPages}`;
+
+            // Update Progress Dots
+            const dots = document.querySelectorAll('.page-dot');
+            dots.forEach((d, idx) => {
+                if (idx <= currentPageIndex) {
+                    d.classList.remove('bg-slate-700');
+                    d.classList.add('bg-amber-500');
+                } else {
+                    d.classList.remove('bg-amber-500');
+                    d.classList.add('bg-slate-700');
+                }
+            });
+        }
+
+        function nextPage() {
+            if (currentPageIndex < totalPages - 1) {
+                currentPageIndex++;
+                updateBookUI();
+            }
+        }
+
+        function prevPage() {
+            if (currentPageIndex > 0) {
+                currentPageIndex--;
+                updateBookUI();
+            }
+        }
+
+        function goToPage(index) {
+            if (index >= 0 && index < totalPages) {
+                currentPageIndex = index;
+                updateBookUI();
+            }
+        }
+
+        // Table of Contents Modal
+        function openTOC() {
+            const modal = document.getElementById('tocModal');
+            if (modal) {
+                modal.classList.remove('hidden');
+                modal.classList.add('flex');
+            }
+        }
+        function closeTOC() {
+            const modal = document.getElementById('tocModal');
+            if (modal) {
+                modal.classList.add('hidden');
+                modal.classList.remove('flex');
+            }
+        }
+
+        // Equipment Image Modal
+        function openEquipmentImageModal() {
+            const modal = document.getElementById('equipmentImageModal');
+            if (modal) {
+                modal.classList.remove('hidden');
+                modal.classList.add('flex');
+            }
+        }
+        function closeEquipmentImageModal() {
+            const modal = document.getElementById('equipmentImageModal');
+            if (modal) {
+                modal.classList.add('hidden');
+                modal.classList.remove('flex');
+            }
+        }
+
+        // Voice Note Player in Book
+        function toggleBookVoice() {
+            const btn = document.getElementById('bookVoiceBtn');
+            const icon = document.getElementById('bookVoiceIcon');
+            const status = document.getElementById('bookVoiceStatus');
+
+            isBookAudioPlaying = !isBookAudioPlaying;
+            if (isBookAudioPlaying) {
+                if (icon) icon.innerText = '⏸️';
+                if (status) status.innerText = 'Sedang Memutar Pesan Suara...';
+                bookAudioTimer = setInterval(() => {
+                    bookAudioSecs++;
+                    if (bookAudioSecs > 135) {
+                        isBookAudioPlaying = false;
+                        clearInterval(bookAudioTimer);
+                        bookAudioSecs = 0;
+                        if (icon) icon.innerText = '▶️';
+                        if (status) status.innerText = 'Dengarkan Kembali';
+                        document.getElementById('bookVoiceBar').style.width = '0%';
+                        return;
+                    }
+                    const pct = (bookAudioSecs / 135) * 100;
+                    document.getElementById('bookVoiceBar').style.width = `${pct}%`;
+                }, 1000);
+            } else {
+                if (icon) icon.innerText = '▶️';
+                if (status) status.innerText = 'Pesan Suara Dijeda';
+                clearInterval(bookAudioTimer);
+            }
+        }
+
+        // Render Equipment in Book Page 3
+        function renderBookEquipment() {
+            const listEl = document.getElementById('bookItemList');
+            if (!listEl) return;
+            listEl.innerHTML = '';
+
+            APP_DATA.equipment.forEach(item => {
+                const isSelected = bookSelectedIds.includes(item.id);
+                const card = document.createElement('div');
+                card.className = `p-3 rounded-xl border flex items-center justify-between cursor-pointer transition-all ${
+                    isSelected ? 'bg-amber-50 border-amber-600 shadow-sm' : 'bg-white border-stone-200 hover:border-amber-300'
+                }`;
+                card.onclick = () => toggleBookItem(item.id);
+
+                card.innerHTML = `
+                    <div class="flex items-center space-x-3">
+                        <input type="checkbox" ${isSelected ? 'checked' : ''} class="w-4 h-4 accent-amber-700 pointer-events-none">
+                        
+                        <div class="w-10 h-10 rounded-lg overflow-hidden border border-stone-200 bg-stone-100 flex-shrink-0" onclick="event.stopPropagation(); openEquipmentImageModal();">
+                            ${item.hasPhoto ? `
+                                <div style="background-image: url('assets/images/item_perlengkapan.jpg'); background-size: 320% 210%; background-position: ${item.spritePosition}; width: 100%; height: 100%;"></div>
+                            ` : `<div class="w-full h-full flex items-center justify-center text-sm">📣</div>`}
+                        </div>
+
+                        <div>
+                            <h5 class="font-bold text-stone-900 text-xs sm:text-sm">${item.name}</h5>
+                            <span class="text-[10px] text-stone-500">${item.category}</span>
+                        </div>
+                    </div>
+                    <div class="text-right pl-2">
+                        <span class="font-bold text-amber-800 text-xs sm:text-sm">Rp ${item.price.toLocaleString('id-ID')}</span>
+                    </div>
+                `;
+                listEl.appendChild(card);
+            });
+
+            updateBookSelectedTotal();
+        }
+
+        function toggleBookItem(id) {
+            if (bookSelectedIds.includes(id)) {
+                bookSelectedIds = bookSelectedIds.filter(i => i !== id);
+            } else {
+                bookSelectedIds.push(id);
+            }
+            renderBookEquipment();
+        }
+
+        function updateBookSelectedTotal() {
+            const total = bookSelectedIds.reduce((sum, id) => {
+                const item = APP_DATA.equipment.find(e => e.id === id);
+                return sum + (item ? item.price : 0);
+            }, 0);
+
+            const totalEl = document.getElementById('bookSelectedTotal');
+            if (totalEl) totalEl.innerText = `Rp ${total.toLocaleString('id-ID')}`;
+        }
+
+        function applyBookSponsorship() {
+            const total = bookSelectedIds.reduce((sum, id) => {
+                const item = APP_DATA.equipment.find(e => e.id === id);
+                return sum + (item ? item.price : 0);
+            }, 0);
+
+            if (total === 0) {
+                showToast('Pilih minimal 1 item terlebih dahulu.');
+                return;
+            }
+
+            goToPage(7);
+            switchActionTab('donate');
+            document.getElementById('bookDonorScheme').value = 'Sponsor Item Alat';
+            document.getElementById('bookDonorAmount').value = total.toLocaleString('id-ID');
+            showToast(`Memilih ${bookSelectedIds.length} item. Formulir komitmen telah diisi!`);
+        }
+
+        // Book ROI Calculator
+        function updateBookROI() {
+            const weekday = parseInt(document.getElementById('bookWeekdayInput').value, 10);
+            const weekend = parseInt(document.getElementById('bookWeekendInput').value, 10);
+
+            document.getElementById('bookWeekdayVal').innerText = `${weekday} Orang / Hari`;
+            document.getElementById('bookWeekendVal').innerText = `${weekend} Orang / Hari`;
+
+            const rev = (weekday * 22 * 30000) + (weekend * 8 * 30000);
+            document.getElementById('bookMonthlyRev').innerText = `Rp ${rev.toLocaleString('id-ID')}`;
+
+            const months = (4500000 / 1000000).toFixed(1);
+            document.getElementById('bookPaybackMonths').innerText = `${months} Bulan`;
+        }
+
+        // Action Tab Switcher (Donasi vs Booking)
+        function switchActionTab(mode) {
+            const formDonate = document.getElementById('bookPledgeForm');
+            const formBook = document.getElementById('bookOrderForm');
+            const btnDonate = document.getElementById('btnModeDonate');
+            const btnBook = document.getElementById('btnModeBook');
+
+            if (mode === 'donate') {
+                formDonate.classList.remove('hidden');
+                formBook.classList.add('hidden');
+                btnDonate.className = 'flex-1 py-2.5 rounded-xl font-bold text-xs sm:text-sm bg-amberbrand-600 text-white shadow transition-all flex items-center justify-center space-x-1.5';
+                btnBook.className = 'flex-1 py-2.5 rounded-xl font-semibold text-xs sm:text-sm text-ocean-200 hover:text-white transition-all flex items-center justify-center space-x-1.5';
+            } else {
+                formDonate.classList.add('hidden');
+                formBook.classList.remove('hidden');
+                btnDonate.className = 'flex-1 py-2.5 rounded-xl font-semibold text-xs sm:text-sm text-ocean-200 hover:text-white transition-all flex items-center justify-center space-x-1.5';
+                btnBook.className = 'flex-1 py-2.5 rounded-xl font-bold text-xs sm:text-sm bg-emerald-600 text-white shadow transition-all flex items-center justify-center space-x-1.5';
+            }
+        }
+
+        // WhatsApp Form 1: Modal Pledge
+        function handleBookPledgeSubmit(e) {
+            e.preventDefault();
+            const targetPhone = document.getElementById('bookTargetPhone').value;
+            const name = document.getElementById('bookDonorName').value.trim();
+            const scheme = document.getElementById('bookDonorScheme').value;
+            const amount = document.getElementById('bookDonorAmount').value.trim();
+            const phone = document.getElementById('bookDonorPhone').value.trim();
+
+            const text = `Assalamu'alaikum / Halo Pangeran Indra Sakti (Langkisau Pangkas Online),\n\nSaya ingin menyampaikan komitmen dukungan modal usaha:\n\n👤 *Nama:* ${name}\n🤝 *Skema:* ${scheme}\n💰 *Nominal/Item:* Rp ${amount || 'Sukarela'}\n📱 *No. WA:* ${phone || '-'}\n\nMohon petunjuk selanjutnya. Terima kasih!`;
+            window.open(`https://wa.me/${targetPhone}?text=${encodeURIComponent(text)}`, '_blank');
+        }
+
+        // WhatsApp Form 2: Order Booking Pangkas Home Visit
+        function handleBookOrderSubmit(e) {
+            e.preventDefault();
+            const targetPhone = document.getElementById('bookOrderTargetPhone') ? document.getElementById('bookOrderTargetPhone').value : '6281378053239';
+            const name = document.getElementById('orderClientName').value.trim();
+            const count = document.getElementById('orderClientCount').value;
+            const time = document.getElementById('orderClientTime').value.trim();
+            const address = document.getElementById('orderClientAddress').value.trim();
+            const notes = document.getElementById('orderClientNotes').value.trim();
+
+            const text = `Assalamu'alaikum / Halo Langkisau Pangkas Online,\n\nSaya ingin memesan *Layanan Pangkas Rambut Home Visit (Panggilan)*:\n\n✂️ *Nama Pemesan:* ${name}\n👥 *Jumlah Pelanggan:* ${count}\n📅 *Waktu/Jam:* ${time || 'Konfirmasi via WA'}\n📍 *Alamat / Lokasi:* ${address}\n📝 *Catatan:* ${notes || 'Mohon hadir tepat waktu'}\n\nApakah jadwal ini tersedia? Terima kasih!`;
+            window.open(`https://wa.me/${targetPhone}?text=${encodeURIComponent(text)}`, '_blank');
+        }
+
+        // Copy Bank Helper
+        function copyBankAccount(accNumber, bankName) {
+            if (navigator.clipboard) {
+                navigator.clipboard.writeText(accNumber).then(() => {
+                    showToast(`Nomor rekening ${bankName} (${accNumber}) berhasil disalin!`);
+                });
+            } else {
+                showToast(`Nomor Rekening: ${accNumber}`);
+            }
+        }
+
+        function showToast(msg) {
+            const toast = document.getElementById('copyToast');
+            const text = document.getElementById('toastMessage');
+            if (!toast || !text) return;
+            text.innerText = msg;
+            toast.classList.remove('hidden');
+            setTimeout(() => {
+                toast.classList.add('hidden');
+            }, 3000);
+        }
+
+        // Touch Swipe Gestures
+        let touchStartX = 0;
+        let touchEndX = 0;
+
+        document.getElementById('bookContainer').addEventListener('touchstart', (e) => {
+            touchStartX = e.changedTouches[0].screenX;
+        }, { passive: true });
+
+        document.getElementById('bookContainer').addEventListener('touchend', (e) => {
+            touchEndX = e.changedTouches[0].screenX;
+            handleSwipe();
+        }, { passive: true });
+
+        function handleSwipe() {
+            const threshold = 45;
+            if (touchStartX - touchEndX > threshold) {
+                nextPage(); // Swipe Left -> Next
+            } else if (touchEndX - touchStartX > threshold) {
+                prevPage(); // Swipe Right -> Prev
+            }
+        }
+
+        // Keyboard Controls
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'ArrowRight' || e.key === 'PageDown') {
+                nextPage();
+            } else if (e.key === 'ArrowLeft' || e.key === 'PageUp') {
+                prevPage();
+            } else if (e.key === 'Escape') {
+                closeTOC();
+                closeEquipmentImageModal();
+            }
+        });
+
+        // Init on DOM Ready
+        document.addEventListener('DOMContentLoaded', () => {
+            updateBookUI();
+            renderBookEquipment();
+
+            document.getElementById('bookWeekdayInput').addEventListener('input', updateBookROI);
+            document.getElementById('bookWeekendInput').addEventListener('input', updateBookROI);
+        });
+    </script>
+</body>
+</html>
