@@ -6,6 +6,9 @@ use App\Models\User;
 use App\Models\Wallet;
 use App\Models\Consultation;
 use App\Models\LiquidityPoolSystem;
+use App\Models\EcosystemService;
+use App\Models\ServiceOrder;
+use App\Models\AffiliateCommission;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Inertia\Inertia;
@@ -120,8 +123,42 @@ class AdminDashboardController extends Controller
 
         // 3. Global Stats
         $lp = LiquidityPoolSystem::find(1);
-        $totalSilverCirculating = Wallet::sum('silver_balance');
-        $totalGoldCirculating = Wallet::sum('gold_balance');
+        $totalSilverCirculating = (float) Wallet::sum('silver_balance');
+        $totalGoldCirculating = (float) Wallet::sum('gold_balance');
+
+        // 4. Marketing & Ecosystem Hub Data for Root Admin
+        $services = EcosystemService::with('owner:id,name,username')
+            ->withCount(['orders', 'licenses'])
+            ->latest()
+            ->get();
+
+        $orders = ServiceOrder::with([
+            'service:id,name,code,service_type',
+            'user:id,name,username,whatsapp',
+            'registeredBy:id,name,username',
+            'installments',
+        ])
+            ->latest()
+            ->limit(50)
+            ->get();
+
+        $recentCommissions = AffiliateCommission::with([
+            'service:id,name,code',
+            'uplineUser:id,name,username,whatsapp',
+            'beneficiaryUser:id,name,username',
+        ])
+            ->latest()
+            ->limit(50)
+            ->get();
+
+        // 5. Marketing Financial Metrics
+        $totalOmzetGold = (float) ServiceOrder::sum('paid_amount_gold');
+        $totalOmzetFiat = (float) ServiceOrder::sum('paid_amount_fiat');
+        $totalPayoutGold = (float) AffiliateCommission::where('currency', 'GOLD')->sum('amount_gold');
+        $totalPayoutFiat = (float) AffiliateCommission::where('currency', 'IDR')->sum('amount_fiat');
+        $activeInstallmentsCount = ServiceOrder::where('payment_type', 'INSTALLMENT')
+            ->where('status', '!=', 'COMPLETED')
+            ->count();
 
         return Inertia::render('Admin/Dashboard', [
             'adminUser' => [
@@ -134,12 +171,22 @@ class AdminDashboardController extends Controller
             ],
             'pendingUsers' => $pendingUsers,
             'activeSaudagars' => $activeSaudagars,
+            'services' => $services,
+            'orders' => $orders,
+            'recentCommissions' => $recentCommissions,
             'stats' => [
                 'pending_count' => $pendingUsers->count(),
                 'active_count' => $activeSaudagars->count(),
+                'services_count' => $services->count(),
+                'orders_count' => $orders->count(),
+                'active_installments' => $activeInstallmentsCount,
+                'total_omzet_gold' => $totalOmzetGold,
+                'total_omzet_fiat' => $totalOmzetFiat,
+                'total_payout_gold' => $totalPayoutGold,
+                'total_payout_fiat' => $totalPayoutFiat,
                 'total_silver' => $totalSilverCirculating,
                 'total_gold' => $totalGoldCirculating,
-                'fiat_in_bank' => $lp ? $lp->total_fiat_in_bank : 500000,
+                'fiat_in_bank' => $lp ? (float) $lp->total_fiat_in_bank : 500000,
             ],
         ]);
     }
