@@ -166,9 +166,30 @@ class ServiceHubController extends Controller
 
             $targetType = ($beneficiaryUser->id === $authUser->id) ? 'SELF' : 'OTHER';
 
-            // 2. Handle Payment Processing
+            // 2. Resolve Dynamic Package Tier Pricing (if schema provides packages)
+            $costGold = (float) $service->price_gold;
+            $costFiat = (float) $service->price_fiat;
+            $selectedPackageName = 'Bisnis';
+
+            if (isset($formData['package_tier'])) {
+                $tierStr = (string) $formData['package_tier'];
+                if (stripos($tierStr, 'Basic') !== false || stripos($tierStr, '40') !== false) {
+                    $costGold = 40.0;
+                    $costFiat = 50000.0;
+                    $selectedPackageName = 'Basic';
+                } elseif (stripos($tierStr, 'Enterprise') !== false || stripos($tierStr, 'VIP') !== false || stripos($tierStr, '160') !== false) {
+                    $costGold = 160.0;
+                    $costFiat = 200000.0;
+                    $selectedPackageName = 'Enterprise VIP';
+                } else {
+                    $costGold = 80.0;
+                    $costFiat = 100000.0;
+                    $selectedPackageName = 'Bisnis';
+                }
+            }
+
+            // 3. Handle Payment Processing
             if ($paymentMethod === 'GOLD') {
-                $costGold = (float) $service->price_gold;
                 $payerWallet = Wallet::where('user_id', $authUser->id)->lockForUpdate()->first();
 
                 if (!$payerWallet || $payerWallet->gold_balance < $costGold) {
@@ -185,7 +206,7 @@ class ServiceHubController extends Controller
                         creditWalletId: null, // System Liquidity Vault
                         amount: $costGold,
                         currency: 'GOLD',
-                        description: "Aktivasi Lisensi {$service->name} (" . ($targetType === 'SELF' ? 'Pribadi' : 'Mitra: ' . $beneficiaryUser->name) . ")",
+                        description: "Aktivasi Lisensi {$service->name} [Paket {$selectedPackageName}] (" . ($targetType === 'SELF' ? 'Pribadi' : 'Mitra: ' . $beneficiaryUser->name) . ")",
                         referenceType: EcosystemService::class,
                         referenceId: $service->id
                     );
@@ -197,15 +218,52 @@ class ServiceHubController extends Controller
             } else {
                 // FIAT Payment (QRIS / Transfer)
                 $status = 'PENDING_PAYMENT';
-                $amountPaid = (float) $service->price_fiat;
+                $amountPaid = $costFiat;
                 $currency = 'IDR';
             }
 
-            // 3. Generate Official License Code
+            // 4. Generate Official License Code
             $slugPrefix = strtoupper(substr(preg_replace('/[^a-zA-Z]/', '', $service->code), 0, 3));
             $licenseCode = 'LIC-' . $slugPrefix . '-' . date('Y') . '-' . strtoupper(Str::random(6));
 
-            // 4. Create Service License Record
+            $redirectUrl = $service->service_url ? $service->service_url . '?license=' . $licenseCode : null;
+            $unimartMetadata = [];
+
+            // 5. External Integration Dispatch (Unimart Ecosystem)
+            if ($service->code === 'unimart') {
+                $unimartClient = app(\App\Services\Ecosystem\UnimartClient::class);
+                $shopName = $formData['shop_name'] ?? ($formData['business_name'] ?? ($request->input('beneficiary_name') ?: 'Toko ' . $beneficiaryUser->name));
+                $domainSlug = !empty($formData['domain']) ? Str::slug($formData['domain']) : Str::slug($shopName);
+
+                $unimartRes = $unimartClient->registerStore([
+                    'license_code' => $licenseCode,
+                    'package' => $selectedPackageName,
+                    'business_name' => $shopName,
+                    'domain' => $domainSlug,
+                    'business_type' => $formData['business_category'] ?? ($formData['business_type'] ?? null),
+                    'business_address' => $formData['shop_address'] ?? ($formData['business_address'] ?? null),
+                    'business_description' => $formData['shop_description'] ?? ($formData['business_description'] ?? null),
+                    'owner_name' => $beneficiaryUser->name,
+                    'owner_phone' => $beneficiaryUser->whatsapp,
+                    'owner_email' => $formData['owner_email'] ?? null,
+                    'piticoin_user_id' => $beneficiaryUser->id,
+                    'registered_by_id' => $authUser->id,
+                    'payment_method' => $paymentMethod,
+                    'duration_months' => 1,
+                ]);
+
+                if (!empty($unimartRes['store_url'])) {
+                    $redirectUrl = $unimartRes['store_url'];
+                    $unimartMetadata = [
+                        'unimart_store_url' => $unimartRes['store_url'],
+                        'unimart_menu_url' => $unimartRes['menu_url'] ?? null,
+                        'unimart_login_url' => $unimartRes['login_url'] ?? null,
+                        'unimart_initial_password' => $unimartRes['initial_password'] ?? null,
+                    ];
+                }
+            }
+
+            // 6. Create Service License Record
             $license = ServiceLicense::create([
                 'service_id' => $service->id,
                 'user_id' => $beneficiaryUser->id,
@@ -218,18 +276,19 @@ class ServiceHubController extends Controller
                 'amount_paid' => $amountPaid,
                 'currency' => $currency,
                 'expires_at' => now()->addYear(),
-                'metadata' => [
+                'metadata' => array_merge([
                     'service_name' => $service->name,
+                    'package_tier' => $selectedPackageName,
                     'registrant_name' => $authUser->name,
                     'beneficiary_name' => $beneficiaryUser->name,
-                ],
+                ], $unimartMetadata),
             ]);
 
             return response()->json([
                 'success' => true,
                 'message' => 'Pendaftaran lisensi ' . $service->name . ' berhasil diproses!',
                 'license' => $license,
-                'redirect_url' => $service->service_url ? $service->service_url . '?license=' . $licenseCode : null,
+                'redirect_url' => $redirectUrl,
             ]);
         });
     }

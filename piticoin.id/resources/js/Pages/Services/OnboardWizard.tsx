@@ -71,6 +71,27 @@ export default function OnboardWizard({
     const [paymentMethod, setPaymentMethod] = useState<'GOLD' | 'FIAT'>('GOLD');
     const [isSuccess, setIsSuccess] = useState(false);
     const [generatedLicense, setGeneratedLicense] = useState<any>(null);
+    const [redirectUrl, setRedirectUrl] = useState<string | null>(null);
+
+    // Package tier resolution (dynamic price adjustment if package selected)
+    const resolveTierPrices = () => {
+        const tier = formData.package_tier;
+        if (!tier) return { gold: service.price_gold, fiat: service.price_fiat, name: 'Standard' };
+        if (typeof tier === 'string') {
+            if (tier.includes('Basic') || tier.includes('40')) {
+                return { gold: 40, fiat: 50000, name: 'Basic Starter' };
+            }
+            if (tier.includes('Enterprise') || tier.includes('VIP') || tier.includes('160')) {
+                return { gold: 160, fiat: 200000, name: 'Enterprise VIP' };
+            }
+            if (tier.includes('Bisnis') || tier.includes('80')) {
+                return { gold: 80, fiat: 100000, name: 'Bisnis Pro' };
+            }
+        }
+        return { gold: service.price_gold, fiat: service.price_fiat, name: 'Standard' };
+    };
+
+    const currentPricing = resolveTierPrices();
 
     // Live verification lookup for identifier
     useEffect(() => {
@@ -183,6 +204,9 @@ export default function OnboardWizard({
             const data = await res.json();
             if (data.success) {
                 setGeneratedLicense(data.license);
+                if (data.redirect_url) {
+                    setRedirectUrl(data.redirect_url);
+                }
                 setIsSuccess(true);
             } else {
                 setErrorMsg(data.message || 'Gagal memproses pendaftaran lisensi.');
@@ -297,15 +321,59 @@ export default function OnboardWizard({
                             </div>
                         </div>
 
+                        {/* Unimart Provisioned Store Card */}
+                        {generatedLicense.metadata?.unimart_store_url && (
+                            <div className="p-4 rounded-xl bg-surface/90 border border-emerald-500/40 text-left space-y-2 font-mono text-xs shadow-md">
+                                <div className="flex items-center gap-2 text-emerald-400 font-bold text-xs">
+                                    <span className="material-symbols-outlined text-base">storefront</span>
+                                    <span>Toko Unimart Siap Digunakan!</span>
+                                </div>
+                                <div className="space-y-1 text-[11px]">
+                                    <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-1">
+                                        <span className="text-on-surface-variant">URL Toko (Otonom):</span>
+                                        <a
+                                            href={generatedLicense.metadata.unimart_store_url}
+                                            target="_blank"
+                                            rel="noreferrer"
+                                            className="text-primary-container font-bold underline truncate"
+                                        >
+                                            {generatedLicense.metadata.unimart_store_url}
+                                        </a>
+                                    </div>
+                                    {generatedLicense.metadata.unimart_login_url && (
+                                        <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-1 border-t border-glass-stroke pt-1">
+                                            <span className="text-on-surface-variant">Dasbor Pemilik:</span>
+                                            <a
+                                                href={generatedLicense.metadata.unimart_login_url}
+                                                target="_blank"
+                                                rel="noreferrer"
+                                                className="text-on-surface underline truncate"
+                                            >
+                                                {generatedLicense.metadata.unimart_login_url}
+                                            </a>
+                                        </div>
+                                    )}
+                                    {generatedLicense.metadata.unimart_initial_password && (
+                                        <div className="flex justify-between items-center border-t border-glass-stroke pt-1 text-[10px]">
+                                            <span className="text-on-surface-variant">Password Default:</span>
+                                            <code className="text-amber-400 font-bold select-all bg-black/40 px-1.5 py-0.5 rounded">
+                                                {generatedLicense.metadata.unimart_initial_password}
+                                            </code>
+                                        </div>
+                                    )}
+                                </div>
+                            </div>
+                        )}
+
                         <div className="space-y-2 pt-2">
-                            {service.service_url && (
+                            {(redirectUrl || service.service_url) && (
                                 <a
-                                    href={`${service.service_url}?license=${generatedLicense.license_code}`}
+                                    href={redirectUrl || `${service.service_url}?license=${generatedLicense.license_code}`}
                                     target="_blank"
                                     rel="noreferrer"
                                     className="w-full py-3 rounded-xl bg-gradient-to-r from-amber-500 via-primary-container to-amber-400 text-on-primary font-bold text-xs uppercase tracking-wider hover:brightness-110 active:scale-95 transition-all shadow-[0_0_15px_rgba(255,215,0,0.5)] flex items-center justify-center gap-2"
                                 >
-                                    <span>Buka {service.name} Sekarang</span>
+                                    <span>Buka Toko / Layanan Sekarang</span>
                                     <span className="material-symbols-outlined text-sm">open_in_new</span>
                                 </a>
                             )}
@@ -499,6 +567,16 @@ export default function OnboardWizard({
                                                         className="w-full bg-surface/70 border border-glass-stroke rounded-xl px-3.5 py-2.5 text-xs text-on-surface outline-none focus:border-primary-container transition-colors"
                                                     />
                                                 )}
+
+                                                {field.name === 'domain' && (
+                                                    <div className="mt-1.5 p-2 rounded-lg bg-surface/90 border border-primary-container/30 text-[11px] text-on-surface-variant flex items-center gap-1.5 font-mono">
+                                                        <span className="material-symbols-outlined text-primary-container text-xs">link</span>
+                                                        <span>URL Toko Otonom:</span>
+                                                        <span className="text-primary-container font-bold">
+                                                            unimart.group.localhost/s/{formData.domain ? formData.domain.toLowerCase().replace(/[^a-z0-9-]/g, '-') : 'nama-toko'}
+                                                        </span>
+                                                    </div>
+                                                )}
                                             </div>
                                         ))}
                                     </div>
@@ -537,7 +615,9 @@ export default function OnboardWizard({
                                     </div>
                                     <div className="flex justify-between border-t border-glass-stroke pt-2">
                                         <span className="text-on-surface-variant">Layanan:</span>
-                                        <span className="text-primary-container font-bold">{service.name}</span>
+                                        <span className="text-primary-container font-bold">
+                                            {service.name} {formData.package_tier ? `(${currentPricing.name})` : ''}
+                                        </span>
                                     </div>
                                 </div>
 
@@ -563,11 +643,11 @@ export default function OnboardWizard({
                                                     Koin Emas PitiCoin
                                                 </strong>
                                                 <span className="text-[9px] bg-primary-container text-on-primary px-1.5 py-0.2 rounded font-bold">
-                                                    DISKON 15%
+                                                    HEMAT 20%
                                                 </span>
                                             </div>
                                             <div className="text-sm font-mono font-bold text-on-surface">
-                                                {service.price_gold} Koin Emas
+                                                {currentPricing.gold} Koin Emas
                                             </div>
                                             <div className="text-[10px] text-on-surface-variant mt-1">
                                                 Saldo Emas Anda: <strong className="font-mono text-primary-container">{gold_balance} Emas</strong>
@@ -593,7 +673,7 @@ export default function OnboardWizard({
                                                 </span>
                                             </div>
                                             <div className="text-sm font-mono font-bold text-on-surface">
-                                                {formatRupiah(service.price_fiat)}
+                                                {formatRupiah(currentPricing.fiat)}
                                             </div>
                                             <div className="text-[10px] text-on-surface-variant mt-1">
                                                 QRIS Dinamis & Virtual Account Bank
@@ -602,18 +682,18 @@ export default function OnboardWizard({
                                     </div>
                                 </div>
 
-                                {paymentMethod === 'GOLD' && gold_balance < service.price_gold && (
+                                {paymentMethod === 'GOLD' && gold_balance < currentPricing.gold && (
                                     <div className="p-3 rounded-xl bg-amber-500/10 border border-amber-500/30 text-xs text-on-surface space-y-1">
                                         <strong className="text-primary-container block">Saldo Koin Emas Kurang</strong>
                                         <p className="text-[11px] text-on-surface-variant">
-                                            Anda memiliki {gold_balance} Emas, dibutuhkan {service.price_gold} Emas. Silakan pilih pembayaran Rupiah atau lebur koin / ikuti misi terlebih dahulu.
+                                            Anda memiliki {gold_balance} Emas, dibutuhkan {currentPricing.gold} Emas. Silakan pilih pembayaran Rupiah atau lebur koin / ikuti misi terlebih dahulu.
                                         </p>
                                     </div>
                                 )}
 
                                 <button
                                     onClick={handleSubmitOrder}
-                                    disabled={loading || (paymentMethod === 'GOLD' && gold_balance < service.price_gold)}
+                                    disabled={loading || (paymentMethod === 'GOLD' && gold_balance < currentPricing.gold)}
                                     className="w-full py-3.5 rounded-xl bg-gradient-to-r from-amber-500 via-primary-container to-amber-400 text-on-primary font-bold text-xs uppercase tracking-wider hover:brightness-110 active:scale-95 transition-all shadow-[0_0_15px_rgba(255,215,0,0.4)] disabled:opacity-50 flex items-center justify-center gap-2"
                                 >
                                     {loading ? (

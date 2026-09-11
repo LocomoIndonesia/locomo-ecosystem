@@ -79,9 +79,22 @@ class Tenant extends Model
     }
 
     /**
-     * Dapatkan URL lengkap toko tenant.
+     * Dapatkan URL lengkap toko tenant menggunakan path-based URL otonom (/s/{domain}).
      */
     public function getStoreUrlAttribute(): string
+    {
+        $scheme = (request() && request()->isSecure()) ? 'https' : 'http';
+        $host = request() ? request()->getHost() : 'localhost';
+        $isLocal = str_ends_with($host, '.localhost') || $host === 'localhost' || $host === '127.0.0.1';
+        $baseDomain = $isLocal ? env('APP_LOCAL_DOMAIN', 'unimart.group.localhost') : env('APP_BASE_DOMAIN', 'unimart.group');
+
+        return "{$scheme}://{$baseDomain}/s/{$this->domain}";
+    }
+
+    /**
+     * Dapatkan URL subdomain jika wildcard DNS/hosting aktif.
+     */
+    public function getSubdomainUrlAttribute(): string
     {
         $scheme = (request() && request()->isSecure()) ? 'https' : 'http';
         return "{$scheme}://{$this->full_domain}";

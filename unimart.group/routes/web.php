@@ -39,6 +39,31 @@ Route::get('/', function (\Illuminate\Http\Request $request) {
     return view('welcome');
 });
 
+// Path-Based Multi-Tenant Store Route (/s/{domain}) - Bekerja tanpa ketergantungan wildcard DNS/SSL
+Route::prefix('s/{domain}')->group(function () {
+    Route::get('/', function ($domain) {
+        $tenant = \App\Models\Tenant::where('domain', $domain)->firstOrFail();
+        app()->instance('tenant', $tenant);
+
+        if ($tenant->business_type === 'grosir') {
+            return app(\App\Modules\Grosir\Controllers\GrosirLandingController::class)->showLanding($tenant->domain);
+        }
+        return app(\App\Modules\Caffe\Controllers\CaffeLandingController::class)->showLanding($tenant->domain);
+    })->name('store.landing');
+
+    Route::get('/menu', function ($domain) {
+        $tenant = \App\Models\Tenant::where('domain', $domain)->firstOrFail();
+        app()->instance('tenant', $tenant);
+        $products = \App\Models\Product::where('tenant_id', $tenant->id)->get();
+        $tables = \App\Models\Table::where('tenant_id', $tenant->id)
+            ->where('status', 'available')
+            ->get();
+        return view('caffe-qr', ['alias' => $domain, 'tenant' => $tenant, 'products' => $products, 'tables' => $tables]);
+    })->name('store.menu');
+
+    Route::post('/checkout', [POSController::class, 'customerCheckout'])->name('store.checkout');
+});
+
 Route::get('/caffe/{alias}', function ($alias) {
     $tenant = app()->bound('tenant') ? app('tenant') : null;
     if (!$tenant) {

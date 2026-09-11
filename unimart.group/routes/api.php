@@ -11,3 +11,6 @@ Route::get('/user', function (Request $request) {
 Route::post('/unimart/register-lead', [MerchantRegistrationController::class, 'registerLead']);
 Route::get('/unimart/confirm-lead', [MerchantRegistrationController::class, 'confirmLead']);
 Route::post('/unimart/verify-payment', [MerchantRegistrationController::class, 'verifyPayment']);
+
+// Ecosystem Hub Integration (PitiCoin -> Unimart)
+Route::post('/v1/external/register-store', [\App\Http\Controllers\Api\ExternalMerchantController::class, 'registerStore']);
