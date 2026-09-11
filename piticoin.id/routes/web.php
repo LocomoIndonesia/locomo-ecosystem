@@ -45,6 +45,9 @@ Route::middleware('auth')->group(function () {
     Route::post('/admin/approve-license/{userId}', [\App\Http\Controllers\AdminDashboardController::class, 'approveLicense'])->name('admin.approve-license');
     Route::get('/admin/consultations/{userId}', [\App\Http\Controllers\AdminDashboardController::class, 'getConsultation'])->name('admin.consultations.get');
     Route::post('/admin/messages/send', [\App\Http\Controllers\AdminDashboardController::class, 'sendMessage'])->name('admin.messages.send');
+    Route::post('/admin/quests', [\App\Http\Controllers\AdminDashboardController::class, 'storeQuest'])->name('admin.quests.store');
+    Route::put('/admin/quests/{questId}', [\App\Http\Controllers\AdminDashboardController::class, 'updateQuest'])->name('admin.quests.update');
+    Route::delete('/admin/quests/{questId}', [\App\Http\Controllers\AdminDashboardController::class, 'destroyQuest'])->name('admin.quests.destroy');
 
     // Saudagar Consultation & Q&A Panel
     Route::get('/api/consultation/my', [\App\Http\Controllers\ConsultationController::class, 'getMyConsultation'])->name('consultation.my');

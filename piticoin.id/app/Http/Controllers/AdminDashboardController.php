@@ -9,6 +9,9 @@ use App\Models\LiquidityPoolSystem;
 use App\Models\EcosystemService;
 use App\Models\ServiceOrder;
 use App\Models\AffiliateCommission;
+use App\Models\Quest;
+use App\Models\EscrowTransaction;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Inertia\Inertia;
@@ -160,6 +163,17 @@ class AdminDashboardController extends Controller
             ->where('status', '!=', 'COMPLETED')
             ->count();
 
+        // 6. Quests with Active Participants Count
+        $quests = Quest::withCount([
+            'escrowTransactions as active_participants_count' => function ($query) {
+                $query->where('status', 'LOCKED')->where('expires_at', '>', Carbon::now());
+            },
+            'escrowTransactions as total_attempts_count',
+        ])
+            ->orderBy('is_active', 'desc')
+            ->orderBy('created_at', 'desc')
+            ->get();
+
         return Inertia::render('Admin/Dashboard', [
             'adminUser' => [
                 'id' => $currentUser->id,
@@ -174,11 +188,13 @@ class AdminDashboardController extends Controller
             'services' => $services,
             'orders' => $orders,
             'recentCommissions' => $recentCommissions,
+            'quests' => $quests,
             'stats' => [
                 'pending_count' => $pendingUsers->count(),
                 'active_count' => $activeSaudagars->count(),
                 'services_count' => $services->count(),
                 'orders_count' => $orders->count(),
+                'quests_count' => $quests->count(),
                 'active_installments' => $activeInstallmentsCount,
                 'total_omzet_gold' => $totalOmzetGold,
                 'total_omzet_fiat' => $totalOmzetFiat,
@@ -307,5 +323,143 @@ class AdminDashboardController extends Controller
         }
 
         return back()->with('success', 'Pesan notifikasi/konsultasi berhasil dikirim ke Saudagar.');
+    }
+
+    /**
+     * Store a new Quest.
+     */
+    public function storeQuest(Request $request)
+    {
+        $currentUser = Auth::user();
+        if (!$currentUser || $currentUser->role !== 'ADMIN') {
+            abort(403, 'Akses terbatas untuk Administrator.');
+        }
+
+        $validated = $request->validate([
+            'title' => 'required|string|max:255',
+            'description' => 'required|string',
+            'quest_category' => 'required|in:DEFAULT,TIME_WINDOW,PERSONA_SPECIFIC',
+            'time_window' => 'nullable|in:ALL,MORNING,AFTERNOON,EVENING,NIGHT',
+            'target_persona' => 'nullable|string|max:50',
+            'stake_amount_silver' => 'required|numeric|min:0',
+            'reward_amount_gold' => 'required|numeric|min:1',
+            'time_limit_hours' => 'required|integer|min:1|max:720',
+            'min_level' => 'nullable|integer|min:1',
+            'is_active' => 'boolean',
+        ]);
+
+        $quest = Quest::create([
+            'title' => $validated['title'],
+            'description' => $validated['description'],
+            'quest_category' => $validated['quest_category'],
+            'time_window' => $validated['time_window'] ?? 'ALL',
+            'target_persona' => $validated['target_persona'] ?? 'ALL',
+            'stake_amount_silver' => (int) $validated['stake_amount_silver'],
+            'reward_amount_gold' => (int) $validated['reward_amount_gold'],
+            'time_limit_hours' => (int) $validated['time_limit_hours'],
+            'min_level' => $validated['min_level'] ?? 1,
+            'is_active' => $request->boolean('is_active', true),
+        ]);
+
+        if ($request->wantsJson()) {
+            return response()->json([
+                'success' => true,
+                'message' => 'Misi berhasil ditambahkan ke dashboard pengguna.',
+                'quest' => $quest,
+            ]);
+        }
+
+        return redirect()->back()->with('success', 'Misi berhasil ditambahkan ke dashboard pengguna.');
+    }
+
+    /**
+     * Update an existing Quest.
+     */
+    public function updateQuest(Request $request, $questId)
+    {
+        $currentUser = Auth::user();
+        if (!$currentUser || $currentUser->role !== 'ADMIN') {
+            abort(403, 'Akses terbatas untuk Administrator.');
+        }
+
+        $quest = Quest::findOrFail($questId);
+
+        $validated = $request->validate([
+            'title' => 'required|string|max:255',
+            'description' => 'required|string',
+            'quest_category' => 'required|in:DEFAULT,TIME_WINDOW,PERSONA_SPECIFIC',
+            'time_window' => 'nullable|in:ALL,MORNING,AFTERNOON,EVENING,NIGHT',
+            'target_persona' => 'nullable|string|max:50',
+            'stake_amount_silver' => 'required|numeric|min:0',
+            'reward_amount_gold' => 'required|numeric|min:1',
+            'time_limit_hours' => 'required|integer|min:1|max:720',
+            'min_level' => 'nullable|integer|min:1',
+            'is_active' => 'boolean',
+        ]);
+
+        $quest->update([
+            'title' => $validated['title'],
+            'description' => $validated['description'],
+            'quest_category' => $validated['quest_category'],
+            'time_window' => $validated['time_window'] ?? 'ALL',
+            'target_persona' => $validated['target_persona'] ?? 'ALL',
+            'stake_amount_silver' => (int) $validated['stake_amount_silver'],
+            'reward_amount_gold' => (int) $validated['reward_amount_gold'],
+            'time_limit_hours' => (int) $validated['time_limit_hours'],
+            'min_level' => $validated['min_level'] ?? 1,
+            'is_active' => $request->boolean('is_active'),
+        ]);
+
+        if ($request->wantsJson()) {
+            return response()->json([
+                'success' => true,
+                'message' => 'Misi berhasil diperbarui.',
+                'quest' => $quest,
+            ]);
+        }
+
+        return redirect()->back()->with('success', 'Misi berhasil diperbarui.');
+    }
+
+    /**
+     * Delete a Quest (Only allowed if no user is actively doing it).
+     */
+    public function destroyQuest(Request $request, $questId)
+    {
+        $currentUser = Auth::user();
+        if (!$currentUser || $currentUser->role !== 'ADMIN') {
+            abort(403, 'Akses terbatas untuk Administrator.');
+        }
+
+        $quest = Quest::findOrFail($questId);
+
+        // Check if any user is currently doing this quest in an active locked escrow
+        $activeRunningEscrows = EscrowTransaction::where('quest_id', $quest->id)
+            ->where('status', 'LOCKED')
+            ->where('expires_at', '>', Carbon::now())
+            ->count();
+
+        if ($activeRunningEscrows > 0) {
+            $msg = "Misi '{$quest->title}' tidak dapat dihapus karena saat ini sedang dikerjakan secara aktif oleh {$activeRunningEscrows} pengguna. Harap tunggu hingga ekspedisi selesai atau nonaktifkan status misi terlebih dahulu.";
+            if ($request->wantsJson()) {
+                return response()->json([
+                    'success' => false,
+                    'error' => $msg,
+                ], 422);
+            }
+            return redirect()->back()->withErrors(['error' => $msg]);
+        }
+
+        $questTitle = $quest->title;
+        $quest->delete();
+
+        if ($request->wantsJson()) {
+            return response()->json([
+                'success' => true,
+                'message' => "Misi '{$questTitle}' berhasil dihapus secara permanen.",
+            ]);
+        }
+
+        return redirect()->back()->with('success', "Misi '{$questTitle}' berhasil dihapus secara permanen.");
     }
 }
