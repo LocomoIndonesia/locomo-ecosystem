@@ -1,6 +1,6 @@
 {
   "schema_version": "1.0",
-  "last_updated": "2026-09-06",
+  "last_updated": "2026-09-11",
   "workspace_name": "Locomo.id Federated Ecosystem",
   "active_project": "piticoin.id",
   "projects": [
@@ -14,7 +14,7 @@
     "piticoin.id",
     "unimart.group",
     "OAMSBugselWeb",
-    "donasi.mandeh.online"
+    "locomo.custom"
   ],
   "business_objective": "Membangun ekosistem kedaulatan digital terfederasi di locomo.id yang mencakup gateway identitas (Mandeh.ID), portal wisata & reputasi (Mandeh.Online), platform akademik (HakCampus.id), jaringan kepemudaan (Tapak Pandeka), dan modul demokrasi warga (Smart-Citizen).",
   "stakeholders": {
