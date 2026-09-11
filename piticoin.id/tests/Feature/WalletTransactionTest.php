@@ -236,4 +236,88 @@ class WalletTransactionTest extends TestCase
             $this->assertTrue($hasConstraintError, "Exception message did not match expected check constraint: " . $e->getMessage());
         }
     }
+
+    /**
+     * Test Case 6: Quest Stake API Endpoint HTTP Response & Deduction
+     */
+    public function test_quest_stake_api_endpoint_validation_and_deduction()
+    {
+        $this->withoutMiddleware();
+
+        $user = User::create([
+            'name' => 'Saudagar Stake Test',
+            'username' => 'saudagar_stake_' . uniqid(),
+            'whatsapp' => '0888' . rand(1000000, 9999999),
+            'role' => 'MERCHANT',
+            'license_status' => 'ACTIVE',
+        ]);
+        Wallet::create([
+            'user_id' => $user->id,
+            'silver_balance' => 5000,
+            'gold_balance' => 0,
+        ]);
+
+        $questExpensive = Quest::create([
+            'title' => 'Misi Mahal',
+            'description' => 'Misi butuh 10.000 perak.',
+            'stake_amount_silver' => 10000,
+            'reward_amount_gold' => 500,
+            'time_limit_hours' => 12,
+            'is_active' => true,
+        ]);
+
+        // 1. Insufficient Silver -> Should return 422 JSON error
+        $response = $this->actingAs($user)
+            ->postJson('/api/quests/stake', [
+                'quest_id' => $questExpensive->id,
+            ]);
+
+        $response->assertStatus(422);
+        $response->assertJson([
+            'success' => false,
+        ]);
+
+        // 2. Affordable Quest -> Should succeed, deduct silver, return updated wallet & escrow
+        $questAffordable = Quest::create([
+            'title' => 'Misi Terjangkau',
+            'description' => 'Misi butuh 2.000 perak.',
+            'stake_amount_silver' => 2000,
+            'reward_amount_gold' => 100,
+            'time_limit_hours' => 8,
+            'is_active' => true,
+        ]);
+
+        $responseSuccess = $this->actingAs($user)
+            ->postJson('/api/quests/stake', [
+                'quest_id' => $questAffordable->id,
+            ]);
+
+        $responseSuccess->assertOk();
+        $responseSuccess->assertJson([
+            'success' => true,
+            'data' => [
+                'wallet' => [
+                    'silver_balance' => 3000,
+                ],
+                'escrow' => [
+                    'status' => 'LOCKED',
+                    'staked_silver' => 2000,
+                    'quest' => [
+                        'title' => 'Misi Terjangkau',
+                    ],
+                ],
+            ],
+        ]);
+
+        // 3. Duplicate Staking on same active quest -> Should reject
+        $responseDuplicate = $this->actingAs($user)
+            ->postJson('/api/quests/stake', [
+                'quest_id' => $questAffordable->id,
+            ]);
+
+        $responseDuplicate->assertStatus(422);
+        $responseDuplicate->assertJson([
+            'success' => false,
+        ]);
+    }
 }

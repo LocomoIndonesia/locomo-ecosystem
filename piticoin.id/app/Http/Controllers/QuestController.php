@@ -21,16 +21,24 @@ class QuestController extends Controller
         try {
             $result = WalletService::stakeQuest(Auth::id(), $request->quest_id);
             
-            return response()->json([
-                'success' => true,
-                'message' => 'Quest berhasil distake (Ekspedisi Dimulai)',
-                'data' => $result,
-            ]);
+            if ($request->wantsJson() || $request->ajax() || !$request->header('X-Inertia')) {
+                return response()->json([
+                    'success' => true,
+                    'message' => 'Misi berhasil diambil! Komitmen Koin Perak Anda terkunci di escrow.',
+                    'data' => $result,
+                ]);
+            }
+
+            return redirect()->back()->with('success', 'Misi berhasil diambil! Komitmen Koin Perak Anda terkunci di escrow.');
         } catch (Exception $e) {
-            return response()->json([
-                'success' => false,
-                'error' => $e->getMessage(),
-            ], 400);
+            if ($request->wantsJson() || $request->ajax() || !$request->header('X-Inertia')) {
+                return response()->json([
+                    'success' => false,
+                    'error' => $e->getMessage(),
+                ], 422);
+            }
+
+            return redirect()->back()->withErrors(['error' => $e->getMessage()]);
         }
     }
 

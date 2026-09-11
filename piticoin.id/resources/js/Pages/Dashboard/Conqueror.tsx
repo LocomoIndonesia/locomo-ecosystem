@@ -143,6 +143,9 @@ export default function Conqueror({
     const [wallet, setWallet] = useState(initialWallet);
     const [currentUser, setCurrentUser] = useState(user);
     const [checkinStatus, setCheckinStatus] = useState(initialCheckinStatus);
+    const [escrowList, setEscrowList] = useState(escrows);
+    const [confirmingQuest, setConfirmingQuest] = useState<any>(null);
+    const [isStaking, setIsStaking] = useState(false);
     const [animatedFiat, setAnimatedFiat] = useState<number>(
         Number(global_pool?.total_fiat_in_bank || 500000) - Number(global_pool?.total_gold_in_circulation || 0)
     );
@@ -319,14 +322,46 @@ export default function Conqueror({
         }
     };
 
-    // Stake Quest Handler
-    const handleStakeQuest = (questId: string) => {
-        setLoading(true);
-        router.post(route('quests.stake'), { quest_id: questId }, {
-            onFinish: () => setLoading(false),
-            onSuccess: () => showMsg('Misi berhasil di-stake! Komitmen Anda terkunci di escrow.'),
-            onError: (errors: any) => showMsg(errors.error || 'Gagal melakukan staking', 'error')
-        });
+    // Quest Selection & Confirmation Handlers
+    const handleSelectQuest = (quest: any) => {
+        if (!checkinStatus.has_checked_in) {
+            showMsg('Silakan lakukan check-in pada Kompas Harian terlebih dahulu untuk membuka misi.', 'error');
+            return;
+        }
+        setConfirmingQuest(quest);
+    };
+
+    const handleConfirmStakeQuest = async () => {
+        if (!confirmingQuest) return;
+        setIsStaking(true);
+        try {
+            const res = await fetch('/api/quests/stake', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Accept': 'application/json',
+                    'X-CSRF-TOKEN': (document.querySelector('meta[name="csrf-token"]') as HTMLMetaElement)?.content || ''
+                },
+                body: JSON.stringify({ quest_id: confirmingQuest.id })
+            });
+            const data = await res.json();
+            if (data.success && data.data) {
+                if (data.data.wallet) {
+                    setWallet(data.data.wallet);
+                }
+                if (data.data.escrow) {
+                    setEscrowList(prev => [data.data.escrow, ...prev]);
+                }
+                setConfirmingQuest(null);
+                showMsg(data.message || 'Misi berhasil diambil! Komitmen Koin Perak Anda terkunci di escrow.');
+            } else {
+                showMsg(data.error || 'Gagal mengambil misi', 'error');
+            }
+        } catch (err: any) {
+            showMsg('Terjadi kesalahan saat memproses misi', 'error');
+        } finally {
+            setIsStaking(false);
+        }
     };
 
     // Quick POS Sale Record Handler & Close Register Handler removed
@@ -691,23 +726,23 @@ export default function Conqueror({
                         )}
 
                         {/* Active Escrow Campaign if any */}
-                        {escrows.filter(e => e.status === 'LOCKED').length > 0 && (
+                        {escrowList.filter(e => e.status === 'LOCKED').length > 0 && (
                             <div className="space-y-3">
                                 <h3 className="font-bold text-xs uppercase tracking-wider text-primary-container flex items-center gap-1.5">
                                     <span className="w-2 h-2 rounded-full bg-primary-container animate-pulse"></span>
                                     Ekspedisi Berjalan (Escrow Terkunci)
                                 </h3>
-                                {escrows.filter(e => e.status === 'LOCKED').map((escrow) => (
+                                {escrowList.filter(e => e.status === 'LOCKED').map((escrow) => (
                                     <div key={escrow.id} className="glass-panel rounded-xl p-4 border border-primary-container/40 space-y-2">
                                         <div className="flex justify-between items-start">
-                                            <h4 className="font-bold text-sm text-on-surface">{escrow.quest.title}</h4>
+                                            <h4 className="font-bold text-sm text-on-surface">{escrow.quest?.title || 'Misi Berjalan'}</h4>
                                             <span className="font-mono text-xs text-error font-bold">
                                                 {isMounted ? getRemainingTime(escrow.expires_at).label : '--:--:--'}
                                             </span>
                                         </div>
                                         <div className="flex justify-between text-xs text-on-surface-variant pt-1 border-t border-glass-stroke">
                                             <span>Staking: <strong>{formatCoin(escrow.staked_silver)} Perak</strong></span>
-                                            <span className="text-primary-container font-bold">+{formatCoin(escrow.quest.reward_amount_gold)} Emas</span>
+                                            <span className="text-primary-container font-bold">+{formatCoin(escrow.quest?.reward_amount_gold || 0)} Emas</span>
                                         </div>
                                     </div>
                                 ))}
@@ -728,7 +763,8 @@ export default function Conqueror({
                                 {defaultQuests.map((quest) => (
                                     <div
                                         key={quest.id}
-                                        className={`glass-panel rounded-xl p-3.5 border border-glass-stroke flex items-center justify-between gap-3 ${
+                                        onClick={() => handleSelectQuest(quest)}
+                                        className={`glass-panel rounded-xl p-3.5 border border-glass-stroke flex items-center justify-between gap-3 cursor-pointer hover:border-primary-container/60 hover:bg-white/[0.03] transition-all ${
                                             !checkinStatus.has_checked_in ? 'opacity-50 pointer-events-none' : ''
                                         }`}
                                     >
@@ -748,8 +784,12 @@ export default function Conqueror({
                                         </div>
 
                                         <button
-                                            onClick={() => handleStakeQuest(quest.id)}
-                                            disabled={loading || !checkinStatus.has_checked_in}
+                                            type="button"
+                                            onClick={(e) => {
+                                                e.stopPropagation();
+                                                handleSelectQuest(quest);
+                                            }}
+                                            disabled={!checkinStatus.has_checked_in}
                                             className="px-3 py-1.5 rounded-lg bg-surface-container-high hover:bg-primary-container hover:text-on-primary border border-glass-stroke text-[11px] font-bold whitespace-nowrap transition-colors"
                                         >
                                             Ambil
@@ -775,7 +815,8 @@ export default function Conqueror({
                                 {timeWindowQuests.map((quest) => (
                                     <div
                                         key={quest.id}
-                                        className={`glass-panel rounded-xl p-3.5 border border-primary-container/30 flex items-center justify-between gap-3 ${
+                                        onClick={() => handleSelectQuest(quest)}
+                                        className={`glass-panel rounded-xl p-3.5 border border-primary-container/30 flex items-center justify-between gap-3 cursor-pointer hover:border-primary-container hover:bg-primary-container/[0.04] transition-all ${
                                             !checkinStatus.has_checked_in ? 'opacity-50 pointer-events-none' : ''
                                         }`}
                                     >
@@ -789,8 +830,12 @@ export default function Conqueror({
                                         </div>
 
                                         <button
-                                            onClick={() => handleStakeQuest(quest.id)}
-                                            disabled={loading || !checkinStatus.has_checked_in}
+                                            type="button"
+                                            onClick={(e) => {
+                                                e.stopPropagation();
+                                                handleSelectQuest(quest);
+                                            }}
+                                            disabled={!checkinStatus.has_checked_in}
                                             className="px-3.5 py-1.5 rounded-lg bg-primary-container text-on-primary font-bold text-[11px] whitespace-nowrap hover:scale-105 active:scale-95 transition-transform shadow-[0_0_8px_rgba(255,215,0,0.3)]"
                                         >
                                             Eksekusi
@@ -813,7 +858,8 @@ export default function Conqueror({
                                 {personaQuests.map((quest) => (
                                     <div
                                         key={quest.id}
-                                        className={`glass-panel rounded-xl p-3.5 border border-glass-stroke flex items-center justify-between gap-3 ${
+                                        onClick={() => handleSelectQuest(quest)}
+                                        className={`glass-panel rounded-xl p-3.5 border border-glass-stroke flex items-center justify-between gap-3 cursor-pointer hover:border-primary-container/60 hover:bg-white/[0.03] transition-all ${
                                             !checkinStatus.has_checked_in ? 'opacity-50 pointer-events-none' : ''
                                         }`}
                                     >
@@ -827,8 +873,12 @@ export default function Conqueror({
                                         </div>
 
                                         <button
-                                            onClick={() => handleStakeQuest(quest.id)}
-                                            disabled={loading || !checkinStatus.has_checked_in}
+                                            type="button"
+                                            onClick={(e) => {
+                                                e.stopPropagation();
+                                                handleSelectQuest(quest);
+                                            }}
+                                            disabled={!checkinStatus.has_checked_in}
                                             className="px-3.5 py-1.5 rounded-lg bg-surface-container-high hover:bg-primary-container hover:text-on-primary border border-glass-stroke font-bold text-[11px] whitespace-nowrap transition-colors"
                                         >
                                             Ambil Misi
@@ -1289,9 +1339,9 @@ export default function Conqueror({
                                             </div>
                                         ))}
                                 </div>
-                            ) : escrows.length > 0 ? (
+                            ) : escrowList.length > 0 ? (
                                 <div className="space-y-2">
-                                    {escrows.map(e => (
+                                    {escrowList.map(e => (
                                         <div key={e.id} className="p-3 rounded-xl bg-surface/40 border border-glass-stroke flex justify-between items-center">
                                             <div className="space-y-0.5">
                                                 <strong className="block text-xs text-on-surface">
@@ -1826,6 +1876,106 @@ export default function Conqueror({
                         >
                             Mulai Daftarkan Toko Mitra
                         </button>
+                    </div>
+                </div>
+            )}
+
+            {/* ========================================================= */}
+            {/* 12. MODAL: KONFIRMASI PENGAMBILAN MISI & STAKING PERAK     */}
+            {/* ========================================================= */}
+            {confirmingQuest && (
+                <div className="fixed inset-0 z-50 bg-black/85 backdrop-blur-md flex items-center justify-center p-4">
+                    <div className="glass-panel w-full max-w-md rounded-2xl overflow-hidden border border-primary-container/40 shadow-2xl p-5 space-y-4 animate-fade-in">
+                        {/* Header */}
+                        <div className="flex justify-between items-center border-b border-glass-stroke pb-3">
+                            <div className="flex items-center gap-2">
+                                <span className="material-symbols-outlined text-primary-container text-xl">explore</span>
+                                <h3 className="font-bold text-sm text-primary-container">
+                                    Konfirmasi Pengambilan Misi
+                                </h3>
+                            </div>
+                            <button
+                                onClick={() => setConfirmingQuest(null)}
+                                disabled={isStaking}
+                                className="text-on-surface-variant hover:text-white transition-colors"
+                            >
+                                <span className="material-symbols-outlined text-lg">close</span>
+                            </button>
+                        </div>
+
+                        {/* Quest Details */}
+                        <div className="space-y-1.5">
+                            <h4 className="font-bold text-sm text-on-surface">{confirmingQuest.title}</h4>
+                            <p className="text-xs text-on-surface-variant leading-relaxed">{confirmingQuest.description}</p>
+                        </div>
+
+                        {/* Parameter Box */}
+                        <div className="p-3.5 rounded-xl border border-glass-stroke bg-surface/50 space-y-2 text-xs">
+                            <div className="flex justify-between items-center">
+                                <span className="text-on-surface-variant">Batas Waktu:</span>
+                                <strong className="text-on-surface font-mono">{confirmingQuest.time_limit_hours} Jam</strong>
+                            </div>
+                            <div className="flex justify-between items-center">
+                                <span className="text-on-surface-variant">Hadiah Emas:</span>
+                                <strong className="text-primary-container font-mono">+{confirmingQuest.reward_amount_gold} Koin Emas</strong>
+                            </div>
+                            <div className="flex justify-between items-center pt-2 border-t border-glass-stroke">
+                                <span className="text-on-surface-variant">Syarat Staking Komitmen:</span>
+                                <strong className="text-amber-300 font-mono">
+                                    {confirmingQuest.stake_amount_silver > 0
+                                        ? `${formatCoin(confirmingQuest.stake_amount_silver)} Perak`
+                                        : 'Tanpa Stake (0 Perak)'}
+                                </strong>
+                            </div>
+                        </div>
+
+                        {/* Wallet Balance & Validation */}
+                        <div className={`p-3 rounded-xl border text-xs space-y-1 ${
+                            (wallet?.silver_balance || 0) < confirmingQuest.stake_amount_silver
+                                ? 'border-error/40 bg-error/10 text-error'
+                                : 'border-emerald-500/30 bg-emerald-500/10 text-emerald-300'
+                        }`}>
+                            <div className="flex justify-between items-center font-bold">
+                                <span>Saldo Koin Perak Anda:</span>
+                                <span className="font-mono">{formatCoin(wallet?.silver_balance || 0)} Perak</span>
+                            </div>
+                            {(wallet?.silver_balance || 0) < confirmingQuest.stake_amount_silver ? (
+                                <p className="text-[11px] leading-tight text-red-300">
+                                    ⚠️ Saldo Koin Perak tidak cukup (Kurang {formatCoin(confirmingQuest.stake_amount_silver - (wallet?.silver_balance || 0))} Perak).
+                                </p>
+                            ) : (
+                                <p className="text-[11px] leading-tight text-emerald-400/90">
+                                    ✓ Saldo Koin Perak mencukupi. Koin perak akan dikunci di Escrow hingga misi selesai diverifikasi.
+                                </p>
+                            )}
+                        </div>
+
+                        {/* Action Buttons */}
+                        <div className="flex items-center gap-2.5 pt-2">
+                            <button
+                                type="button"
+                                onClick={() => setConfirmingQuest(null)}
+                                disabled={isStaking}
+                                className="flex-1 py-2.5 rounded-xl border border-glass-stroke bg-surface-container-high hover:bg-surface-variant text-on-surface text-xs font-semibold transition-colors"
+                            >
+                                Batal
+                            </button>
+                            <button
+                                type="button"
+                                onClick={handleConfirmStakeQuest}
+                                disabled={isStaking || (wallet?.silver_balance || 0) < confirmingQuest.stake_amount_silver}
+                                className="flex-1 py-2.5 rounded-xl bg-primary-container hover:brightness-110 active:scale-95 text-on-primary text-xs font-bold transition-all shadow-[0_0_15px_rgba(255,215,0,0.25)] disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none flex items-center justify-center gap-1.5"
+                            >
+                                {isStaking ? (
+                                    <>
+                                        <span className="w-3.5 h-3.5 border-2 border-on-primary border-t-transparent rounded-full animate-spin"></span>
+                                        <span>Memproses...</span>
+                                    </>
+                                ) : (
+                                    <span>Setuju & Ambil Misi</span>
+                                )}
+                            </button>
+                        </div>
                     </div>
                 </div>
             )}

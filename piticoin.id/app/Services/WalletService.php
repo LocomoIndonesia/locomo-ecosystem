@@ -60,8 +60,8 @@ class WalletService
         return DB::transaction(function () use ($userId, $questId) {
             // 1. Fetch user role and wallet
             $user = User::with('wallet')->findOrFail($userId);
-            if ($user->role !== 'MERCHANT') {
-                throw new Exception('Hanya MERCHANT yang dapat mengambil ekspedisi (Quest)');
+            if ($user->role !== 'MERCHANT' && $user->license_status !== 'ACTIVE' && $user->role !== 'ADMIN') {
+                throw new Exception('Hanya Saudagar Aktif yang dapat mengambil ekspedisi (Quest)');
             }
 
             $wallet = $user->wallet;
@@ -75,13 +75,25 @@ class WalletService
                 throw new Exception('Quest sedang tidak aktif');
             }
 
+            // Check if already active in ongoing locked escrow
+            $alreadyActive = EscrowTransaction::where('user_id', $userId)
+                ->where('quest_id', $questId)
+                ->where('status', 'LOCKED')
+                ->where('expires_at', '>', Carbon::now())
+                ->first();
+            if ($alreadyActive) {
+                throw new Exception('Misi ini sudah sedang aktif dalam ekspedisi Anda.');
+            }
+
             // 3. Validation: wallets.silver_balance >= quests.stake_amount_silver
             if ($wallet->silver_balance < $quest->stake_amount_silver) {
-                throw new Exception("Saldo koin perak tidak cukup. Dibutuhkan: {$quest->stake_amount_silver}, dimiliki: {$wallet->silver_balance}");
+                throw new Exception("Saldo Koin Perak tidak cukup. Dibutuhkan: " . number_format($quest->stake_amount_silver, 0, ',', '.') . " Perak, dimiliki: " . number_format($wallet->silver_balance, 0, ',', '.') . " Perak");
             }
 
             // 4. Action: Deduct stake_amount_silver from wallets.silver_balance
-            $wallet->decrement('silver_balance', $quest->stake_amount_silver);
+            if ($quest->stake_amount_silver > 0) {
+                $wallet->decrement('silver_balance', $quest->stake_amount_silver);
+            }
 
             // 5. Insert row into escrow_transactions with status LOCKED
             $expiresAt = Carbon::now()->addHours($quest->time_limit_hours);
@@ -95,7 +107,7 @@ class WalletService
 
             return [
                 'wallet' => $wallet->fresh(),
-                'escrow' => $escrow,
+                'escrow' => $escrow->load('quest'),
             ];
         });
     }

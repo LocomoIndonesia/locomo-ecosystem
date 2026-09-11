@@ -182,13 +182,30 @@ export default function Dashboard({
     };
 
     // Logic 2: Stake Quest
-    const handleStakeQuest = (questId: string) => {
+    const handleStakeQuest = async (questId: string) => {
         setLoading(true);
-        router.post(route('quests.stake'), { quest_id: questId }, {
-            onFinish: () => setLoading(false),
-            onSuccess: () => showMsg('Quest berhasil distake! Ekspedisi dimulai.'),
-            onError: (errors: any) => showMsg(errors.error || 'Gagal melakukan stake', 'error')
-        });
+        try {
+            const res = await fetch('/api/quests/stake', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Accept': 'application/json',
+                    'X-CSRF-TOKEN': (document.querySelector('meta[name="csrf-token"]') as HTMLMetaElement)?.content || ''
+                },
+                body: JSON.stringify({ quest_id: questId })
+            });
+            const data = await res.json();
+            if (data.success) {
+                showMsg(data.message || 'Quest berhasil distake! Ekspedisi dimulai.');
+                router.reload();
+            } else {
+                showMsg(data.error || 'Gagal melakukan stake', 'error');
+            }
+        } catch (err) {
+            showMsg('Terjadi kesalahan saat memproses stake', 'error');
+        } finally {
+            setLoading(false);
+        }
     };
 
     // Admin resolution: Resolve Success or Fail
