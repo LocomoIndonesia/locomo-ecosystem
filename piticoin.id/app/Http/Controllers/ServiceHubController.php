@@ -28,11 +28,15 @@ class ServiceHubController extends Controller
         $raw = trim($request->input('identifier'));
         $cleanPhone = preg_replace('/[^0-9]/', '', $raw);
 
-        $user = User::where('id', $raw)
-            ->orWhere('username', $raw)
-            ->when($cleanPhone, function ($query) use ($cleanPhone) {
-                return $query->orWhere('whatsapp', $cleanPhone)
-                             ->orWhere('whatsapp', 'like', '%' . substr($cleanPhone, -9));
+        $user = User::query()
+            ->when(Str::isUuid($raw), function ($q) use ($raw) {
+                return $q->where('id', $raw);
+            }, function ($q) use ($raw, $cleanPhone) {
+                return $q->where('username', $raw)
+                    ->when($cleanPhone, function ($query) use ($cleanPhone) {
+                        return $query->orWhere('whatsapp', $cleanPhone)
+                                     ->orWhere('whatsapp', 'like', '%' . substr($cleanPhone, -9));
+                    });
             })
             ->first();
 
@@ -119,11 +123,15 @@ class ServiceHubController extends Controller
 
         return DB::transaction(function () use ($service, $authUser, $identifier, $cleanPhone, $paymentMethod, $formData, $request, $ledgerService) {
             // 1. Resolve Beneficiary User
-            $beneficiaryUser = User::where('id', $identifier)
-                ->orWhere('username', $identifier)
-                ->when($cleanPhone, function ($query) use ($cleanPhone) {
-                    return $query->orWhere('whatsapp', $cleanPhone)
-                                 ->orWhere('whatsapp', 'like', '%' . substr($cleanPhone, -9));
+            $beneficiaryUser = User::query()
+                ->when(Str::isUuid($identifier), function ($q) use ($identifier) {
+                    return $q->where('id', $identifier);
+                }, function ($q) use ($identifier, $cleanPhone) {
+                    return $q->where('username', $identifier)
+                        ->when($cleanPhone, function ($query) use ($cleanPhone) {
+                            return $query->orWhere('whatsapp', $cleanPhone)
+                                         ->orWhere('whatsapp', 'like', '%' . substr($cleanPhone, -9));
+                        });
                 })
                 ->first();
 

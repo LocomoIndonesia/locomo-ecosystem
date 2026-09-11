@@ -87,6 +87,31 @@ interface ConquerorProps {
             reference_type?: string;
         };
     }>;
+    ecosystem_services?: Array<{
+        id: number;
+        name: string;
+        code: string;
+        icon?: string;
+        category?: string;
+        description?: string;
+        price_gold: number;
+        price_fiat: number;
+        service_url?: string;
+        is_active: boolean;
+    }>;
+    my_licenses?: Array<{
+        id: number;
+        ecosystem_service_id: number;
+        license_key: string;
+        status: string;
+        expires_at: string | null;
+        service?: {
+            name: string;
+            code: string;
+            icon?: string;
+            service_url?: string;
+        };
+    }>;
 }
 
 export default function Conqueror({
@@ -100,6 +125,8 @@ export default function Conqueror({
     downlines,
     passive_income,
     ledger_entries = [],
+    ecosystem_services = [],
+    my_licenses = [],
 }: ConquerorProps) {
     const [loading, setLoading] = useState(false);
     const [message, setMessage] = useState<{ text: string; type: 'success' | 'error' } | null>(null);
@@ -935,33 +962,114 @@ export default function Conqueror({
                             </button>
                         </div>
 
-                        {/* Subscription Services Catalog Preview */}
+                        {/* Active Licenses Owned by User */}
+                        {my_licenses && my_licenses.length > 0 && (
+                            <div className="glass-panel rounded-xl p-4 border border-emerald-500/30 bg-emerald-950/10 space-y-3">
+                                <div className="flex items-center justify-between">
+                                    <div className="flex items-center gap-2">
+                                        <span className="material-symbols-outlined text-emerald-400 text-sm">verified_user</span>
+                                        <h4 className="font-bold text-xs text-emerald-300 uppercase tracking-wider">Lisensi Layanan Saya</h4>
+                                    </div>
+                                    <span className="text-[10px] text-emerald-400/80 font-bold bg-emerald-500/20 px-2 py-0.5 rounded-full border border-emerald-500/30">
+                                        {my_licenses.length} Aktif
+                                    </span>
+                                </div>
+                                <div className="space-y-2">
+                                    {my_licenses.map((lic) => (
+                                        <div key={lic.id} className="p-3 rounded-lg bg-surface/70 border border-glass-stroke flex items-center justify-between gap-2">
+                                            <div className="min-w-0 flex-1">
+                                                <div className="flex items-center gap-2">
+                                                    <strong className="text-xs text-on-surface truncate">{lic.service?.name || 'Layanan Ekosistem'}</strong>
+                                                    <span className="text-[9px] bg-emerald-500/20 text-emerald-400 font-mono font-bold px-1.5 py-0.2 rounded border border-emerald-500/30">
+                                                        {lic.status}
+                                                    </span>
+                                                </div>
+                                                <div className="font-mono text-[10px] text-primary-container tracking-wider mt-0.5 select-all">
+                                                    {lic.license_key}
+                                                </div>
+                                            </div>
+                                            {lic.service?.service_url && (
+                                                <a 
+                                                    href={lic.service.service_url}
+                                                    target="_blank"
+                                                    rel="noreferrer"
+                                                    className="px-2.5 py-1.5 bg-surface-variant hover:bg-primary-container/20 text-on-surface hover:text-primary-container font-bold text-[10px] rounded-lg border border-glass-stroke transition-all flex items-center gap-1 shrink-0"
+                                                >
+                                                    <span>Buka</span>
+                                                    <span className="material-symbols-outlined text-xs">open_in_new</span>
+                                                </a>
+                                            )}
+                                        </div>
+                                    ))}
+                                </div>
+                            </div>
+                        )}
+
+                        {/* Subscription Services Catalog Preview (Dynamic from DB) */}
                         <div className="glass-panel rounded-xl p-4 border border-glass-stroke space-y-3">
                             <div className="flex justify-between items-center">
-                                <h4 className="font-bold text-xs text-on-surface uppercase tracking-wider">Layanan Ekosistem Berlangganan</h4>
-                                <span className="text-[10px] text-primary-container font-bold">Diskon 15% via Koin Emas</span>
+                                <div>
+                                    <h4 className="font-bold text-xs text-on-surface uppercase tracking-wider">Layanan Ekosistem Berlangganan</h4>
+                                    <p className="text-[10px] text-on-surface-variant">Daftarkan diri Anda atau kembangkan jaringan saudagar Anda</p>
+                                </div>
+                                <span className="text-[10px] text-primary-container font-bold bg-primary-container/10 px-2 py-0.5 rounded border border-primary-container/20">
+                                    Hemat 15% via Koin Emas
+                                </span>
                             </div>
 
-                            <div className="space-y-2 text-xs">
-                                <div className="p-3 rounded-lg bg-surface/50 border border-glass-stroke flex justify-between items-center">
-                                    <div>
-                                        <strong className="block text-on-surface">Unimart POS Juragan Pro</strong>
-                                        <span className="text-[10px] text-on-surface-variant">Kasir Cloud, Stok, QRIS Dinamis & Akuntansi</span>
+                            <div className="space-y-3">
+                                {ecosystem_services.length === 0 ? (
+                                    <div className="p-4 text-center text-xs text-on-surface-variant">
+                                        Belum ada layanan ekosistem aktif saat ini.
                                     </div>
-                                    <button onClick={() => setShowUpgradeModal(true)} className="px-3 py-1 bg-primary-container text-on-primary font-bold text-[10px] rounded-lg">
-                                        Langgan
-                                    </button>
-                                </div>
+                                ) : (
+                                    ecosystem_services.map((svc) => (
+                                        <div 
+                                            key={svc.id}
+                                            className="p-3.5 rounded-xl bg-surface/40 border border-glass-stroke hover:border-primary-container/40 transition-all flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 group"
+                                        >
+                                            <div className="flex items-start gap-3">
+                                                <div className="w-10 h-10 rounded-xl bg-primary-container/10 border border-primary-container/30 flex items-center justify-center text-primary-container shrink-0 group-hover:scale-105 transition-transform">
+                                                    <span className="material-symbols-outlined text-xl" style={{ fontVariationSettings: "'FILL' 1" }}>
+                                                        {svc.icon || 'hub'}
+                                                    </span>
+                                                </div>
+                                                <div className="space-y-1">
+                                                    <div className="flex items-center gap-2 flex-wrap">
+                                                        <strong className="text-xs text-on-surface font-bold">{svc.name}</strong>
+                                                        {svc.category && (
+                                                            <span className="text-[9px] uppercase font-bold tracking-wider px-1.5 py-0.5 rounded bg-surface-variant text-on-surface-variant">
+                                                                {svc.category}
+                                                            </span>
+                                                        )}
+                                                    </div>
+                                                    <p className="text-[10px] text-on-surface-variant leading-relaxed line-clamp-2">
+                                                        {svc.description}
+                                                    </p>
+                                                    <div className="flex items-center gap-2 pt-0.5">
+                                                        <span className="text-[10px] font-bold text-primary-container">
+                                                            {Number(svc.price_gold).toLocaleString('id-ID')} EMAS
+                                                        </span>
+                                                        <span className="text-[10px] text-outline">/</span>
+                                                        <span className="text-[10px] text-on-surface-variant">
+                                                            Rp {Number(svc.price_fiat).toLocaleString('id-ID')}
+                                                        </span>
+                                                    </div>
+                                                </div>
+                                            </div>
 
-                                <div className="p-3 rounded-lg bg-surface/50 border border-glass-stroke flex justify-between items-center">
-                                    <div>
-                                        <strong className="block text-on-surface">WaliKelas.id LMS & Tutor</strong>
-                                        <span className="text-[10px] text-on-surface-variant">Booking Jadwal Les & Bank Soal Digital</span>
-                                    </div>
-                                    <button onClick={() => setShowUpgradeModal(true)} className="px-3 py-1 bg-surface-variant text-on-surface font-bold text-[10px] rounded-lg">
-                                        Langgan
-                                    </button>
-                                </div>
+                                            <div className="w-full sm:w-auto flex items-center justify-end">
+                                                <Link 
+                                                    href={`/services/${svc.code}/onboard`}
+                                                    className="w-full sm:w-auto px-3.5 py-2 bg-gradient-to-r from-primary-container to-amber-500 text-on-primary font-bold text-xs rounded-xl shadow-sm hover:brightness-110 active:scale-95 transition-all text-center flex items-center justify-center gap-1.5"
+                                                >
+                                                    <span>Daftar / Akses</span>
+                                                    <span className="material-symbols-outlined text-sm">arrow_forward</span>
+                                                </Link>
+                                            </div>
+                                        </div>
+                                    ))
+                                )}
                             </div>
                         </div>
                     </div>
