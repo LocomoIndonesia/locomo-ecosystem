@@ -22,7 +22,16 @@ import {
     Zap,
     Layers,
     SlidersHorizontal,
-    PhoneCall
+    PhoneCall,
+    Package,
+    ShoppingCart,
+    GitBranch,
+    BadgePercent,
+    ArrowUpRight,
+    Calendar,
+    Receipt,
+    PlusCircle,
+    Edit3
 } from 'lucide-react';
 
 interface PendingUser {
@@ -62,6 +71,98 @@ interface ActiveSaudagar {
     joined_at: string;
 }
 
+interface ServiceItem {
+    id: string;
+    name: string;
+    code: string;
+    icon?: string;
+    category: string;
+    service_type: 'INTERNAL' | 'EXTERNAL';
+    description?: string;
+    price_gold: number;
+    price_fiat: number;
+    allows_installments: boolean;
+    min_down_payment_gold?: number;
+    min_down_payment_fiat?: number;
+    commission_rules?: {
+        depth?: number;
+        levels?: Array<{ level: number; percentage: number }>;
+    };
+    is_active: boolean;
+    orders_count: number;
+    licenses_count: number;
+    owner?: {
+        id: string;
+        name: string;
+        username: string;
+    };
+}
+
+interface OrderItem {
+    id: string;
+    order_number: string;
+    service_id: string;
+    user_id: string;
+    registered_by_id?: string;
+    payment_type: 'FULL' | 'INSTALLMENT';
+    total_amount_gold: number;
+    total_amount_fiat: number;
+    paid_amount_gold: number;
+    paid_amount_fiat: number;
+    remaining_amount_gold: number;
+    remaining_amount_fiat: number;
+    status: string;
+    created_at: string;
+    service?: {
+        name: string;
+        code: string;
+        service_type: string;
+    };
+    user?: {
+        name: string;
+        username: string;
+        whatsapp: string;
+    };
+    registered_by?: {
+        name: string;
+        username: string;
+    };
+    installments?: Array<{
+        id: string;
+        installment_number: number;
+        amount_gold: number;
+        amount_fiat: number;
+        currency: string;
+        status: string;
+        paid_at: string;
+        notes?: string;
+    }>;
+}
+
+interface CommissionItem {
+    id: string;
+    level: number;
+    percentage: number;
+    amount_gold: number;
+    amount_fiat: number;
+    currency: string;
+    status: string;
+    created_at: string;
+    upline_user?: {
+        name: string;
+        username: string;
+        whatsapp: string;
+    };
+    beneficiary_user?: {
+        name: string;
+        username: string;
+    };
+    service?: {
+        name: string;
+        code: string;
+    };
+}
+
 interface AdminDashboardProps {
     adminUser: {
         id: string;
@@ -73,9 +174,19 @@ interface AdminDashboardProps {
     };
     pendingUsers: PendingUser[];
     activeSaudagars: ActiveSaudagar[];
+    services?: ServiceItem[];
+    orders?: OrderItem[];
+    recentCommissions?: CommissionItem[];
     stats: {
         pending_count: number;
         active_count: number;
+        services_count?: number;
+        orders_count?: number;
+        active_installments?: number;
+        total_omzet_gold?: number;
+        total_omzet_fiat?: number;
+        total_payout_gold?: number;
+        total_payout_fiat?: number;
         total_silver: number;
         total_gold: number;
         fiat_in_bank: number;
@@ -95,54 +206,103 @@ interface ChatMessage {
     created_at: string;
 }
 
-export default function AdminDashboard({ adminUser, pendingUsers, activeSaudagars, stats }: AdminDashboardProps) {
-    const [activeTab, setActiveTab] = useState<'pending' | 'active'>('pending');
+export default function AdminDashboard({
+    adminUser,
+    pendingUsers = [],
+    activeSaudagars = [],
+    services = [],
+    orders = [],
+    recentCommissions = [],
+    stats,
+}: AdminDashboardProps) {
+    const [activeTab, setActiveTab] = useState<'pending' | 'active' | 'services' | 'orders' | 'commissions'>('pending');
     const [searchQuery, setSearchQuery] = useState('');
-    const [approvingId, setApprovingId] = useState<string | null>(null);
+    const [processingId, setProcessingId] = useState<string | null>(null);
 
-    // Consultation / Q&A Modal States
+    // Q&A / Consultation Drawer State
     const [selectedSaudagar, setSelectedSaudagar] = useState<ActiveSaudagar | null>(null);
     const [chatMessages, setChatMessages] = useState<ChatMessage[]>([]);
     const [chatLoading, setChatLoading] = useState(false);
     const [replyText, setReplyText] = useState('');
     const [sendingMessage, setSendingMessage] = useState(false);
 
-    // Filter Pending
-    const filteredPending = pendingUsers.filter(u => 
-        u.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        u.whatsapp.includes(searchQuery) ||
-        u.package_name.toLowerCase().includes(searchQuery.toLowerCase())
-    );
+    // Order Installment Detail Modal
+    const [selectedOrderModal, setSelectedOrderModal] = useState<OrderItem | null>(null);
 
-    // Filter Active Saudagars
-    const filteredActive = activeSaudagars.filter(u =>
-        u.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        u.username.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        u.whatsapp.includes(searchQuery) ||
-        u.faction.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        u.role_class.toLowerCase().includes(searchQuery.toLowerCase())
-    );
+    const formatRupiah = (val: number) => {
+        return new Intl.NumberFormat('id-ID', {
+            style: 'currency',
+            currency: 'IDR',
+            minimumFractionDigits: 0,
+        }).format(val || 0);
+    };
 
-    // Handle Approve License
-    const handleApprove = (userId: string, userName: string, packageName: string) => {
-        if (confirm(`Konfirmasi aktivasi lisensi untuk "${userName}" (${packageName})?\nBekal Koin Perak akan langsung ditransfer ke dompet saudagar.`)) {
-            setApprovingId(userId);
-            router.post(route('admin.approve-license', userId), {}, {
-                onFinish: () => setApprovingId(null)
+    const formatDate = (dateString: string) => {
+        try {
+            const date = new Date(dateString);
+            return date.toLocaleDateString('id-ID', {
+                day: '2-digit',
+                month: 'short',
+                year: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit',
             });
+        } catch {
+            return dateString;
         }
     };
 
-    // Open Consultation Modal
+    // Filter Helpers
+    const filteredPending = pendingUsers.filter(u => 
+        u.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        (u.username && u.username.toLowerCase().includes(searchQuery.toLowerCase())) ||
+        u.whatsapp.includes(searchQuery)
+    );
+
+    const filteredActive = activeSaudagars.filter(u => 
+        u.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        (u.username && u.username.toLowerCase().includes(searchQuery.toLowerCase())) ||
+        u.whatsapp.includes(searchQuery)
+    );
+
+    const filteredServices = services.filter(s =>
+        s.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        s.code.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        s.category.toLowerCase().includes(searchQuery.toLowerCase())
+    );
+
+    const filteredOrders = orders.filter(o =>
+        o.order_number.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        (o.service?.name && o.service.name.toLowerCase().includes(searchQuery.toLowerCase())) ||
+        (o.user?.name && o.user.name.toLowerCase().includes(searchQuery.toLowerCase()))
+    );
+
+    // Approve License Action
+    const handleApprove = (userId: string, userName: string) => {
+        if (!confirm(`Konfirmasi persetujuan verifikasi lisensi untuk Saudagar ${userName}? Hadiah Koin Perak akan langsung disalurkan.`)) {
+            return;
+        }
+
+        setProcessingId(userId);
+        router.post(route('admin.approve-license', { userId }), {}, {
+            preserveScroll: true,
+            onFinish: () => setProcessingId(null)
+        });
+    };
+
+    // Open Consultation Drawer
     const handleOpenConsultation = async (saudagar: ActiveSaudagar) => {
         setSelectedSaudagar(saudagar);
         setChatLoading(true);
+        setChatMessages([]);
         try {
-            const res = await fetch(route('admin.consultations.get', saudagar.id));
+            const res = await fetch(route('admin.consultations.get', { userId: saudagar.id }));
             const data = await res.json();
-            setChatMessages(data.messages || []);
+            if (data.messages) {
+                setChatMessages(data.messages);
+            }
         } catch (err) {
-            console.error('Failed to load messages', err);
+            console.error('Error loading consultation', err);
         } finally {
             setChatLoading(false);
         }
@@ -199,16 +359,16 @@ export default function AdminDashboard({ adminUser, pendingUsers, activeSaudagar
 
     return (
         <div className="bg-[#0a0a0c] text-white min-h-screen font-sans flex flex-col selection:bg-amber-500/30 selection:text-amber-200">
-            <Head title="Root Control Center (Level 0) - Piticoin & Locomo" />
+            <Head title="Root Control Center (Level 0) - Piticoin & Marketing Hub" />
 
             {/* Ambient Lighting Overlay */}
             <div className="fixed inset-0 z-0 pointer-events-none">
                 <div className="absolute top-0 left-1/4 w-96 h-96 bg-amber-500/5 rounded-full blur-3xl" />
-                <div className="absolute top-1/3 right-1/4 w-96 h-96 bg-primary-container/5 rounded-full blur-3xl" />
+                <div className="absolute top-1/3 right-1/4 w-96 h-96 bg-purple-500/5 rounded-full blur-3xl" />
             </div>
 
             {/* Top Navigation Bar */}
-            <header className="relative z-10 border-b border-white/10 bg-[#0e0e12]/80 backdrop-blur-md px-4 lg:px-8 py-3.5 flex flex-wrap items-center justify-between gap-4">
+            <header className="relative z-10 border-b border-white/10 bg-[#0e0e12]/90 backdrop-blur-md px-4 lg:px-8 py-3.5 flex flex-wrap items-center justify-between gap-4">
                 <div className="flex items-center gap-3">
                     <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-amber-500 via-amber-600 to-yellow-700 flex items-center justify-center shadow-[0_0_20px_rgba(245,158,11,0.3)] border border-amber-400/40">
                         <Crown className="w-5 h-5 text-black font-extrabold" />
@@ -220,13 +380,30 @@ export default function AdminDashboard({ adminUser, pendingUsers, activeSaudagar
                                 [ROOT LEVEL 0]
                             </span>
                         </div>
-                        <p className="text-xs text-gray-400 font-mono">Ekosistem Mandeh • Locomo Federated Network</p>
+                        <p className="text-xs text-gray-400 font-mono">Ekosistem Mandeh • Locomo Federated Network & Marketing Hub</p>
                     </div>
                 </div>
 
-                <div className="flex items-center gap-3">
+                <div className="flex items-center gap-2.5 flex-wrap">
+                    {/* Quick Access: Marketing Portal */}
+                    <Link
+                        href="/marketing"
+                        className="px-3.5 py-1.5 rounded-lg bg-gradient-to-r from-purple-600 to-indigo-600 hover:brightness-110 text-white text-xs font-bold transition-all shadow-md flex items-center gap-1.5"
+                    >
+                        <BadgePercent size={14} />
+                        <span>Portal Marketing</span>
+                    </Link>
+
+                    <Link
+                        href="/marketing/services/create"
+                        className="px-3 py-1.5 rounded-lg bg-amber-500 hover:bg-amber-400 text-black text-xs font-bold transition-all shadow-md flex items-center gap-1.5"
+                    >
+                        <PlusCircle size={14} />
+                        <span>+ Produk Baru</span>
+                    </Link>
+
                     {/* Admin Profile Chip */}
-                    <div className="flex items-center gap-2.5 px-3 py-1.5 rounded-lg bg-white/5 border border-white/10 text-xs">
+                    <div className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-white/5 border border-white/10 text-xs">
                         <div className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
                         <span className="text-gray-300">Login: <strong className="text-amber-300 font-mono">@{adminUser.username}</strong></span>
                         <span className="text-[10px] bg-amber-500/20 text-amber-300 px-1.5 py-0.5 rounded font-bold">SUPERADMIN</span>
@@ -236,7 +413,7 @@ export default function AdminDashboard({ adminUser, pendingUsers, activeSaudagar
                         href={route('dashboard')}
                         className="px-3 py-1.5 rounded-lg bg-white/5 hover:bg-white/10 text-gray-300 hover:text-white border border-white/10 text-xs transition-colors flex items-center gap-1.5"
                     >
-                        <span>Lihat Dasbor Pengguna</span>
+                        <span>Dasbor User</span>
                         <ExternalLink size={13} />
                     </Link>
 
@@ -253,70 +430,118 @@ export default function AdminDashboard({ adminUser, pendingUsers, activeSaudagar
 
             {/* Metrics Overview Bar */}
             <section className="relative z-10 max-w-7xl w-full mx-auto px-4 lg:px-8 pt-6 pb-4">
-                <div className="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-4">
+                <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
                     {/* Metric 1: Pending */}
                     <div 
                         onClick={() => setActiveTab('pending')}
-                        className={`cursor-pointer p-4 rounded-xl border transition-all ${
+                        className={`cursor-pointer p-3.5 rounded-xl border transition-all ${
                             activeTab === 'pending'
                                 ? 'bg-amber-950/20 border-amber-500/50 shadow-[0_0_20px_rgba(245,158,11,0.15)] ring-1 ring-amber-500/40'
                                 : 'bg-[#121216] border-white/5 hover:border-white/15'
                         }`}
                     >
                         <div className="flex items-center justify-between text-xs text-gray-400 mb-1">
-                            <span className="font-semibold uppercase tracking-wider text-[11px]">Pengguna Menunggu</span>
-                            <Clock size={16} className="text-amber-400" />
+                            <span className="font-semibold uppercase tracking-wider text-[10px]">Pending Verif</span>
+                            <Clock size={15} className="text-amber-400" />
                         </div>
-                        <div className="flex items-baseline gap-2">
-                            <span className="text-2xl lg:text-3xl font-bold font-mono text-amber-300">{stats.pending_count}</span>
-                            <span className="text-[11px] text-amber-400/80 font-medium">butuh persetujuan</span>
+                        <div className="flex items-baseline gap-1.5">
+                            <span className="text-xl lg:text-2xl font-bold font-mono text-amber-300">{stats.pending_count}</span>
+                            <span className="text-[10px] text-amber-400/80">antrean</span>
                         </div>
                     </div>
 
                     {/* Metric 2: Active */}
                     <div 
                         onClick={() => setActiveTab('active')}
-                        className={`cursor-pointer p-4 rounded-xl border transition-all ${
+                        className={`cursor-pointer p-3.5 rounded-xl border transition-all ${
                             activeTab === 'active'
                                 ? 'bg-emerald-950/20 border-emerald-500/50 shadow-[0_0_20px_rgba(16,185,129,0.15)] ring-1 ring-emerald-500/40'
                                 : 'bg-[#121216] border-white/5 hover:border-white/15'
                         }`}
                     >
                         <div className="flex items-center justify-between text-xs text-gray-400 mb-1">
-                            <span className="font-semibold uppercase tracking-wider text-[11px]">Saudagar Aktif</span>
-                            <UserCheck size={16} className="text-emerald-400" />
+                            <span className="font-semibold uppercase tracking-wider text-[10px]">Saudagar Aktif</span>
+                            <UserCheck size={15} className="text-emerald-400" />
                         </div>
-                        <div className="flex items-baseline gap-2">
-                            <span className="text-2xl lg:text-3xl font-bold font-mono text-emerald-300">{stats.active_count}</span>
-                            <span className="text-[11px] text-emerald-400/80 font-medium">lisensi aktif</span>
+                        <div className="flex items-baseline gap-1.5">
+                            <span className="text-xl lg:text-2xl font-bold font-mono text-emerald-300">{stats.active_count}</span>
+                            <span className="text-[10px] text-emerald-400/80">lisensi</span>
                         </div>
                     </div>
 
-                    {/* Metric 3: Total Perak */}
-                    <div className="p-4 rounded-xl bg-[#121216] border border-white/5">
+                    {/* Metric 3: Omzet Layanan (Gold) */}
+                    <div 
+                        onClick={() => setActiveTab('orders')}
+                        className={`cursor-pointer p-3.5 rounded-xl border transition-all ${
+                            activeTab === 'orders'
+                                ? 'bg-amber-950/20 border-amber-500/50 ring-1 ring-amber-500/40'
+                                : 'bg-[#121216] border-white/5 hover:border-white/15'
+                        }`}
+                    >
                         <div className="flex items-center justify-between text-xs text-gray-400 mb-1">
-                            <span className="font-semibold uppercase tracking-wider text-[11px]">Total Koin Perak Beredar</span>
-                            <Coins size={16} className="text-slate-300" />
+                            <span className="font-semibold uppercase tracking-wider text-[10px]">Omzet Layanan</span>
+                            <Flame size={15} className="text-amber-400" />
                         </div>
-                        <div className="flex items-baseline gap-2">
-                            <span className="text-2xl lg:text-3xl font-bold font-mono text-slate-200">
+                        <div className="flex flex-col">
+                            <span className="text-base lg:text-lg font-bold font-mono text-amber-400">
+                                {Number(stats.total_omzet_gold || 0).toLocaleString('id-ID')} Emas
+                            </span>
+                            <span className="text-[10px] text-emerald-400 font-mono truncate">
+                                {formatRupiah(Number(stats.total_omzet_fiat || 0))}
+                            </span>
+                        </div>
+                    </div>
+
+                    {/* Metric 4: Payout Komisi Afiliasi */}
+                    <div 
+                        onClick={() => setActiveTab('commissions')}
+                        className={`cursor-pointer p-3.5 rounded-xl border transition-all ${
+                            activeTab === 'commissions'
+                                ? 'bg-purple-950/20 border-purple-500/50 ring-1 ring-purple-500/40'
+                                : 'bg-[#121216] border-white/5 hover:border-white/15'
+                        }`}
+                    >
+                        <div className="flex items-center justify-between text-xs text-gray-400 mb-1">
+                            <span className="font-semibold uppercase tracking-wider text-[10px]">Payout Komisi</span>
+                            <BadgePercent size={15} className="text-purple-400" />
+                        </div>
+                        <div className="flex flex-col">
+                            <span className="text-base lg:text-lg font-bold font-mono text-purple-300">
+                                {Number(stats.total_payout_gold || 0).toLocaleString('id-ID')} Emas
+                            </span>
+                            <span className="text-[10px] text-purple-400/80 font-mono truncate">
+                                {formatRupiah(Number(stats.total_payout_fiat || 0))}
+                            </span>
+                        </div>
+                    </div>
+
+                    {/* Metric 5: Cicilan Berjalan */}
+                    <div 
+                        onClick={() => setActiveTab('orders')}
+                        className="cursor-pointer p-3.5 rounded-xl bg-[#121216] border border-white/5 hover:border-white/15 transition-all"
+                    >
+                        <div className="flex items-center justify-between text-xs text-gray-400 mb-1">
+                            <span className="font-semibold uppercase tracking-wider text-[10px]">Cicilan Aktif</span>
+                            <Clock size={15} className="text-indigo-400" />
+                        </div>
+                        <div className="flex items-baseline gap-1.5">
+                            <span className="text-xl lg:text-2xl font-bold font-mono text-indigo-300">
+                                {stats.active_installments || 0}
+                            </span>
+                            <span className="text-[10px] text-indigo-400/80">kontrak</span>
+                        </div>
+                    </div>
+
+                    {/* Metric 6: Total Perak */}
+                    <div className="p-3.5 rounded-xl bg-[#121216] border border-white/5">
+                        <div className="flex items-center justify-between text-xs text-gray-400 mb-1">
+                            <span className="font-semibold uppercase tracking-wider text-[10px]">Perak Beredar</span>
+                            <Coins size={15} className="text-slate-300" />
+                        </div>
+                        <div className="flex items-baseline gap-1.5">
+                            <span className="text-base lg:text-lg font-bold font-mono text-slate-200 truncate">
                                 {stats.total_silver.toLocaleString('id-ID')}
                             </span>
-                            <span className="text-[11px] text-slate-400">Perak</span>
-                        </div>
-                    </div>
-
-                    {/* Metric 4: Total Emas */}
-                    <div className="p-4 rounded-xl bg-[#121216] border border-white/5">
-                        <div className="flex items-center justify-between text-xs text-gray-400 mb-1">
-                            <span className="font-semibold uppercase tracking-wider text-[11px]">Total Koin Emas Beredar</span>
-                            <Flame size={16} className="text-amber-400" />
-                        </div>
-                        <div className="flex items-baseline gap-2">
-                            <span className="text-2xl lg:text-3xl font-bold font-mono text-amber-400">
-                                {stats.total_gold.toLocaleString('id-ID')}
-                            </span>
-                            <span className="text-[11px] text-amber-500">Emas</span>
                         </div>
                     </div>
                 </div>
@@ -325,18 +550,18 @@ export default function AdminDashboard({ adminUser, pendingUsers, activeSaudagar
             {/* Main Workspace */}
             <main className="relative z-10 max-w-7xl w-full mx-auto px-4 lg:px-8 py-4 flex-1 flex flex-col">
                 {/* Search & Tabs Header */}
-                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-white/10 pb-4 mb-6">
+                <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-white/10 pb-4 mb-6">
                     {/* Tabs */}
-                    <div className="flex items-center gap-2 bg-[#121216] p-1 rounded-xl border border-white/10">
+                    <div className="flex items-center gap-1.5 bg-[#121216] p-1.5 rounded-xl border border-white/10 overflow-x-auto">
                         <button
                             onClick={() => setActiveTab('pending')}
-                            className={`flex items-center gap-2 px-4 py-2 rounded-lg text-xs md:text-sm font-semibold transition-all ${
+                            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold whitespace-nowrap transition-all ${
                                 activeTab === 'pending'
                                     ? 'bg-amber-500 text-black shadow-md shadow-amber-500/20'
                                     : 'text-gray-400 hover:text-white'
                             }`}
                         >
-                            <Clock size={15} />
+                            <Clock size={14} />
                             <span>Pengguna Menunggu</span>
                             <span className={`px-1.5 py-0.2 rounded-full text-[10px] font-bold ${
                                 activeTab === 'pending' ? 'bg-black/30 text-black' : 'bg-amber-500/20 text-amber-300'
@@ -347,13 +572,13 @@ export default function AdminDashboard({ adminUser, pendingUsers, activeSaudagar
 
                         <button
                             onClick={() => setActiveTab('active')}
-                            className={`flex items-center gap-2 px-4 py-2 rounded-lg text-xs md:text-sm font-semibold transition-all ${
+                            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold whitespace-nowrap transition-all ${
                                 activeTab === 'active'
-                                    ? 'bg-amber-500 text-black shadow-md shadow-amber-500/20'
+                                    ? 'bg-emerald-500 text-black shadow-md shadow-emerald-500/20'
                                     : 'text-gray-400 hover:text-white'
                             }`}
                         >
-                            <Users size={15} />
+                            <Users size={14} />
                             <span>Saudagar Aktif</span>
                             <span className={`px-1.5 py-0.2 rounded-full text-[10px] font-bold ${
                                 activeTab === 'active' ? 'bg-black/30 text-black' : 'bg-emerald-500/20 text-emerald-300'
@@ -361,40 +586,81 @@ export default function AdminDashboard({ adminUser, pendingUsers, activeSaudagar
                                 {stats.active_count}
                             </span>
                         </button>
+
+                        <button
+                            onClick={() => setActiveTab('services')}
+                            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold whitespace-nowrap transition-all ${
+                                activeTab === 'services'
+                                    ? 'bg-purple-600 text-white shadow-md shadow-purple-600/20'
+                                    : 'text-gray-400 hover:text-white'
+                            }`}
+                        >
+                            <Package size={14} />
+                            <span>Produk & Afiliasi</span>
+                            <span className={`px-1.5 py-0.2 rounded-full text-[10px] font-bold ${
+                                activeTab === 'services' ? 'bg-black/30 text-white' : 'bg-purple-500/20 text-purple-300'
+                            }`}>
+                                {services.length}
+                            </span>
+                        </button>
+
+                        <button
+                            onClick={() => setActiveTab('orders')}
+                            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold whitespace-nowrap transition-all ${
+                                activeTab === 'orders'
+                                    ? 'bg-indigo-600 text-white shadow-md shadow-indigo-600/20'
+                                    : 'text-gray-400 hover:text-white'
+                            }`}
+                        >
+                            <ShoppingCart size={14} />
+                            <span>Pesanan & Cicilan</span>
+                            <span className={`px-1.5 py-0.2 rounded-full text-[10px] font-bold ${
+                                activeTab === 'orders' ? 'bg-black/30 text-white' : 'bg-indigo-500/20 text-indigo-300'
+                            }`}>
+                                {orders.length}
+                            </span>
+                        </button>
+
+                        <button
+                            onClick={() => setActiveTab('commissions')}
+                            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold whitespace-nowrap transition-all ${
+                                activeTab === 'commissions'
+                                    ? 'bg-amber-600 text-white shadow-md shadow-amber-600/20'
+                                    : 'text-gray-400 hover:text-white'
+                            }`}
+                        >
+                            <GitBranch size={14} />
+                            <span>Payout Komisi</span>
+                            <span className={`px-1.5 py-0.2 rounded-full text-[10px] font-bold ${
+                                activeTab === 'commissions' ? 'bg-black/30 text-white' : 'bg-amber-500/20 text-amber-300'
+                            }`}>
+                                {recentCommissions.length}
+                            </span>
+                        </button>
                     </div>
 
                     {/* Search Field */}
-                    <div className="relative w-full sm:w-80">
-                        <Search size={15} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-500" />
+                    <div className="relative min-w-[260px]">
+                        <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500" size={15} />
                         <input
                             type="text"
                             value={searchQuery}
                             onChange={(e) => setSearchQuery(e.target.value)}
-                            placeholder={activeTab === 'pending' ? 'Cari nama / WhatsApp / paket...' : 'Cari nama / username / faksi...'}
-                            className="w-full bg-[#14141a] border border-white/10 rounded-xl pl-9 pr-4 py-2 text-xs text-white placeholder-gray-500 focus:outline-none focus:border-amber-500 focus:ring-1 focus:ring-amber-500"
+                            placeholder="Cari nama, WhatsApp, order no..."
+                            className="w-full pl-9 pr-4 py-2 bg-[#121216] border border-white/10 rounded-xl text-xs text-white placeholder-gray-500 focus:outline-none focus:border-amber-500 focus:ring-1 focus:ring-amber-500 transition-all"
                         />
-                        {searchQuery && (
-                            <button
-                                onClick={() => setSearchQuery('')}
-                                className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-300"
-                            >
-                                <X size={13} />
-                            </button>
-                        )}
                     </div>
                 </div>
 
-                {/* TAB 1: PENGGUNA MENUNGGU (PENDING) */}
+                {/* TAB 1: PENDING USERS (STARTER KIT) */}
                 {activeTab === 'pending' && (
-                    <div className="flex flex-col gap-4">
+                    <div className="space-y-4">
                         {filteredPending.length === 0 ? (
-                            <div className="bg-[#121216] border border-white/5 rounded-2xl p-12 text-center flex flex-col items-center justify-center">
-                                <div className="w-14 h-14 rounded-full bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center mb-3">
-                                    <CheckCircle2 className="w-7 h-7 text-emerald-400" />
-                                </div>
-                                <h3 className="text-base font-bold text-white mb-1">Semua Pembayaran Selesai Diverifikasi</h3>
-                                <p className="text-xs text-gray-400 max-w-sm">
-                                    Tidak ada antrean pengguna dengan status menunggu pembayaran saat ini.
+                            <div className="p-12 text-center bg-[#121216] rounded-2xl border border-white/5 space-y-2">
+                                <CheckCircle2 className="w-12 h-12 text-emerald-400/40 mx-auto" />
+                                <h3 className="text-base font-semibold text-white">Semua Verifikasi Tuntas</h3>
+                                <p className="text-xs text-gray-400 max-w-sm mx-auto">
+                                    Tidak ada pengguna yang sedang menunggu persetujuan verifikasi Starter Kit.
                                 </p>
                             </div>
                         ) : (
@@ -402,85 +668,49 @@ export default function AdminDashboard({ adminUser, pendingUsers, activeSaudagar
                                 {filteredPending.map((user) => (
                                     <div 
                                         key={user.id}
-                                        className="bg-[#121216] border border-amber-500/20 rounded-2xl p-5 flex flex-col justify-between hover:border-amber-500/40 transition-all relative overflow-hidden group shadow-lg"
+                                        className="bg-[#121216] border border-amber-500/30 hover:border-amber-500/60 rounded-2xl p-5 space-y-4 shadow-xl hover:shadow-amber-500/5 transition-all flex flex-col justify-between"
                                     >
-                                        <div className="absolute top-0 right-0 w-24 h-24 bg-amber-500/5 rounded-full blur-xl pointer-events-none group-hover:bg-amber-500/10 transition-colors" />
-
-                                        <div>
-                                            {/* Header */}
-                                            <div className="flex items-start justify-between gap-2 mb-3">
+                                        <div className="space-y-3">
+                                            <div className="flex items-start justify-between gap-2">
                                                 <div>
-                                                    <h4 className="font-bold text-base text-white group-hover:text-amber-300 transition-colors">{user.name}</h4>
-                                                    <div className="flex items-center gap-1.5 mt-0.5">
-                                                        <a 
-                                                            href={`https://wa.me/${user.whatsapp.replace(/\D/g, '')}`}
-                                                            target="_blank"
-                                                            rel="noreferrer"
-                                                            className="text-xs font-mono text-emerald-400 hover:underline flex items-center gap-1"
-                                                        >
-                                                            <span>+{user.whatsapp}</span>
-                                                            <ExternalLink size={10} />
-                                                        </a>
-                                                    </div>
+                                                    <h3 className="font-bold text-sm text-white">{user.name}</h3>
+                                                    <span className="text-xs font-mono text-gray-400">@{user.username || user.whatsapp}</span>
                                                 </div>
-                                                <span className="text-[10px] font-mono px-2 py-0.5 rounded-full bg-amber-500/20 text-amber-300 border border-amber-500/40 font-semibold animate-pulse">
-                                                    PENDING
-                                                </span>
-                                            </div>
-
-                                            {/* Lore Badges */}
-                                            <div className="flex items-center gap-2 mb-4">
-                                                <span className={`text-[10px] font-bold px-2 py-0.5 rounded border ${getFactionColor(user.faction)}`}>
+                                                <span className={`text-[10px] font-bold px-2 py-0.5 rounded border uppercase tracking-wider ${getFactionColor(user.faction)}`}>
                                                     {user.faction}
                                                 </span>
-                                                <span className="text-[10px] font-bold px-2 py-0.5 rounded bg-white/5 border border-white/10 text-gray-300">
-                                                    {user.role_class}
-                                                </span>
                                             </div>
 
-                                            {/* Package & Silver Details */}
-                                            <div className="bg-[#17171d] rounded-xl p-3 border border-white/5 mb-4 text-xs flex flex-col gap-2">
-                                                <div className="flex items-center justify-between">
-                                                    <span className="text-gray-400">Pilihan Paket:</span>
-                                                    <span className="font-bold text-amber-200">{user.package_name}</span>
+                                            <div className="p-3 bg-black/40 rounded-xl border border-white/5 space-y-1.5 text-xs font-mono">
+                                                <div className="flex justify-between">
+                                                    <span className="text-gray-400">Paket Lisensi:</span>
+                                                    <strong className="text-amber-400">{user.package_name}</strong>
                                                 </div>
-                                                <div className="flex items-center justify-between">
-                                                    <span className="text-gray-400">Nominal Transfer:</span>
-                                                    <span className="font-bold font-mono text-white">{user.package_price}</span>
+                                                <div className="flex justify-between">
+                                                    <span className="text-gray-400">Harga Verifikasi:</span>
+                                                    <span className="text-emerald-400 font-bold">{user.package_price}</span>
                                                 </div>
-                                                <div className="flex items-center justify-between border-t border-white/5 pt-1.5">
-                                                    <span className="text-gray-400 flex items-center gap-1">
-                                                        <Coins size={12} className="text-slate-300" />
-                                                        Injeksi Perak:
-                                                    </span>
-                                                    <span className="font-bold font-mono text-emerald-400">+{user.silver_reward.toLocaleString('id-ID')} Perak</span>
+                                                <div className="flex justify-between border-t border-white/5 pt-1">
+                                                    <span className="text-gray-400">Injeksi Perak:</span>
+                                                    <strong className="text-slate-300">+{user.silver_reward} Perak</strong>
                                                 </div>
-                                            </div>
-
-                                            <div className="text-[11px] text-gray-400 mb-4 flex items-center justify-between">
-                                                <span>Waktu Pengajuan:</span>
-                                                <span className="text-gray-300">{user.waiting_since}</span>
                                             </div>
                                         </div>
 
-                                        {/* Action Button */}
-                                        <button
-                                            disabled={approvingId === user.id}
-                                            onClick={() => handleApprove(user.id, user.name, user.package_name)}
-                                            className="w-full py-2.5 rounded-xl bg-gradient-to-r from-amber-500 to-yellow-600 hover:from-amber-400 hover:to-yellow-500 text-black font-bold text-xs tracking-wider uppercase transition-all shadow-[0_4px_15px_rgba(245,158,11,0.25)] flex items-center justify-center gap-2 disabled:opacity-50"
-                                        >
-                                            {approvingId === user.id ? (
-                                                <>
+                                        <div className="pt-2 flex items-center gap-2">
+                                            <button
+                                                onClick={() => handleApprove(user.id, user.name)}
+                                                disabled={processingId === user.id}
+                                                className="flex-1 py-2.5 rounded-xl bg-amber-500 hover:bg-amber-400 disabled:opacity-50 text-black font-bold text-xs tracking-wide transition-all shadow-lg flex items-center justify-center gap-1.5 cursor-pointer"
+                                            >
+                                                {processingId === user.id ? (
                                                     <RefreshCw size={14} className="animate-spin" />
-                                                    <span>Memproses Aktivasi...</span>
-                                                </>
-                                            ) : (
-                                                <>
-                                                    <CheckCircle2 size={15} />
-                                                    <span>Setujui & Aktivasi Lisensi</span>
-                                                </>
-                                            )}
-                                        </button>
+                                                ) : (
+                                                    <CheckCircle2 size={14} />
+                                                )}
+                                                <span>Setujui Lisensi</span>
+                                            </button>
+                                        </div>
                                     </div>
                                 ))}
                             </div>
@@ -488,122 +718,48 @@ export default function AdminDashboard({ adminUser, pendingUsers, activeSaudagar
                     </div>
                 )}
 
-                {/* TAB 2: SAUDAGAR AKTIF */}
+                {/* TAB 2: ACTIVE SAUDAGARS */}
                 {activeTab === 'active' && (
-                    <div className="flex flex-col gap-4">
+                    <div className="space-y-4">
                         {filteredActive.length === 0 ? (
-                            <div className="bg-[#121216] border border-white/5 rounded-2xl p-12 text-center flex flex-col items-center justify-center">
-                                <Users className="w-12 h-12 text-gray-600 mb-2" />
-                                <h3 className="text-base font-bold text-white mb-1">Tidak Ada Saudagar Ditemukan</h3>
-                                <p className="text-xs text-gray-400">
-                                    Coba ubah kata kunci pencarian Anda.
-                                </p>
+                            <div className="p-12 text-center bg-[#121216] rounded-2xl border border-white/5">
+                                <Users className="w-12 h-12 text-gray-600 mx-auto mb-2" />
+                                <p className="text-sm text-gray-400">Tidak ada saudagar yang sesuai pencarian.</p>
                             </div>
                         ) : (
                             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                                 {filteredActive.map((saudagar) => (
-                                    <div 
+                                    <div
                                         key={saudagar.id}
-                                        className="bg-[#121216] border border-white/10 rounded-2xl p-5 flex flex-col justify-between hover:border-amber-500/40 transition-all relative overflow-hidden group shadow-lg"
+                                        className="bg-[#121216] border border-white/10 hover:border-emerald-500/40 rounded-2xl p-5 space-y-4 transition-all group"
                                     >
-                                        <div>
-                                            {/* Header Saudagar */}
-                                            <div className="flex items-start justify-between gap-3 mb-3">
-                                                <div>
-                                                    <div className="flex items-center gap-2">
-                                                        <h4 className="font-bold text-base text-white group-hover:text-amber-300 transition-colors">
-                                                            {saudagar.name}
-                                                        </h4>
-                                                        {saudagar.unread_consultations > 0 && (
-                                                            <span className="w-2.5 h-2.5 rounded-full bg-amber-400 animate-ping" title="Pesan baru" />
-                                                        )}
-                                                    </div>
-                                                    <p className="text-xs text-gray-400 font-mono">
-                                                        @{saudagar.username !== '-' ? saudagar.username : saudagar.whatsapp}
-                                                    </p>
-                                                </div>
-
-                                                {/* Reputation Rating */}
-                                                <div className="flex items-center gap-1 px-2.5 py-1 rounded-lg bg-amber-500/10 border border-amber-500/30 text-amber-300 text-xs font-bold font-mono">
-                                                    <Star size={13} className="fill-amber-400 text-amber-400" />
-                                                    <span>{saudagar.rating.toFixed(1)}</span>
-                                                    <span className="text-[10px] text-gray-400 font-normal">({saudagar.total_reviews})</span>
-                                                </div>
+                                        <div className="flex items-start justify-between gap-2">
+                                            <div>
+                                                <h3 className="font-bold text-sm text-white group-hover:text-emerald-300 transition-colors">{saudagar.name}</h3>
+                                                <span className="text-xs font-mono text-gray-400">@{saudagar.username || saudagar.whatsapp}</span>
                                             </div>
+                                            <span className={`text-[10px] font-bold px-2 py-0.5 rounded border uppercase tracking-wider ${getFactionColor(saudagar.faction)}`}>
+                                                {saudagar.faction}
+                                            </span>
+                                        </div>
 
-                                            {/* Lore & License Badges */}
-                                            <div className="flex flex-wrap items-center gap-1.5 mb-4">
-                                                <span className={`text-[10px] font-bold px-2 py-0.5 rounded border ${getFactionColor(saudagar.faction)}`}>
-                                                    {saudagar.faction}
-                                                </span>
-                                                <span className="text-[10px] font-bold px-2 py-0.5 rounded bg-white/5 border border-white/10 text-gray-300">
-                                                    {saudagar.role_class}
-                                                </span>
-                                                <span className="text-[10px] font-bold px-2 py-0.5 rounded bg-purple-950/40 border border-purple-500/40 text-purple-300">
-                                                    {saudagar.license_type}
-                                                </span>
-                                                <span className="text-[10px] font-bold px-2 py-0.5 rounded bg-amber-950/30 border border-amber-600/30 text-amber-400 font-mono">
-                                                    Lv.{saudagar.level}
-                                                </span>
+                                        <div className="grid grid-cols-2 gap-2 text-xs font-mono">
+                                            <div className="p-2.5 rounded-xl bg-black/30 border border-white/5">
+                                                <span className="text-gray-400 text-[10px] block">Saldo Emas</span>
+                                                <strong className="text-amber-400 text-sm">{saudagar.gold_balance}</strong>
                                             </div>
-
-                                            {/* Stats Grid: Coins & Downline */}
-                                            <div className="grid grid-cols-2 gap-2 mb-3">
-                                                {/* Koin Perak */}
-                                                <div className="bg-[#16161c] p-2.5 rounded-xl border border-white/5">
-                                                    <div className="flex items-center justify-between text-[10px] text-gray-400 mb-1">
-                                                        <span>Koin Perak</span>
-                                                        <Coins size={11} className="text-slate-400" />
-                                                    </div>
-                                                    <div className="font-bold font-mono text-sm text-slate-200">
-                                                        {saudagar.silver_balance.toLocaleString('id-ID')}
-                                                    </div>
-                                                </div>
-
-                                                {/* Koin Emas */}
-                                                <div className="bg-[#16161c] p-2.5 rounded-xl border border-white/5">
-                                                    <div className="flex items-center justify-between text-[10px] text-gray-400 mb-1">
-                                                        <span>Koin Emas</span>
-                                                        <Flame size={11} className="text-amber-400" />
-                                                    </div>
-                                                    <div className="font-bold font-mono text-sm text-amber-300">
-                                                        {saudagar.gold_balance.toLocaleString('id-ID')}
-                                                    </div>
-                                                </div>
-                                            </div>
-
-                                            {/* Downlines & Scale Up Rate */}
-                                            <div className="bg-gradient-to-br from-[#16161e] to-[#121218] p-3 rounded-xl border border-white/10 mb-4 text-xs">
-                                                <div className="flex items-center justify-between mb-2">
-                                                    <span className="text-gray-400 flex items-center gap-1 text-[11px]">
-                                                        <Users size={12} className="text-primary-container" />
-                                                        Downline (L1: {saudagar.downlines_l1} | L2: {saudagar.downlines_l2})
-                                                    </span>
-                                                    <span className="font-bold font-mono text-white">
-                                                        {saudagar.total_downlines} Saudagar
-                                                    </span>
-                                                </div>
-
-                                                {/* Scale Up Rate Pill */}
-                                                <div className="flex items-center justify-between border-t border-white/5 pt-2">
-                                                    <span className="text-gray-400 flex items-center gap-1 text-[11px]">
-                                                        <TrendingUp size={12} className="text-emerald-400" />
-                                                        Scale Up Rate:
-                                                    </span>
-                                                    <span className="font-bold font-mono text-emerald-400 bg-emerald-950/40 border border-emerald-500/30 px-2 py-0.5 rounded text-[11px]">
-                                                        +{saudagar.scale_up_rate}% Profit Multiplier
-                                                    </span>
-                                                </div>
+                                            <div className="p-2.5 rounded-xl bg-black/30 border border-white/5">
+                                                <span className="text-gray-400 text-[10px] block">Total Downline</span>
+                                                <strong className="text-emerald-400 text-sm">{saudagar.total_downlines} Mitra</strong>
                                             </div>
                                         </div>
 
-                                        {/* Action Button: Kirim Pesan & Konsultasi */}
                                         <button
                                             onClick={() => handleOpenConsultation(saudagar)}
-                                            className="w-full py-2.5 rounded-xl bg-white/5 hover:bg-white/10 text-amber-300 hover:text-amber-200 border border-amber-500/30 font-semibold text-xs tracking-wide transition-all flex items-center justify-center gap-2 group-hover:border-amber-500/50"
+                                            className="w-full py-2 rounded-xl bg-white/5 hover:bg-white/10 text-amber-300 border border-amber-500/30 text-xs font-semibold flex items-center justify-center gap-1.5 transition-all cursor-pointer"
                                         >
                                             <MessageSquare size={14} />
-                                            <span>Kirim Pesan / Konsultasi (Q&A)</span>
+                                            <span>Konsultasi & Pesan</span>
                                             {saudagar.unread_consultations > 0 && (
                                                 <span className="px-1.5 py-0.2 rounded-full text-[9px] font-bold bg-amber-500 text-black">
                                                     {saudagar.unread_consultations}
@@ -616,7 +772,364 @@ export default function AdminDashboard({ adminUser, pendingUsers, activeSaudagar
                         )}
                     </div>
                 )}
+
+                {/* TAB 3: PRODUK & LAYANAN AFILIASI (ROOT OWNER CATALOG) */}
+                {activeTab === 'services' && (
+                    <div className="space-y-4">
+                        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-[#121216] p-4 rounded-2xl border border-white/10">
+                            <div>
+                                <h2 className="text-sm font-bold text-white flex items-center gap-2">
+                                    <Package size={16} className="text-purple-400" />
+                                    Manajemen Seluruh Produk & Layanan Ekosistem
+                                </h2>
+                                <p className="text-xs text-gray-400">
+                                    Sebagai Root Owner, Anda dapat mengelola layanan internal (Umroh/Produk) maupun eksternal (Unimart SaaS).
+                                </p>
+                            </div>
+
+                            <div className="flex items-center gap-2">
+                                <Link
+                                    href="/marketing"
+                                    className="px-3.5 py-2 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 text-xs font-semibold text-gray-300 transition-colors"
+                                >
+                                    Buka Portal Marketing
+                                </Link>
+                                <Link
+                                    href="/marketing/services/create"
+                                    className="px-4 py-2 rounded-xl bg-gradient-to-r from-purple-600 to-indigo-600 hover:brightness-110 text-white text-xs font-bold transition-all shadow-md flex items-center gap-1.5"
+                                >
+                                    <PlusCircle size={14} />
+                                    <span>Tambah Produk Baru</span>
+                                </Link>
+                            </div>
+                        </div>
+
+                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                            {filteredServices.map((svc) => {
+                                const isInternal = svc.service_type === 'INTERNAL';
+                                const totalMargin = (svc.commission_rules?.levels || []).reduce(
+                                    (sum, l) => sum + (Number(l.percentage) || 0),
+                                    0
+                                );
+
+                                return (
+                                    <div
+                                        key={svc.id}
+                                        className="bg-[#121216] border border-white/10 hover:border-purple-500/40 rounded-2xl p-5 space-y-4 transition-all flex flex-col justify-between"
+                                    >
+                                        <div className="space-y-3">
+                                            <div className="flex items-start justify-between gap-2">
+                                                <div className="flex items-center gap-2.5">
+                                                    <div className="w-10 h-10 rounded-xl bg-purple-500/10 border border-purple-500/30 flex items-center justify-center text-purple-400">
+                                                        <span className="material-symbols-outlined text-xl">{svc.icon || 'hub'}</span>
+                                                    </div>
+                                                    <div>
+                                                        <h3 className="font-bold text-sm text-white">{svc.name}</h3>
+                                                        <span className="text-[10px] font-mono text-gray-400">{svc.code}</span>
+                                                    </div>
+                                                </div>
+
+                                                <span
+                                                    className={`px-2 py-0.5 rounded text-[10px] font-mono font-bold uppercase ${
+                                                        isInternal
+                                                            ? 'bg-amber-500/20 text-amber-300 border border-amber-500/30'
+                                                            : 'bg-cyan-500/20 text-cyan-300 border border-cyan-500/30'
+                                                    }`}
+                                                >
+                                                    {svc.service_type}
+                                                </span>
+                                            </div>
+
+                                            <p className="text-xs text-gray-400 line-clamp-2 leading-relaxed">
+                                                {svc.description}
+                                            </p>
+
+                                            <div className="p-3 bg-black/40 rounded-xl border border-white/5 space-y-2 text-xs font-mono">
+                                                <div className="flex justify-between items-center">
+                                                    <span className="text-gray-400">Harga Paket:</span>
+                                                    <div className="text-right">
+                                                        <span className="text-amber-400 font-bold block">{svc.price_gold} Emas</span>
+                                                        <span className="text-[10px] text-emerald-400">{formatRupiah(svc.price_fiat)}</span>
+                                                    </div>
+                                                </div>
+
+                                                <div className="flex justify-between border-t border-white/5 pt-1.5 text-[11px]">
+                                                    <span className="text-gray-400">Skema Cicilan:</span>
+                                                    <span className={svc.allows_installments ? 'text-indigo-400 font-bold' : 'text-gray-500'}>
+                                                        {svc.allows_installments ? `Bisa Dicicil (Min DP: ${svc.min_down_payment_gold || 0} Emas)` : 'Bayar Lunas'}
+                                                    </span>
+                                                </div>
+
+                                                <div className="flex justify-between border-t border-white/5 pt-1.5 text-[11px]">
+                                                    <span className="text-gray-400">Afiliasi ({svc.commission_rules?.depth || 0} Lvl):</span>
+                                                    <span className="text-purple-300 font-bold">
+                                                        {totalMargin.toFixed(1)}% Total Margin
+                                                    </span>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <div className="pt-2 flex items-center gap-2 border-t border-white/5">
+                                            <div className="flex-1 text-[11px] font-mono text-gray-400">
+                                                {svc.orders_count || 0} Pesanan • {svc.licenses_count || 0} Lisensi
+                                            </div>
+
+                                            <Link
+                                                href={`/marketing/services/${svc.id}/edit`}
+                                                className="px-3 py-1.5 rounded-lg bg-white/5 hover:bg-white/10 text-amber-300 border border-white/10 text-xs font-semibold transition-colors flex items-center gap-1"
+                                            >
+                                                <Edit3 size={13} />
+                                                <span>Edit</span>
+                                            </Link>
+                                        </div>
+                                    </div>
+                                );
+                            })}
+                        </div>
+                    </div>
+                )}
+
+                {/* TAB 4: PESANAN & CICILAN BERJALAN */}
+                {activeTab === 'orders' && (
+                    <div className="space-y-4">
+                        <div className="bg-[#121216] border border-white/10 rounded-2xl overflow-hidden shadow-2xl">
+                            <div className="overflow-x-auto">
+                                <table className="w-full text-left text-xs">
+                                    <thead>
+                                        <tr className="bg-black/40 text-gray-400 border-b border-white/10 font-mono uppercase text-[10px]">
+                                            <th className="px-4 py-3.5">Order No / Waktu</th>
+                                            <th className="px-4 py-3.5">Layanan / Produk</th>
+                                            <th className="px-4 py-3.5">Peserta</th>
+                                            <th className="px-4 py-3.5">Metode Bayar</th>
+                                            <th className="px-4 py-3.5 text-right">Total Tagihan</th>
+                                            <th className="px-4 py-3.5 text-right">Sudah Dibayar</th>
+                                            <th className="px-4 py-3.5 text-center">Status</th>
+                                            <th className="px-4 py-3.5 text-center">Aksi</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody className="divide-y divide-white/5">
+                                        {filteredOrders.length === 0 ? (
+                                            <tr>
+                                                <td colSpan={8} className="px-4 py-12 text-center text-gray-500">
+                                                    Belum ada data pesanan layanan.
+                                                </td>
+                                            </tr>
+                                        ) : (
+                                            filteredOrders.map((order) => {
+                                                const isInstallment = order.payment_type === 'INSTALLMENT';
+                                                const isCompleted = order.status === 'COMPLETED';
+
+                                                return (
+                                                    <tr key={order.id} className="hover:bg-white/[0.02] transition-colors">
+                                                        <td className="px-4 py-3.5 font-mono">
+                                                            <strong className="text-white block">{order.order_number}</strong>
+                                                            <span className="text-[10px] text-gray-500">{formatDate(order.created_at)}</span>
+                                                        </td>
+                                                        <td className="px-4 py-3.5">
+                                                            <strong className="text-white block">{order.service?.name || '-'}</strong>
+                                                            <span className="text-[10px] font-mono text-purple-400">{order.service?.code}</span>
+                                                        </td>
+                                                        <td className="px-4 py-3.5">
+                                                            <span className="font-semibold text-white block">{order.user?.name}</span>
+                                                            <span className="text-[10px] text-gray-400 font-mono">@{order.user?.username || order.user?.whatsapp}</span>
+                                                        </td>
+                                                        <td className="px-4 py-3.5">
+                                                            <span
+                                                                className={`px-2 py-0.5 rounded text-[10px] font-bold font-mono ${
+                                                                    isInstallment
+                                                                        ? 'bg-indigo-500/20 text-indigo-300 border border-indigo-500/30'
+                                                                        : 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/30'
+                                                                }`}
+                                                            >
+                                                                {isInstallment ? 'CICILAN' : 'LUNAS'}
+                                                            </span>
+                                                        </td>
+                                                        <td className="px-4 py-3.5 text-right font-mono font-bold text-amber-400">
+                                                            {Number(order.total_amount_gold).toLocaleString('id-ID')} Emas
+                                                        </td>
+                                                        <td className="px-4 py-3.5 text-right font-mono">
+                                                            <strong className="text-white block">{Number(order.paid_amount_gold).toLocaleString('id-ID')} Emas</strong>
+                                                            {isInstallment && !isCompleted && (
+                                                                <span className="text-[10px] text-red-400">
+                                                                    Sisa: {Number(order.remaining_amount_gold).toLocaleString('id-ID')} Emas
+                                                                </span>
+                                                            )}
+                                                        </td>
+                                                        <td className="px-4 py-3.5 text-center">
+                                                            <span
+                                                                className={`px-2 py-0.5 rounded-full text-[10px] font-bold font-mono uppercase ${
+                                                                    isCompleted
+                                                                        ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20'
+                                                                        : 'bg-amber-500/10 text-amber-400 border border-amber-500/20'
+                                                                }`}
+                                                            >
+                                                                {order.status}
+                                                            </span>
+                                                        </td>
+                                                        <td className="px-4 py-3.5 text-center">
+                                                            <button
+                                                                onClick={() => setSelectedOrderModal(order)}
+                                                                className="px-2.5 py-1 rounded-lg bg-white/5 hover:bg-white/10 text-gray-300 hover:text-white border border-white/10 text-[11px] font-semibold transition-all cursor-pointer inline-flex items-center gap-1"
+                                                            >
+                                                                <Receipt size={13} />
+                                                                Detail
+                                                            </button>
+                                                        </td>
+                                                    </tr>
+                                                );
+                                            })
+                                        )}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                )}
+
+                {/* TAB 5: AUDIT TRAIL DISTRIBUSI KOMISI AFILIASI */}
+                {activeTab === 'commissions' && (
+                    <div className="space-y-4">
+                        <div className="bg-[#121216] border border-white/10 rounded-2xl overflow-hidden shadow-2xl">
+                            <div className="overflow-x-auto">
+                                <table className="w-full text-left text-xs">
+                                    <thead>
+                                        <tr className="bg-black/40 text-gray-400 border-b border-white/10 font-mono uppercase text-[10px]">
+                                            <th className="px-4 py-3.5">Waktu Payout</th>
+                                            <th className="px-4 py-3.5">Penerima Komisi (Upline)</th>
+                                            <th className="px-4 py-3.5">Sumber Transaksi (Downline)</th>
+                                            <th className="px-4 py-3.5">Layanan</th>
+                                            <th className="px-4 py-3.5 text-center">Generasi</th>
+                                            <th className="px-4 py-3.5 text-center">Rate (%)</th>
+                                            <th className="px-4 py-3.5 text-right">Payout Komisi</th>
+                                            <th className="px-4 py-3.5 text-center">Status</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody className="divide-y divide-white/5">
+                                        {recentCommissions.length === 0 ? (
+                                            <tr>
+                                                <td colSpan={8} className="px-4 py-12 text-center text-gray-500">
+                                                    Belum ada komisi afiliasi yang didistribusikan.
+                                                </td>
+                                            </tr>
+                                        ) : (
+                                            recentCommissions.map((comm) => (
+                                                <tr key={comm.id} className="hover:bg-white/[0.02] transition-colors">
+                                                    <td className="px-4 py-3.5 font-mono text-[11px] text-gray-400">
+                                                        {formatDate(comm.created_at)}
+                                                    </td>
+                                                    <td className="px-4 py-3.5">
+                                                        <strong className="text-white block">{comm.upline_user?.name || '-'}</strong>
+                                                        <span className="text-[10px] text-gray-400 font-mono">@{comm.upline_user?.username || comm.upline_user?.whatsapp}</span>
+                                                    </td>
+                                                    <td className="px-4 py-3.5">
+                                                        <span className="text-white block">{comm.beneficiary_user?.name || '-'}</span>
+                                                        <span className="text-[10px] text-gray-400 font-mono">@{comm.beneficiary_user?.username}</span>
+                                                    </td>
+                                                    <td className="px-4 py-3.5 font-semibold text-white">
+                                                        {comm.service?.name}
+                                                    </td>
+                                                    <td className="px-4 py-3.5 text-center">
+                                                        <span className="px-2 py-0.5 rounded bg-purple-500/20 text-purple-300 font-mono font-bold text-[10px] border border-purple-500/30">
+                                                            Level {comm.level}
+                                                        </span>
+                                                    </td>
+                                                    <td className="px-4 py-3.5 text-center font-mono font-bold text-purple-300">
+                                                        {comm.percentage}%
+                                                    </td>
+                                                    <td className="px-4 py-3.5 text-right font-mono font-bold text-amber-400">
+                                                        +{Number(comm.amount_gold).toFixed(2)} Emas
+                                                    </td>
+                                                    <td className="px-4 py-3.5 text-center">
+                                                        <span className="px-2 py-0.5 rounded-full text-[10px] font-bold font-mono bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
+                                                            {comm.status}
+                                                        </span>
+                                                    </td>
+                                                </tr>
+                                            ))
+                                        )}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                )}
             </main>
+
+            {/* MODAL: DETAIL RIWAYAT CICILAN */}
+            {selectedOrderModal && (
+                <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm animate-in fade-in duration-200">
+                    <div className="bg-[#121216] border border-white/15 rounded-2xl max-w-lg w-full p-6 shadow-2xl space-y-5">
+                        <div className="flex items-center justify-between border-b border-white/10 pb-3">
+                            <div>
+                                <h3 className="text-sm font-bold text-white flex items-center gap-2">
+                                    <Receipt size={16} className="text-amber-400" />
+                                    Riwayat Pembayaran Cicilan
+                                </h3>
+                                <p className="text-[11px] text-gray-400 font-mono">
+                                    {selectedOrderModal.order_number} ({selectedOrderModal.service?.name})
+                                </p>
+                            </div>
+                            <button
+                                onClick={() => setSelectedOrderModal(null)}
+                                className="w-8 h-8 rounded-full bg-white/5 hover:bg-white/10 text-gray-400 hover:text-white flex items-center justify-center transition-colors cursor-pointer"
+                            >
+                                <X size={16} />
+                            </button>
+                        </div>
+
+                        <div className="p-3.5 bg-black/40 border border-white/5 rounded-xl grid grid-cols-2 gap-3 text-xs">
+                            <div>
+                                <span className="text-[10px] uppercase font-mono text-gray-500 block">Peserta</span>
+                                <strong className="text-white block">{selectedOrderModal.user?.name}</strong>
+                                <span className="text-[10px] text-gray-400 font-mono">+{selectedOrderModal.user?.whatsapp}</span>
+                            </div>
+                            <div className="text-right">
+                                <span className="text-[10px] uppercase font-mono text-gray-500 block">Skema Pembayaran</span>
+                                <span className="font-bold text-amber-400 block font-mono">
+                                    {selectedOrderModal.payment_type === 'INSTALLMENT' ? 'BERTAHAP (CICILAN)' : 'LUNAS PENUH'}
+                                </span>
+                                <span className="text-[10px] font-mono text-emerald-400">
+                                    Status: {selectedOrderModal.status}
+                                </span>
+                            </div>
+                        </div>
+
+                        <div>
+                            <span className="text-xs font-bold text-gray-400 uppercase tracking-wider block mb-2 font-mono">
+                                Daftar Termin Terbayar ({selectedOrderModal.installments?.length || 0})
+                            </span>
+                            <div className="space-y-2 max-h-60 overflow-y-auto pr-1">
+                                {(selectedOrderModal.installments || []).map((inst) => (
+                                    <div
+                                        key={inst.id}
+                                        className="p-3 bg-white/[0.02] border border-white/5 rounded-xl flex items-center justify-between text-xs"
+                                    >
+                                        <div>
+                                            <strong className="text-white block font-mono">Termin #{inst.installment_number}</strong>
+                                            <span className="text-[10px] text-gray-500 font-mono">{formatDate(inst.paid_at)}</span>
+                                        </div>
+                                        <div className="text-right font-mono">
+                                            <strong className="text-amber-400 block font-bold">
+                                                {Number(inst.amount_gold).toLocaleString('id-ID')} Emas
+                                            </strong>
+                                            <span className="text-[10px] text-emerald-400">KOMISI DIBAGIKAN</span>
+                                        </div>
+                                    </div>
+                                ))}
+                            </div>
+                        </div>
+
+                        <div className="pt-2 flex justify-end">
+                            <button
+                                onClick={() => setSelectedOrderModal(null)}
+                                className="px-5 py-2 rounded-xl bg-white/10 hover:bg-white/15 text-white text-xs font-bold transition-all cursor-pointer"
+                            >
+                                Tutup
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
 
             {/* CONSULTATION & Q&A MODAL */}
             {selectedSaudagar && (
@@ -643,7 +1156,7 @@ export default function AdminDashboard({ adminUser, pendingUsers, activeSaudagar
 
                             <button
                                 onClick={() => setSelectedSaudagar(null)}
-                                className="text-gray-400 hover:text-white p-1 rounded-lg hover:bg-white/5 transition-colors"
+                                className="text-gray-400 hover:text-white p-1 rounded-lg hover:bg-white/5 transition-colors cursor-pointer"
                             >
                                 <X size={18} />
                             </button>
@@ -735,7 +1248,7 @@ export default function AdminDashboard({ adminUser, pendingUsers, activeSaudagar
                             <button
                                 type="submit"
                                 disabled={sendingMessage || !replyText.trim()}
-                                className="px-4 py-2.5 rounded-xl bg-amber-500 hover:bg-amber-400 disabled:opacity-40 text-black font-bold text-xs flex items-center gap-1.5 transition-colors shadow-md"
+                                className="px-4 py-2.5 rounded-xl bg-amber-500 hover:bg-amber-400 disabled:opacity-40 text-black font-bold text-xs flex items-center gap-1.5 transition-colors shadow-md cursor-pointer"
                             >
                                 <Send size={14} />
                                 <span>Kirim</span>
