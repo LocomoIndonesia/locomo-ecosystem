@@ -31,7 +31,14 @@ import {
     Calendar,
     Receipt,
     PlusCircle,
-    Edit3
+    Edit3,
+    Compass,
+    Trash2,
+    Plus,
+    ToggleLeft,
+    ToggleRight,
+    Info,
+    Check
 } from 'lucide-react';
 
 interface PendingUser {
@@ -163,6 +170,23 @@ interface CommissionItem {
     };
 }
 
+interface QuestItem {
+    id: string;
+    title: string;
+    description: string;
+    quest_category: 'DEFAULT' | 'TIME_WINDOW' | 'PERSONA_SPECIFIC';
+    time_window?: 'ALL' | 'MORNING' | 'AFTERNOON' | 'EVENING' | 'NIGHT';
+    target_persona?: string;
+    stake_amount_silver: number;
+    reward_amount_gold: number;
+    time_limit_hours: number;
+    min_level: number;
+    is_active: boolean;
+    active_participants_count?: number;
+    total_attempts_count?: number;
+    created_at?: string;
+}
+
 interface AdminDashboardProps {
     adminUser: {
         id: string;
@@ -177,11 +201,13 @@ interface AdminDashboardProps {
     services?: ServiceItem[];
     orders?: OrderItem[];
     recentCommissions?: CommissionItem[];
+    quests?: QuestItem[];
     stats: {
         pending_count: number;
         active_count: number;
         services_count?: number;
         orders_count?: number;
+        quests_count?: number;
         active_installments?: number;
         total_omzet_gold?: number;
         total_omzet_fiat?: number;
@@ -213,11 +239,33 @@ export default function AdminDashboard({
     services = [],
     orders = [],
     recentCommissions = [],
+    quests = [],
     stats,
 }: AdminDashboardProps) {
-    const [activeTab, setActiveTab] = useState<'pending' | 'active' | 'services' | 'orders' | 'commissions'>('pending');
+    const [activeTab, setActiveTab] = useState<'pending' | 'active' | 'services' | 'orders' | 'commissions' | 'quests'>('pending');
     const [searchQuery, setSearchQuery] = useState('');
     const [processingId, setProcessingId] = useState<string | null>(null);
+
+    // Quests Management State
+    const [questList, setQuestList] = useState<QuestItem[]>(quests);
+    const [selectedQuestCategory, setSelectedQuestCategory] = useState<'ALL' | 'DEFAULT' | 'TIME_WINDOW' | 'PERSONA_SPECIFIC'>('ALL');
+    const [questModalOpen, setQuestModalOpen] = useState(false);
+    const [editingQuest, setEditingQuest] = useState<QuestItem | null>(null);
+    const [deleteQuestConfirm, setDeleteQuestConfirm] = useState<QuestItem | null>(null);
+    const [questSubmitting, setQuestSubmitting] = useState(false);
+    const [questError, setQuestError] = useState<string | null>(null);
+    const [questFormData, setQuestFormData] = useState({
+        title: '',
+        description: '',
+        quest_category: 'DEFAULT' as 'DEFAULT' | 'TIME_WINDOW' | 'PERSONA_SPECIFIC',
+        time_window: 'ALL' as 'ALL' | 'MORNING' | 'AFTERNOON' | 'EVENING' | 'NIGHT',
+        target_persona: 'ALL',
+        stake_amount_silver: 0,
+        reward_amount_gold: 10,
+        time_limit_hours: 24,
+        min_level: 1,
+        is_active: true,
+    });
 
     // Q&A / Consultation Drawer State
     const [selectedSaudagar, setSelectedSaudagar] = useState<ActiveSaudagar | null>(null);
@@ -640,6 +688,23 @@ export default function AdminDashboard({
                                 {recentCommissions.length}
                             </span>
                         </button>
+
+                        <button
+                            onClick={() => setActiveTab('quests')}
+                            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold whitespace-nowrap transition-all ${
+                                activeTab === 'quests'
+                                    ? 'bg-amber-500 text-black shadow-md shadow-amber-500/20 font-bold'
+                                    : 'text-gray-400 hover:text-white'
+                            }`}
+                        >
+                            <Compass size={14} />
+                            <span>Manajemen Misi</span>
+                            <span className={`px-1.5 py-0.2 rounded-full text-[10px] font-bold ${
+                                activeTab === 'quests' ? 'bg-black/30 text-black' : 'bg-amber-500/20 text-amber-300'
+                            }`}>
+                                {questList.length}
+                            </span>
+                        </button>
                     </div>
 
                     {/* Search Field */}
@@ -1056,6 +1121,314 @@ export default function AdminDashboard({
                         </div>
                     </div>
                 )}
+
+                {/* TAB 6: MANAJEMEN MISI PENGGUNA (QUEST CRUD) */}
+                {activeTab === 'quests' && (
+                    <div className="space-y-6">
+                        {/* Header Panel */}
+                        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-[#121216] p-5 rounded-2xl border border-white/10">
+                            <div>
+                                <div className="flex items-center gap-2 mb-1">
+                                    <Compass className="text-amber-400" size={18} />
+                                    <h3 className="text-base font-bold text-white">Pusat Kendali Misi Pengguna (Quest Engine)</h3>
+                                </div>
+                                <p className="text-xs text-gray-400">
+                                    Kelola seluruh misi harian, ekspedisi waktu, dan penugasan persona untuk para saudagar di dashboard pengguna.
+                                </p>
+                            </div>
+
+                            <button
+                                onClick={() => {
+                                    setEditingQuest(null);
+                                    setQuestFormData({
+                                        title: '',
+                                        description: '',
+                                        quest_category: 'DEFAULT',
+                                        time_window: 'ALL',
+                                        target_persona: 'ALL',
+                                        stake_amount_silver: 0,
+                                        reward_amount_gold: 10,
+                                        time_limit_hours: 24,
+                                        min_level: 1,
+                                        is_active: true,
+                                    });
+                                    setQuestError(null);
+                                    setQuestModalOpen(true);
+                                }}
+                                className="px-4 py-2.5 rounded-xl bg-amber-500 hover:bg-amber-400 text-black font-bold text-xs flex items-center justify-center gap-2 transition-all shadow-lg shadow-amber-500/20 cursor-pointer"
+                            >
+                                <Plus size={15} />
+                                <span>+ Buat Misi Baru</span>
+                            </button>
+                        </div>
+
+                        {/* Category Filter Pills */}
+                        <div className="flex items-center gap-2 overflow-x-auto pb-1">
+                            <button
+                                onClick={() => setSelectedQuestCategory('ALL')}
+                                className={`px-3 py-1.5 rounded-lg text-xs font-semibold whitespace-nowrap transition-all ${
+                                    selectedQuestCategory === 'ALL'
+                                        ? 'bg-white/15 text-white border border-white/20'
+                                        : 'bg-[#121216] text-gray-400 hover:text-white border border-white/5'
+                                }`}
+                            >
+                                Semua Misi ({questList.length})
+                            </button>
+                            <button
+                                onClick={() => setSelectedQuestCategory('DEFAULT')}
+                                className={`px-3 py-1.5 rounded-lg text-xs font-semibold whitespace-nowrap transition-all ${
+                                    selectedQuestCategory === 'DEFAULT'
+                                        ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/40'
+                                        : 'bg-[#121216] text-gray-400 hover:text-white border border-white/5'
+                                }`}
+                            >
+                                Tugas Default ({questList.filter(q => q.quest_category === 'DEFAULT').length})
+                            </button>
+                            <button
+                                onClick={() => setSelectedQuestCategory('TIME_WINDOW')}
+                                className={`px-3 py-1.5 rounded-lg text-xs font-semibold whitespace-nowrap transition-all ${
+                                    selectedQuestCategory === 'TIME_WINDOW'
+                                        ? 'bg-amber-500/20 text-amber-300 border border-amber-500/40'
+                                        : 'bg-[#121216] text-gray-400 hover:text-white border border-white/5'
+                                }`}
+                            >
+                                Horizon Waktu ({questList.filter(q => q.quest_category === 'TIME_WINDOW').length})
+                            </button>
+                            <button
+                                onClick={() => setSelectedQuestCategory('PERSONA_SPECIFIC')}
+                                className={`px-3 py-1.5 rounded-lg text-xs font-semibold whitespace-nowrap transition-all ${
+                                    selectedQuestCategory === 'PERSONA_SPECIFIC'
+                                        ? 'bg-purple-500/20 text-purple-300 border border-purple-500/40'
+                                        : 'bg-[#121216] text-gray-400 hover:text-white border border-white/5'
+                                }`}
+                            >
+                                Spesifik Persona ({questList.filter(q => q.quest_category === 'PERSONA_SPECIFIC').length})
+                            </button>
+                        </div>
+
+                        {/* Quests Grid */}
+                        {questList
+                            .filter(q => {
+                                const matchesCategory = selectedQuestCategory === 'ALL' || q.quest_category === selectedQuestCategory;
+                                const matchesSearch = !searchQuery || 
+                                    q.title.toLowerCase().includes(searchQuery.toLowerCase()) || 
+                                    q.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                                    (q.target_persona && q.target_persona.toLowerCase().includes(searchQuery.toLowerCase()));
+                                return matchesCategory && matchesSearch;
+                            }).length === 0 ? (
+                            <div className="bg-[#121216] rounded-2xl border border-white/10 p-12 text-center">
+                                <Compass className="mx-auto text-gray-600 mb-3" size={36} />
+                                <h4 className="text-sm font-bold text-white mb-1">Tidak Ada Misi Ditemukan</h4>
+                                <p className="text-xs text-gray-400 max-w-sm mx-auto">
+                                    Belum ada misi yang terdaftar sesuai filter kategori atau kata kunci pencarian Anda.
+                                </p>
+                            </div>
+                        ) : (
+                            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                                {questList
+                                    .filter(q => {
+                                        const matchesCategory = selectedQuestCategory === 'ALL' || q.quest_category === selectedQuestCategory;
+                                        const matchesSearch = !searchQuery || 
+                                            q.title.toLowerCase().includes(searchQuery.toLowerCase()) || 
+                                            q.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                                            (q.target_persona && q.target_persona.toLowerCase().includes(searchQuery.toLowerCase()));
+                                        return matchesCategory && matchesSearch;
+                                    })
+                                    .map(q => {
+                                        const isActivelyWorking = (q.active_participants_count || 0) > 0;
+                                        return (
+                                            <div
+                                                key={q.id}
+                                                className={`p-5 rounded-2xl border transition-all flex flex-col justify-between ${
+                                                    q.is_active 
+                                                        ? 'bg-[#121216] border-white/10 hover:border-amber-500/40 shadow-lg shadow-black/40' 
+                                                        : 'bg-[#0f0f13] border-white/5 opacity-70'
+                                                }`}
+                                            >
+                                                <div>
+                                                    {/* Top Badges */}
+                                                    <div className="flex items-center justify-between gap-2 mb-3">
+                                                        <div className="flex items-center gap-1.5 flex-wrap">
+                                                            <span className={`text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded border ${
+                                                                q.quest_category === 'DEFAULT'
+                                                                    ? 'bg-blue-500/10 text-blue-300 border-blue-500/30'
+                                                                    : q.quest_category === 'TIME_WINDOW'
+                                                                    ? 'bg-amber-500/10 text-amber-300 border-amber-500/30'
+                                                                    : 'bg-purple-500/10 text-purple-300 border-purple-500/30'
+                                                            }`}>
+                                                                {q.quest_category === 'DEFAULT' ? 'TUGAS HARIAN' : q.quest_category === 'TIME_WINDOW' ? `WAKTU: ${q.time_window}` : `PERSONA: ${q.target_persona}`}
+                                                            </span>
+
+                                                            <span className="text-[10px] font-mono px-1.5 py-0.5 rounded bg-white/5 border border-white/10 text-gray-400">
+                                                                Min. Lv.{q.min_level || 1}
+                                                            </span>
+                                                        </div>
+
+                                                        {/* Status Chip */}
+                                                        <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full border ${
+                                                            q.is_active
+                                                                ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/30'
+                                                                : 'bg-gray-800 text-gray-400 border-gray-700'
+                                                        }`}>
+                                                            {q.is_active ? 'AKTIF' : 'NONAKTIF'}
+                                                        </span>
+                                                    </div>
+
+                                                    {/* Title & Description */}
+                                                    <h4 className="font-bold text-sm text-white leading-snug mb-1">
+                                                        {q.title}
+                                                    </h4>
+                                                    <p className="text-xs text-gray-400 line-clamp-2 leading-relaxed mb-4">
+                                                        {q.description}
+                                                    </p>
+
+                                                    {/* Parameters Box */}
+                                                    <div className="grid grid-cols-2 gap-2 p-3 rounded-xl bg-black/40 border border-white/5 text-xs mb-4">
+                                                        <div>
+                                                            <span className="text-[10px] text-gray-500 block uppercase tracking-wider">Stake Perak</span>
+                                                            <strong className="text-slate-200 font-mono text-xs">
+                                                                {q.stake_amount_silver > 0 ? `${Number(q.stake_amount_silver).toLocaleString('id-ID')} P` : 'Tanpa Stake'}
+                                                            </strong>
+                                                        </div>
+                                                        <div>
+                                                            <span className="text-[10px] text-gray-500 block uppercase tracking-wider">Hadiah Emas</span>
+                                                            <strong className="text-amber-400 font-mono text-xs">
+                                                                +{q.reward_amount_gold} Emas
+                                                            </strong>
+                                                        </div>
+                                                        <div>
+                                                            <span className="text-[10px] text-gray-500 block uppercase tracking-wider">Limit Durasi</span>
+                                                            <span className="text-gray-300 font-mono text-xs">
+                                                                {q.time_limit_hours} Jam
+                                                            </span>
+                                                        </div>
+                                                        <div>
+                                                            <span className="text-[10px] text-gray-500 block uppercase tracking-wider">Riwayat</span>
+                                                            <span className="text-gray-300 font-mono text-xs">
+                                                                {q.total_attempts_count || 0}x Diambil
+                                                            </span>
+                                                        </div>
+                                                    </div>
+                                                </div>
+
+                                                <div>
+                                                    {/* Active Participants Alert Chip */}
+                                                    <div className="mb-4">
+                                                        {isActivelyWorking ? (
+                                                            <div className="px-3 py-1.5 rounded-xl bg-amber-500/15 border border-amber-500/30 flex items-center justify-between text-xs animate-pulse">
+                                                                <span className="flex items-center gap-1.5 text-amber-300 font-bold text-[11px]">
+                                                                    <Flame size={13} className="text-amber-400" />
+                                                                    <span>{q.active_participants_count} Pengguna Aktif</span>
+                                                                </span>
+                                                                <span className="text-[10px] text-amber-400/80 uppercase font-mono">Sedang Berjalan</span>
+                                                            </div>
+                                                        ) : (
+                                                            <div className="px-3 py-1.5 rounded-xl bg-white/5 border border-white/5 flex items-center justify-between text-xs text-gray-500">
+                                                                <span className="text-[11px]">0 Peserta Aktif</span>
+                                                                <span className="text-[10px] text-emerald-400/70">Aman Dihapus</span>
+                                                            </div>
+                                                        )}
+                                                    </div>
+
+                                                    {/* Actions Row */}
+                                                    <div className="flex items-center justify-between pt-3 border-t border-white/10 gap-2">
+                                                        <button
+                                                            onClick={async () => {
+                                                                const newStatus = !q.is_active;
+                                                                try {
+                                                                    const res = await fetch(`/admin/quests/${q.id}`, {
+                                                                        method: 'PUT',
+                                                                        headers: {
+                                                                            'Content-Type': 'application/json',
+                                                                            'Accept': 'application/json',
+                                                                            'X-CSRF-TOKEN': (document.querySelector('meta[name="csrf-token"]') as HTMLMetaElement)?.content || '',
+                                                                        },
+                                                                        body: JSON.stringify({
+                                                                            title: q.title,
+                                                                            description: q.description,
+                                                                            quest_category: q.quest_category,
+                                                                            time_window: q.time_window || 'ALL',
+                                                                            target_persona: q.target_persona || 'ALL',
+                                                                            stake_amount_silver: q.stake_amount_silver,
+                                                                            reward_amount_gold: q.reward_amount_gold,
+                                                                            time_limit_hours: q.time_limit_hours,
+                                                                            min_level: q.min_level || 1,
+                                                                            is_active: newStatus,
+                                                                        }),
+                                                                    });
+                                                                    const data = await res.json();
+                                                                    if (res.ok && data.success) {
+                                                                        setQuestList(prev => prev.map(item => item.id === q.id ? { ...item, is_active: newStatus } : item));
+                                                                    }
+                                                                } catch (err) {
+                                                                    console.error(err);
+                                                                }
+                                                            }}
+                                                            className={`px-2.5 py-1.5 rounded-lg text-xs font-semibold flex items-center gap-1 transition-all ${
+                                                                q.is_active 
+                                                                    ? 'bg-emerald-500/15 hover:bg-emerald-500/25 text-emerald-300 border border-emerald-500/30'
+                                                                    : 'bg-white/5 hover:bg-white/10 text-gray-400 border border-white/10'
+                                                            }`}
+                                                            title={q.is_active ? 'Klik untuk nonaktifkan' : 'Klik untuk aktifkan'}
+                                                        >
+                                                            {q.is_active ? <Check size={13} /> : <X size={13} />}
+                                                            <span>{q.is_active ? 'Aktif' : 'Mati'}</span>
+                                                        </button>
+
+                                                        <div className="flex items-center gap-1.5">
+                                                            <button
+                                                                onClick={() => {
+                                                                    setEditingQuest(q);
+                                                                    setQuestFormData({
+                                                                        title: q.title,
+                                                                        description: q.description,
+                                                                        quest_category: q.quest_category,
+                                                                        time_window: q.time_window || 'ALL',
+                                                                        target_persona: q.target_persona || 'ALL',
+                                                                        stake_amount_silver: q.stake_amount_silver,
+                                                                        reward_amount_gold: q.reward_amount_gold,
+                                                                        time_limit_hours: q.time_limit_hours,
+                                                                        min_level: q.min_level || 1,
+                                                                        is_active: q.is_active,
+                                                                    });
+                                                                    setQuestError(null);
+                                                                    setQuestModalOpen(true);
+                                                                }}
+                                                                className="p-1.5 rounded-lg bg-white/5 hover:bg-white/10 text-gray-300 hover:text-white border border-white/10 transition-colors"
+                                                                title="Edit Misi"
+                                                            >
+                                                                <Edit3 size={14} />
+                                                            </button>
+
+                                                            {isActivelyWorking ? (
+                                                                <button
+                                                                    type="button"
+                                                                    onClick={() => alert(`Misi "${q.title}" TIDAK DAPAT DIHAPUS karena saat ini ada ${q.active_participants_count} pengguna yang sedang aktif mengerjakannya. Silakan tunggu hingga ekspedisi selesai atau nonaktifkan misi terlebih dahulu.`)}
+                                                                    className="p-1.5 rounded-lg bg-red-950/20 text-red-500/40 border border-red-900/20 cursor-not-allowed"
+                                                                    title={`Terkunci: Sedang dikerjakan oleh ${q.active_participants_count} pengguna`}
+                                                                >
+                                                                    <Trash2 size={14} />
+                                                                </button>
+                                                            ) : (
+                                                                <button
+                                                                    type="button"
+                                                                    onClick={() => setDeleteQuestConfirm(q)}
+                                                                    className="p-1.5 rounded-lg bg-red-950/30 hover:bg-red-900/50 text-red-300 border border-red-800/40 transition-colors cursor-pointer"
+                                                                    title="Hapus Misi"
+                                                                >
+                                                                    <Trash2 size={14} />
+                                                                </button>
+                                                            )}
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        );
+                                    })}
+                            </div>
+                        )}
+                    </div>
+                )}
             </main>
 
             {/* MODAL: DETAIL RIWAYAT CICILAN */}
@@ -1257,6 +1630,297 @@ export default function AdminDashboard({
                                 <span>Kirim</span>
                             </button>
                         </form>
+                    </div>
+                </div>
+            )}
+            {/* MODAL: CREATE / EDIT QUEST */}
+            {questModalOpen && (
+                <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/85 backdrop-blur-md animate-in fade-in duration-200">
+                    <div className="bg-[#121216] border border-amber-500/40 rounded-2xl w-full max-w-xl max-h-[90vh] flex flex-col shadow-2xl overflow-hidden">
+                        <div className="p-4 border-b border-white/10 flex items-center justify-between bg-[#16161c]">
+                            <div className="flex items-center gap-2">
+                                <Compass className="text-amber-400" size={18} />
+                                <h3 className="font-bold text-sm text-white">
+                                    {editingQuest ? 'Edit Data Misi Pengguna' : 'Tambah Misi Pengguna Baru'}
+                                </h3>
+                            </div>
+                            <button
+                                onClick={() => setQuestModalOpen(false)}
+                                className="text-gray-400 hover:text-white transition-colors"
+                            >
+                                <X size={18} />
+                            </button>
+                        </div>
+
+                        <form
+                            onSubmit={async (e) => {
+                                e.preventDefault();
+                                setQuestSubmitting(true);
+                                setQuestError(null);
+                                try {
+                                    const url = editingQuest ? `/admin/quests/${editingQuest.id}` : '/admin/quests';
+                                    const method = editingQuest ? 'PUT' : 'POST';
+                                    const res = await fetch(url, {
+                                        method,
+                                        headers: {
+                                            'Content-Type': 'application/json',
+                                            'Accept': 'application/json',
+                                            'X-CSRF-TOKEN': (document.querySelector('meta[name="csrf-token"]') as HTMLMetaElement)?.content || '',
+                                        },
+                                        body: JSON.stringify(questFormData),
+                                    });
+                                    const data = await res.json();
+                                    if (res.ok && data.success) {
+                                        if (editingQuest) {
+                                            setQuestList(prev => prev.map(item => item.id === editingQuest.id ? { ...item, ...data.quest } : item));
+                                        } else {
+                                            setQuestList(prev => [data.quest, ...prev]);
+                                        }
+                                        setQuestModalOpen(false);
+                                    } else {
+                                        setQuestError(data.error || data.message || 'Gagal menyimpan misi.');
+                                    }
+                                } catch (err: any) {
+                                    setQuestError('Terjadi kesalahan koneksi.');
+                                } finally {
+                                    setQuestSubmitting(false);
+                                }
+                            }}
+                            className="p-5 space-y-4 overflow-y-auto text-xs"
+                        >
+                            {questError && (
+                                <div className="p-3 rounded-xl bg-red-950/40 border border-red-500/40 text-red-300 text-xs flex items-center gap-2">
+                                    <AlertCircle size={15} />
+                                    <span>{questError}</span>
+                                </div>
+                            )}
+
+                            <div>
+                                <label className="block text-gray-300 font-semibold mb-1">Judul Misi *</label>
+                                <input
+                                    type="text"
+                                    required
+                                    value={questFormData.title}
+                                    onChange={(e) => setQuestFormData({ ...questFormData, title: e.target.value })}
+                                    placeholder="Contoh: Ekspedisi Survei Warung Sembako"
+                                    className="w-full bg-[#0e0e12] border border-white/10 rounded-xl px-3.5 py-2.5 text-white placeholder-gray-500 focus:outline-none focus:border-amber-500"
+                                />
+                            </div>
+
+                            <div>
+                                <label className="block text-gray-300 font-semibold mb-1">Deskripsi & Panduan Misi *</label>
+                                <textarea
+                                    required
+                                    rows={3}
+                                    value={questFormData.description}
+                                    onChange={(e) => setQuestFormData({ ...questFormData, description: e.target.value })}
+                                    placeholder="Jelaskan aktivitas yang perlu diselesaikan oleh saudagar..."
+                                    className="w-full bg-[#0e0e12] border border-white/10 rounded-xl px-3.5 py-2 text-white placeholder-gray-500 focus:outline-none focus:border-amber-500 resize-none"
+                                />
+                            </div>
+
+                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                                <div>
+                                    <label className="block text-gray-300 font-semibold mb-1">Kategori Misi *</label>
+                                    <select
+                                        value={questFormData.quest_category}
+                                        onChange={(e) => setQuestFormData({ ...questFormData, quest_category: e.target.value as any })}
+                                        className="w-full bg-[#0e0e12] border border-white/10 rounded-xl px-3 py-2.5 text-white focus:outline-none focus:border-amber-500"
+                                    >
+                                        <option value="DEFAULT">DEFAULT (Tugas Umum Seluruh Saudagar)</option>
+                                        <option value="TIME_WINDOW">TIME_WINDOW (Horizon Waktu)</option>
+                                        <option value="PERSONA_SPECIFIC">PERSONA_SPECIFIC (Persona Khusus)</option>
+                                    </select>
+                                </div>
+
+                                {questFormData.quest_category === 'TIME_WINDOW' && (
+                                    <div>
+                                        <label className="block text-gray-300 font-semibold mb-1">Horizon Waktu Aktif</label>
+                                        <select
+                                            value={questFormData.time_window}
+                                            onChange={(e) => setQuestFormData({ ...questFormData, time_window: e.target.value as any })}
+                                            className="w-full bg-[#0e0e12] border border-white/10 rounded-xl px-3 py-2.5 text-white focus:outline-none focus:border-amber-500"
+                                        >
+                                            <option value="ALL">Semua Waktu (ALL)</option>
+                                            <option value="MORNING">Fajar / Pagi (MORNING)</option>
+                                            <option value="AFTERNOON">Siang / Panas Terik (AFTERNOON)</option>
+                                            <option value="EVENING">Senja / Menjelang Maghrib (EVENING)</option>
+                                            <option value="NIGHT">Malam / Pasca Isya (NIGHT)</option>
+                                        </select>
+                                    </div>
+                                )}
+
+                                {questFormData.quest_category === 'PERSONA_SPECIFIC' && (
+                                    <div>
+                                        <label className="block text-gray-300 font-semibold mb-1">Target Persona Saudagar</label>
+                                        <input
+                                            type="text"
+                                            value={questFormData.target_persona}
+                                            onChange={(e) => setQuestFormData({ ...questFormData, target_persona: e.target.value })}
+                                            placeholder="Contoh: UMKM, TRADER, AGEN, KARAVAN"
+                                            className="w-full bg-[#0e0e12] border border-white/10 rounded-xl px-3 py-2.5 text-white focus:outline-none focus:border-amber-500"
+                                        />
+                                    </div>
+                                )}
+                            </div>
+
+                            <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                                <div>
+                                    <label className="block text-gray-300 font-semibold mb-1">Stake Perak</label>
+                                    <input
+                                        type="number"
+                                        min="0"
+                                        value={questFormData.stake_amount_silver}
+                                        onChange={(e) => setQuestFormData({ ...questFormData, stake_amount_silver: Number(e.target.value) })}
+                                        className="w-full bg-[#0e0e12] border border-white/10 rounded-xl px-3 py-2 text-white font-mono"
+                                    />
+                                    <span className="text-[10px] text-gray-500">0 = Gratis</span>
+                                </div>
+
+                                <div>
+                                    <label className="block text-gray-300 font-semibold mb-1">Reward Emas *</label>
+                                    <input
+                                        type="number"
+                                        min="1"
+                                        required
+                                        value={questFormData.reward_amount_gold}
+                                        onChange={(e) => setQuestFormData({ ...questFormData, reward_amount_gold: Number(e.target.value) })}
+                                        className="w-full bg-[#0e0e12] border border-white/10 rounded-xl px-3 py-2 text-amber-300 font-mono font-bold"
+                                    />
+                                </div>
+
+                                <div>
+                                    <label className="block text-gray-300 font-semibold mb-1">Batas Waktu *</label>
+                                    <input
+                                        type="number"
+                                        min="1"
+                                        max="720"
+                                        required
+                                        value={questFormData.time_limit_hours}
+                                        onChange={(e) => setQuestFormData({ ...questFormData, time_limit_hours: Number(e.target.value) })}
+                                        className="w-full bg-[#0e0e12] border border-white/10 rounded-xl px-3 py-2 text-white font-mono"
+                                    />
+                                    <span className="text-[10px] text-gray-500">Dalam Jam</span>
+                                </div>
+
+                                <div>
+                                    <label className="block text-gray-300 font-semibold mb-1">Min. Level</label>
+                                    <input
+                                        type="number"
+                                        min="1"
+                                        value={questFormData.min_level}
+                                        onChange={(e) => setQuestFormData({ ...questFormData, min_level: Number(e.target.value) })}
+                                        className="w-full bg-[#0e0e12] border border-white/10 rounded-xl px-3 py-2 text-white font-mono"
+                                    />
+                                </div>
+                            </div>
+
+                            <div className="pt-2">
+                                <label className="flex items-center gap-2 text-gray-300 cursor-pointer">
+                                    <input
+                                        type="checkbox"
+                                        checked={questFormData.is_active}
+                                        onChange={(e) => setQuestFormData({ ...questFormData, is_active: e.target.checked })}
+                                        className="rounded border-gray-700 text-amber-500 focus:ring-amber-500"
+                                    />
+                                    <span>Aktifkan misi ini di dashboard pengguna sekarang</span>
+                                </label>
+                            </div>
+
+                            <div className="pt-3 border-t border-white/10 flex items-center justify-end gap-2.5">
+                                <button
+                                    type="button"
+                                    onClick={() => setQuestModalOpen(false)}
+                                    disabled={questSubmitting}
+                                    className="px-4 py-2 rounded-xl bg-white/5 hover:bg-white/10 text-gray-300 text-xs"
+                                >
+                                    Batal
+                                </button>
+                                <button
+                                    type="submit"
+                                    disabled={questSubmitting}
+                                    className="px-5 py-2 rounded-xl bg-amber-500 hover:bg-amber-400 text-black font-bold text-xs flex items-center gap-1.5 transition-colors shadow"
+                                >
+                                    {questSubmitting && <RefreshCw size={13} className="animate-spin" />}
+                                    <span>{editingQuest ? 'Simpan Perubahan' : 'Buat Misi'}</span>
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            )}
+
+            {/* MODAL: DELETE QUEST CONFIRMATION */}
+            {deleteQuestConfirm && (
+                <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/85 backdrop-blur-md animate-in fade-in duration-200">
+                    <div className="bg-[#121216] border border-red-500/40 rounded-2xl w-full max-w-md p-6 space-y-4 shadow-2xl">
+                        <div className="flex items-center gap-2.5 text-red-400">
+                            <AlertCircle size={20} />
+                            <h3 className="font-bold text-sm text-white">Konfirmasi Penghapusan Misi</h3>
+                        </div>
+
+                        {(deleteQuestConfirm.active_participants_count || 0) > 0 ? (
+                            <div className="p-3.5 rounded-xl bg-red-950/40 border border-red-500/40 text-red-300 text-xs space-y-2">
+                                <strong className="block text-red-200">⚠️ PENGHAPUSAN DIBLOKIR SISTEM</strong>
+                                <p className="leading-relaxed">
+                                    Misi <strong>"{deleteQuestConfirm.title}"</strong> saat ini sedang dikerjakan secara aktif oleh{' '}
+                                    <strong className="underline text-amber-300 font-mono">{deleteQuestConfirm.active_participants_count} pengguna</strong>!
+                                </p>
+                                <p className="text-[11px] text-red-400">
+                                    Sistem melarang penghapusan misi yang sedang berjalan demi integritas koin komitmen escrow pengguna. Harap tunggu hingga ekspedisi berakhir atau nonaktifkan misi terlebih dahulu.
+                                </p>
+                            </div>
+                        ) : (
+                            <p className="text-xs text-gray-300 leading-relaxed">
+                                Apakah Anda yakin ingin menghapus misi <strong>"{deleteQuestConfirm.title}"</strong> secara permanen?
+                                Misi ini tidak memiliki peserta aktif saat ini dan aman untuk dihapus.
+                            </p>
+                        )}
+
+                        <div className="flex items-center justify-end gap-2.5 pt-2">
+                            <button
+                                type="button"
+                                onClick={() => setDeleteQuestConfirm(null)}
+                                disabled={questSubmitting}
+                                className="px-4 py-2 rounded-xl bg-white/5 hover:bg-white/10 text-gray-300 text-xs"
+                            >
+                                Batal
+                            </button>
+
+                            {(deleteQuestConfirm.active_participants_count || 0) === 0 && (
+                                <button
+                                    type="button"
+                                    disabled={questSubmitting}
+                                    onClick={async () => {
+                                        setQuestSubmitting(true);
+                                        try {
+                                            const res = await fetch(`/admin/quests/${deleteQuestConfirm.id}`, {
+                                                method: 'DELETE',
+                                                headers: {
+                                                    'Accept': 'application/json',
+                                                    'X-CSRF-TOKEN': (document.querySelector('meta[name="csrf-token"]') as HTMLMetaElement)?.content || '',
+                                                },
+                                            });
+                                            const data = await res.json();
+                                            if (res.ok && data.success) {
+                                                setQuestList(prev => prev.filter(item => item.id !== deleteQuestConfirm.id));
+                                                setDeleteQuestConfirm(null);
+                                            } else {
+                                                alert(data.error || 'Gagal menghapus misi.');
+                                            }
+                                        } catch (err) {
+                                            alert('Terjadi kesalahan koneksi.');
+                                        } finally {
+                                            setQuestSubmitting(false);
+                                        }
+                                    }}
+                                    className="px-5 py-2 rounded-xl bg-red-600 hover:bg-red-500 text-white font-bold text-xs flex items-center gap-1.5 transition-colors shadow-lg shadow-red-600/20"
+                                >
+                                    {questSubmitting && <RefreshCw size={13} className="animate-spin" />}
+                                    <span>Hapus Permanen</span>
+                                </button>
+                            )}
+                        </div>
                     </div>
                 </div>
             )}

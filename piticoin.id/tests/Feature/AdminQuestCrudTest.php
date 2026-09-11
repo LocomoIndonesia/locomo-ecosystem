@@ -7,12 +7,12 @@ use App\Models\Wallet;
 use App\Models\Quest;
 use App\Models\EscrowTransaction;
 use Carbon\Carbon;
-use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Foundation\Testing\DatabaseTransactions;
 use Tests\TestCase;
 
 class AdminQuestCrudTest extends TestCase
 {
-    use RefreshDatabase;
+    use DatabaseTransactions;
 
     protected function setUp(): void
     {
