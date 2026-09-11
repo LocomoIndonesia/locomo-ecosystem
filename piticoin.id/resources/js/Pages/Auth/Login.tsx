@@ -42,11 +42,11 @@ export default function Login({ status }: { status?: string }) {
             )}
 
             <form onSubmit={submit} className="flex flex-col gap-4">
-                {/* Input: WhatsApp */}
+                {/* Input: WhatsApp or Username */}
                 <div className="flex flex-col gap-2">
                     <label htmlFor="whatsapp" className="font-label-sm text-[11px] text-primary font-bold tracking-widest uppercase flex items-center gap-1.5">
                         <Phone size={14} className="text-primary-container" />
-                        Nomor WhatsApp
+                        Nomor WhatsApp / Username
                     </label>
                     <div className="relative flex items-center bg-[#0c0c0c] border border-glass-stroke rounded-lg focus-within:border-primary-container focus-within:shadow-[0_0_12px_rgba(255,215,0,0.15)] transition-all duration-300 shadow-[inset_2px_2px_5px_rgba(0,0,0,0.7),inset_-1px_-1px_3px_rgba(255,255,255,0.05)] overflow-hidden">
                         <input
@@ -58,7 +58,7 @@ export default function Login({ status }: { status?: string }) {
                             autoComplete="username"
                             required
                             onChange={(e) => setData('whatsapp', e.target.value)}
-                            placeholder="Contoh: 08123456782"
+                            placeholder="Contoh: owner.locomo atau 08123456782"
                         />
                     </div>
                     <InputError message={errors.whatsapp} className="mt-1 text-xs text-error font-semibold" />

@@ -42,11 +42,21 @@ class LoginRequest extends FormRequest
     {
         $this->ensureIsNotRateLimited();
 
-        $identifier = $this->input('whatsapp');
-        $password = $this->input('password');
+        $rawIdentifier = (string) $this->input('whatsapp');
+        $identifier = trim($rawIdentifier);
+        $cleanUsername = ltrim($identifier, '@');
+        $cleanPhone = preg_replace('/[^0-9]/', '', $identifier);
+        $password = (string) $this->input('password');
 
-        $user = \App\Models\User::where('whatsapp', $identifier)
-            ->orWhere('username', $identifier)
+        $user = \App\Models\User::query()
+            ->where(function ($query) use ($identifier, $cleanUsername, $cleanPhone) {
+                $query->whereRaw('LOWER(username) = ?', [strtolower($cleanUsername)])
+                    ->orWhere('whatsapp', $identifier);
+                if (!empty($cleanPhone)) {
+                    $query->orWhere('whatsapp', $cleanPhone)
+                          ->orWhere('whatsapp', 'like', '%' . substr($cleanPhone, -9));
+                }
+            })
             ->first();
 
         if (! $user || ! \Illuminate\Support\Facades\Hash::check($password, $user->password)) {
