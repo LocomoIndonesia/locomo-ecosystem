@@ -121,6 +121,16 @@ class DashboardController extends Controller
             ->take(50)
             ->get();
 
+        $ecosystemServices = \App\Models\EcosystemService::where('is_active', true)
+            ->orderBy('created_at', 'asc')
+            ->get();
+
+        $myLicenses = \App\Models\ServiceLicense::where('user_id', $user->id)
+            ->orWhere('registered_by_id', $user->id)
+            ->with('service')
+            ->orderBy('created_at', 'desc')
+            ->get();
+
         $props = [
             'user' => $userData,
             'wallet' => $userWithWallet->wallet,
@@ -135,6 +145,8 @@ class DashboardController extends Controller
             ],
             'passive_income' => $passiveIncome,
             'ledger_entries' => $ledgerEntries,
+            'ecosystem_services' => $ecosystemServices,
+            'my_licenses' => $myLicenses,
         ];
 
         if ($userWithWallet->license_status !== 'ACTIVE') {

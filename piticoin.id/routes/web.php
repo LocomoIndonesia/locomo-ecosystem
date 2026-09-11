@@ -60,6 +60,11 @@ Route::middleware('auth')->group(function () {
     Route::post('/api/pos/close-register', [\App\Http\Controllers\PosController::class, 'closeRegister'])->name('pos.close-register');
     Route::post('/api/user/switch-persona', [\App\Http\Controllers\PosController::class, 'switchPersona'])->name('user.switch-persona');
     Route::post('/api/user/upgrade-license', [\App\Http\Controllers\PosController::class, 'upgradeLicense'])->name('user.upgrade-license');
+
+    // Locomo Ecosystem Service Hub & Dynamic Onboarding Wizard
+    Route::post('/api/services/check-beneficiary', [\App\Http\Controllers\ServiceHubController::class, 'checkBeneficiary'])->name('services.check-beneficiary');
+    Route::get('/services/{code}/onboard', [\App\Http\Controllers\ServiceHubController::class, 'showOnboard'])->name('services.onboard');
+    Route::post('/services/{code}/submit', [\App\Http\Controllers\ServiceHubController::class, 'submitOnboard'])->name('services.submit');
 });
 
 // APIs that bypass auth middleware (with their own internal keys or mock triggers)
