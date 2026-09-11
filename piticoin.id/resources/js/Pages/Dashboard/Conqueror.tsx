@@ -94,7 +94,7 @@ export default function Conqueror({
     const [now, setNow] = useState(new Date());
     const [isMounted, setIsMounted] = useState(false);
     const [isScrolled, setIsScrolled] = useState(false);
-    const [activeTab, setActiveTab] = useState<'QUESTS' | 'NETWORK' | 'BUSINESS' | 'MARKET'>('QUESTS');
+    const [activeTab, setActiveTab] = useState<'QUESTS' | 'NETWORK' | 'MARKET'>('QUESTS');
 
     // Live state
     const [wallet, setWallet] = useState(initialWallet);
@@ -111,25 +111,8 @@ export default function Conqueror({
     const [showSurveyModal, setShowSurveyModal] = useState(false);
     const [agentMission, setAgentMission] = useState<any>(null);
 
-    // Business POS State
-    const [posSummary, setPosSummary] = useState({
-        total_sales: 450000,
-        transaction_count: 12,
-        gross_profit: 135000,
-        is_closed: false,
-        recent_transactions: [
-            { id: 'TRX-9481', time: '11:42 WIB', item: 'Kopi Susu Gula Aren Minang', qty: 2, amount: 36000, method: 'QRIS' },
-            { id: 'TRX-7214', time: '10:15 WIB', item: 'Nasi Kapau Rendang Spesial', qty: 1, amount: 28000, method: 'TUNAI' },
-            { id: 'TRX-3109', time: '09:05 WIB', item: 'Teh Talua Jahe Gula Merah', qty: 3, amount: 45000, method: 'TUNAI' },
-        ],
-    });
-    const [posForm, setPosForm] = useState({
-        item: '',
-        qty: 1,
-        amount: 25000,
-        method: 'QRIS',
-    });
-
+    // Business POS State removed as PitiCoin acts as Hub only
+    
     // Survey lead state
     const [surveyData, setSurveyData] = useState({
         business_name: '',
@@ -159,7 +142,7 @@ export default function Conqueror({
         return () => clearInterval(interval);
     }, []);
 
-    // Fetch active agent mission & POS summary
+    // Fetch active agent mission
     useEffect(() => {
         fetch('/api/agent-missions/active')
             .then(res => res.json())
@@ -169,15 +152,6 @@ export default function Conqueror({
                 }
             })
             .catch(err => console.error("Error fetching agent mission:", err));
-
-        fetch('/api/pos/summary')
-            .then(res => res.json())
-            .then(data => {
-                if (data.success && data.summary) {
-                    setPosSummary(data.summary);
-                }
-            })
-            .catch(err => console.error("Error fetching POS summary:", err));
     }, []);
 
     // Animated fiat counter
@@ -312,63 +286,7 @@ export default function Conqueror({
         });
     };
 
-    // Quick POS Sale Record Handler
-    const handleRecordSale = async (e: React.FormEvent) => {
-        e.preventDefault();
-        setLoading(true);
-        try {
-            const res = await fetch('/api/pos/transaction', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-CSRF-TOKEN': (document.querySelector('meta[name="csrf-token"]') as HTMLMetaElement)?.content || ''
-                },
-                body: JSON.stringify(posForm)
-            });
-            const data = await res.json();
-            if (data.success) {
-                setPosSummary(data.summary);
-                setShowPosModal(false);
-                setPosForm({ item: '', qty: 1, amount: 25000, method: 'QRIS' });
-                showMsg(data.message);
-            } else {
-                showMsg(data.message || 'Gagal mencatat transaksi kasir', 'error');
-            }
-        } catch (err) {
-            showMsg('Terjadi gangguan server.', 'error');
-        } finally {
-            setLoading(false);
-        }
-    };
-
-    // Close Register Handler
-    const handleCloseRegister = async () => {
-        if (!confirm('Apakah Anda yakin ingin melakukan Tutup Buku Kasir untuk hari ini?')) return;
-        setLoading(true);
-        try {
-            const res = await fetch('/api/pos/close-register', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-CSRF-TOKEN': (document.querySelector('meta[name="csrf-token"]') as HTMLMetaElement)?.content || ''
-                }
-            });
-            const data = await res.json();
-            if (data.success) {
-                setPosSummary(data.summary);
-                if (wallet) {
-                    setWallet({ ...wallet, silver_balance: wallet.silver_balance + 500 });
-                }
-                showMsg(data.message);
-            } else {
-                showMsg(data.message || 'Gagal menutup buku kasir', 'error');
-            }
-        } catch (err) {
-            showMsg('Koneksi terputus.', 'error');
-        } finally {
-            setLoading(false);
-        }
-    };
+    // Quick POS Sale Record Handler & Close Register Handler removed
 
     // Upgrade License Handler
     const handleUpgradeLicense = async (targetTier: string, method: string) => {
@@ -576,32 +494,7 @@ export default function Conqueror({
                     )}
                 </section>
 
-                {/* ========================================================= */}
-                {/* 4. PERSONA SWITCHER QUICK BAR (MULTI-ROLE ADAPTATION)     */}
-                {/* ========================================================= */}
-                <div className="w-full bg-surface-container-lowest/60 border border-glass-stroke rounded-xl p-1.5 flex items-center justify-between gap-1 overflow-x-auto text-[11px] font-bold">
-                    <span className="text-on-surface-variant text-[10px] uppercase pl-2 pr-1 tracking-wider whitespace-nowrap">Peran:</span>
-                    {[
-                        { id: 'UMKM', label: 'UMKM / Bisnis', icon: 'storefront' },
-                        { id: 'PEMUDA', label: 'Pemuda / Agen', icon: 'hub' },
-                        { id: 'GURU', label: 'Guru / Tutor', icon: 'school' },
-                        { id: 'PELAJAR', label: 'Pelajar / Siswa', icon: 'local_library' },
-                    ].map((p) => (
-                        <button
-                            key={p.id}
-                            onClick={() => handleSwitchPersona(p.id)}
-                            disabled={loading}
-                            className={`flex-1 min-w-[95px] py-1.5 px-2 rounded-lg flex items-center justify-center gap-1.5 transition-all ${
-                                activePersona === p.id
-                                    ? 'bg-primary-container text-on-primary shadow-[0_0_10px_rgba(255,215,0,0.4)]'
-                                    : 'text-on-surface-variant hover:text-on-surface hover:bg-white/5'
-                            }`}
-                        >
-                            <span className="material-symbols-outlined text-[13px]">{p.icon}</span>
-                            <span className="whitespace-nowrap">{p.label}</span>
-                        </button>
-                    ))}
-                </div>
+                {/* Persona Switcher Removed: Users do not change personas arbitrarily */}
 
                 {/* ========================================================= */}
                 {/* 5. MANDATORY DAILY CHECK-IN: KOMPAS PETUALANGAN           */}
@@ -685,8 +578,7 @@ export default function Conqueror({
                     {[
                         { id: 'QUESTS', label: 'Misi', icon: 'assignment' },
                         { id: 'NETWORK', label: 'Jaringan', icon: 'diversity_3' },
-                        { id: 'BUSINESS', label: 'Bisnis POS', icon: 'point_of_sale' },
-                        { id: 'MARKET', label: 'Pasar', icon: 'storefront' },
+                        { id: 'MARKET', label: 'Gateway & Pasar', icon: 'storefront' },
                     ].map((tab) => (
                         <button
                             key={tab.id}
@@ -950,99 +842,7 @@ export default function Conqueror({
                     </div>
                 )}
 
-                {/* ========================================================= */}
-                {/* TAB CONTENT 3: KELOLA BISNIS & POS KASIR PINTAR           */}
-                {/* ========================================================= */}
-                {activeTab === 'BUSINESS' && (
-                    <div className="space-y-4 animate-fade-in">
-                        {/* Financial Header Widget */}
-                        <div className="glass-panel rounded-2xl p-4 border border-primary-container/30 bg-gradient-to-br from-surface-container-high/30 via-surface/60 to-surface-container-lowest/80 space-y-3">
-                            <div className="flex justify-between items-center border-b border-glass-stroke pb-3">
-                                <div>
-                                    <h3 className="font-bold text-sm text-on-surface flex items-center gap-1.5">
-                                        <span className="material-symbols-outlined text-primary-container text-base">point_of_sale</span>
-                                        Ringkasan Kasir & Omzet Hari Ini
-                                    </h3>
-                                    <p className="text-[11px] text-on-surface-variant">Terhubung dengan Unimart.group Cloud POS</p>
-                                </div>
-                                <span className={`font-mono text-[10px] font-bold px-2 py-0.5 rounded border ${posSummary.is_closed ? 'bg-error/10 text-error border-error/20' : 'bg-secondary/10 text-secondary border-secondary/20'}`}>
-                                    {posSummary.is_closed ? 'TUTUP BUKU' : 'KASIR BUKA'}
-                                </span>
-                            </div>
-
-                            {/* Key Financial Metrics */}
-                            <div className="grid grid-cols-3 gap-2 text-center font-mono">
-                                <div className="bg-surface/50 border border-glass-stroke rounded-xl p-2.5">
-                                    <span className="text-[9px] text-on-surface-variant block uppercase font-sans mb-0.5">Total Omzet</span>
-                                    <strong className="text-xs md:text-sm text-primary-container font-bold">
-                                        {formatRupiah(posSummary.total_sales)}
-                                    </strong>
-                                </div>
-                                <div className="bg-surface/50 border border-glass-stroke rounded-xl p-2.5">
-                                    <span className="text-[9px] text-on-surface-variant block uppercase font-sans mb-0.5">Transaksi</span>
-                                    <strong className="text-xs md:text-sm text-on-surface font-bold">
-                                        {posSummary.transaction_count} Struk
-                                    </strong>
-                                </div>
-                                <div className="bg-surface/50 border border-glass-stroke rounded-xl p-2.5">
-                                    <span className="text-[9px] text-on-surface-variant block uppercase font-sans mb-0.5">Est. Laba</span>
-                                    <strong className="text-xs md:text-sm text-secondary font-bold">
-                                        {formatRupiah(posSummary.gross_profit)}
-                                    </strong>
-                                </div>
-                            </div>
-
-                            {/* Cashier Action Buttons */}
-                            <div className="grid grid-cols-2 gap-2 pt-1">
-                                <button
-                                    onClick={() => setShowPosModal(true)}
-                                    disabled={loading || posSummary.is_closed}
-                                    className="py-2.5 px-3 rounded-xl bg-primary-container text-on-primary font-bold text-xs flex items-center justify-center gap-1.5 hover:scale-105 active:scale-95 transition-transform shadow-[0_0_10px_rgba(255,215,0,0.3)] disabled:opacity-50"
-                                >
-                                    <span className="material-symbols-outlined text-base">add_shopping_cart</span>
-                                    <span>Catat Transaksi Kasir</span>
-                                </button>
-                                <button
-                                    onClick={handleCloseRegister}
-                                    disabled={loading || posSummary.is_closed}
-                                    className="py-2.5 px-3 rounded-xl bg-surface-variant hover:bg-surface-container-highest border border-glass-stroke text-on-surface font-bold text-xs flex items-center justify-center gap-1.5 active:scale-95 transition-all disabled:opacity-50"
-                                >
-                                    <span className="material-symbols-outlined text-base text-secondary">check_circle</span>
-                                    <span>Tutup Buku Kasir</span>
-                                </button>
-                            </div>
-                        </div>
-
-                        {/* Recent Transactions List */}
-                        <div className="glass-panel rounded-xl p-4 border border-glass-stroke space-y-3">
-                            <div className="flex justify-between items-center text-xs">
-                                <span className="font-bold text-on-surface">Transaksi Kasir Terakhir</span>
-                                <a href="http://unimart.localhost" target="_blank" className="text-primary-container hover:underline text-[11px]">
-                                    Buka Unimart POS ↗
-                                </a>
-                            </div>
-
-                            <div className="space-y-2">
-                                {posSummary.recent_transactions.map((trx) => (
-                                    <div key={trx.id} className="bg-surface/40 border border-glass-stroke rounded-lg p-2.5 flex items-center justify-between text-xs">
-                                        <div className="min-w-0 flex-1 pr-2">
-                                            <div className="flex items-center gap-2">
-                                                <span className="font-bold text-on-surface truncate">{trx.item}</span>
-                                                <span className="font-mono text-[9px] px-1.5 py-0.2 bg-white/5 rounded border border-white/10 text-on-surface-variant">
-                                                    x{trx.qty}
-                                                </span>
-                                            </div>
-                                            <span className="text-[10px] text-on-surface-variant font-mono">{trx.time} • {trx.method}</span>
-                                        </div>
-                                        <strong className="font-mono text-primary-container text-xs whitespace-nowrap">
-                                            {formatRupiah(trx.amount)}
-                                        </strong>
-                                    </div>
-                                ))}
-                            </div>
-                        </div>
-                    </div>
-                )}
+                {/* TAB CONTENT 3: KELOLA BISNIS & POS KASIR PINTAR REMOVED */}
 
                 {/* ========================================================= */}
                 {/* TAB CONTENT 4: PASAR, GAME & LAYANAN BERLANGGANAN         */}
@@ -1141,13 +941,13 @@ export default function Conqueror({
                 </button>
 
                 <button
-                    onClick={() => setActiveTab('BUSINESS')}
+                    onClick={() => setActiveTab('MARKET')}
                     className={`flex flex-col items-center justify-center transition-all ${
-                        activeTab === 'BUSINESS' ? 'text-primary-container scale-105 font-bold' : 'text-on-surface-variant/70 hover:text-on-surface'
+                        activeTab === 'MARKET' ? 'text-primary-container scale-105 font-bold' : 'text-on-surface-variant/70 hover:text-on-surface'
                     }`}
                 >
-                    <span className="material-symbols-outlined mb-0.5 text-xl" style={{ fontVariationSettings: "'FILL' 1" }}>point_of_sale</span>
-                    <span>Bisnis</span>
+                    <span className="material-symbols-outlined mb-0.5 text-xl" style={{ fontVariationSettings: "'FILL' 1" }}>storefront</span>
+                    <span>Layanan</span>
                 </button>
 
                 <button
@@ -1161,85 +961,7 @@ export default function Conqueror({
                 </button>
             </nav>
 
-            {/* ========================================================= */}
-            {/* 8. MODAL: CATAT TRANSAKSI KASIR CEPAT (POS)               */}
-            {/* ========================================================= */}
-            {showPosModal && (
-                <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-md flex items-center justify-center p-4">
-                    <div className="glass-panel w-full max-w-sm rounded-2xl overflow-hidden border border-glass-stroke shadow-2xl p-5 space-y-4 animate-fade-in">
-                        <div className="flex justify-between items-center border-b border-glass-stroke pb-3">
-                            <h3 className="font-bold text-sm text-primary-container flex items-center gap-2">
-                                <span className="material-symbols-outlined text-base">point_of_sale</span>
-                                Catat Transaksi Kasir POS
-                            </h3>
-                            <button onClick={() => setShowPosModal(false)} className="text-on-surface-variant hover:text-white">
-                                <span className="material-symbols-outlined text-lg">close</span>
-                            </button>
-                        </div>
-
-                        <form onSubmit={handleRecordSale} className="space-y-3 text-xs">
-                            <div className="space-y-1">
-                                <label className="text-on-surface-variant uppercase font-bold text-[10px]">Nama Produk / Pesanan</label>
-                                <input
-                                    type="text"
-                                    required
-                                    placeholder="Contoh: Kopi Susu Aren Minang"
-                                    value={posForm.item}
-                                    onChange={e => setPosForm({ ...posForm, item: e.target.value })}
-                                    className="w-full p-2.5 rounded-lg bg-surface border border-glass-stroke text-on-surface focus:border-primary-container focus:outline-none text-xs"
-                                />
-                            </div>
-
-                            <div className="grid grid-cols-2 gap-2">
-                                <div className="space-y-1">
-                                    <label className="text-on-surface-variant uppercase font-bold text-[10px]">Jumlah (Qty)</label>
-                                    <input
-                                        type="number"
-                                        min="1"
-                                        required
-                                        value={posForm.qty}
-                                        onChange={e => setPosForm({ ...posForm, qty: parseInt(e.target.value) || 1 })}
-                                        className="w-full p-2.5 rounded-lg bg-surface border border-glass-stroke text-on-surface focus:border-primary-container focus:outline-none text-xs"
-                                    />
-                                </div>
-                                <div className="space-y-1">
-                                    <label className="text-on-surface-variant uppercase font-bold text-[10px]">Total Nominal (Rp)</label>
-                                    <input
-                                        type="number"
-                                        min="1000"
-                                        step="1000"
-                                        required
-                                        value={posForm.amount}
-                                        onChange={e => setPosForm({ ...posForm, amount: parseFloat(e.target.value) || 0 })}
-                                        className="w-full p-2.5 rounded-lg bg-surface border border-glass-stroke text-on-surface focus:border-primary-container focus:outline-none text-xs"
-                                    />
-                                </div>
-                            </div>
-
-                            <div className="space-y-1">
-                                <label className="text-on-surface-variant uppercase font-bold text-[10px]">Metode Pembayaran</label>
-                                <select
-                                    value={posForm.method}
-                                    onChange={e => setPosForm({ ...posForm, method: e.target.value })}
-                                    className="w-full p-2.5 rounded-lg bg-surface border border-glass-stroke text-on-surface focus:border-primary-container focus:outline-none text-xs"
-                                >
-                                    <option value="QRIS">QRIS Dinamis (Mandeh / Bank)</option>
-                                    <option value="TUNAI">Uang Tunai (Cash)</option>
-                                    <option value="KOIN_EMAS">Voucher Koin Emas PitiCoin</option>
-                                </select>
-                            </div>
-
-                            <button
-                                type="submit"
-                                disabled={loading}
-                                className="w-full mt-2 py-3 rounded-xl bg-primary-container text-on-primary font-bold text-xs uppercase tracking-wider hover:brightness-110 active:scale-95 transition-all shadow-[0_0_12px_rgba(255,215,0,0.4)]"
-                            >
-                                Simpan Transaksi Penjualan
-                            </button>
-                        </form>
-                    </div>
-                </div>
-            )}
+            {/* MODAL: CATAT TRANSAKSI KASIR CEPAT (POS) REMOVED */}
 
             {/* ========================================================= */}
             {/* 9. MODAL: UPGRADE LISENSI & BERLANGGANAN LAYANAN           */}
