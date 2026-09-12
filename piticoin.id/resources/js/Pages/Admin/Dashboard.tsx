@@ -36,9 +36,9 @@ import {
     Trash2,
     Plus,
     ToggleLeft,
-    ToggleRight,
     Info,
-    Check
+    Check,
+    Target
 } from 'lucide-react';
 
 interface PendingUser {
@@ -182,6 +182,10 @@ interface QuestItem {
     time_limit_hours: number;
     min_level: number;
     is_active: boolean;
+    parameters?: {
+        action_type?: string;
+        target_threshold?: number;
+    };
     active_participants_count?: number;
     total_attempts_count?: number;
     created_at?: string;
@@ -265,6 +269,10 @@ export default function AdminDashboard({
         time_limit_hours: 24,
         min_level: 1,
         is_active: true,
+        parameters: {
+            action_type: 'RECRUIT_MEMBERS',
+            target_threshold: 5,
+        },
     });
 
     // Q&A / Consultation Drawer State
@@ -1151,6 +1159,10 @@ export default function AdminDashboard({
                                         time_limit_hours: 24,
                                         min_level: 1,
                                         is_active: true,
+                                        parameters: {
+                                            action_type: 'RECRUIT_MEMBERS',
+                                            target_threshold: 5,
+                                        },
                                     });
                                     setQuestError(null);
                                     setQuestModalOpen(true);
@@ -1309,6 +1321,23 @@ export default function AdminDashboard({
                                                             </span>
                                                         </div>
                                                     </div>
+
+                                                    {/* Target Parameter Sistem */}
+                                                    <div className="px-3 py-1.5 rounded-xl bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-between text-[11px] mb-4">
+                                                        <span className="flex items-center gap-1.5 text-emerald-400 font-semibold">
+                                                            <Target size={13} className="text-emerald-400" />
+                                                            <span>Target Sistem</span>
+                                                        </span>
+                                                        <span className="font-bold text-emerald-300 font-mono">
+                                                            {q.parameters?.action_type === 'RECRUIT_MEMBERS' ? `${q.parameters.target_threshold ?? 1} Referral Baru` :
+                                                             q.parameters?.action_type === 'REGISTER_MERCHANT_UNIMART' ? `${q.parameters.target_threshold ?? 1} Toko Unimart` :
+                                                             q.parameters?.action_type === 'REGISTER_WALIKELAS_TEACHER' ? `${q.parameters.target_threshold ?? 1} Guru WaliKelas` :
+                                                             q.parameters?.action_type === 'DIGITAL_PPOB_TRANSACTION' ? `${q.parameters.target_threshold ?? 1} Transaksi PPOB` :
+                                                             q.parameters?.action_type === 'DAILY_CHECKIN_STREAK' ? `${q.parameters.target_threshold ?? 1} Hari Check-in` :
+                                                             q.parameters?.action_type === 'MANUAL_PROOF_SUBMISSION' ? 'Verifikasi Bukti' :
+                                                             `${q.parameters?.target_threshold ?? 1} Aksi`}
+                                                        </span>
+                                                    </div>
                                                 </div>
 
                                                 <div>
@@ -1390,6 +1419,10 @@ export default function AdminDashboard({
                                                                         time_limit_hours: q.time_limit_hours,
                                                                         min_level: q.min_level || 1,
                                                                         is_active: q.is_active,
+                                                                        parameters: {
+                                                                            action_type: q.parameters?.action_type || 'RECRUIT_MEMBERS',
+                                                                            target_threshold: q.parameters?.target_threshold || 1,
+                                                                        },
                                                                     });
                                                                     setQuestError(null);
                                                                     setQuestModalOpen(true);
@@ -1762,6 +1795,68 @@ export default function AdminDashboard({
                                         />
                                     </div>
                                 )}
+                            </div>
+
+                            {/* PARAMETER SISTEM (PENENTU KEMENANGAN OTOMATIS) */}
+                            <div className="p-3.5 bg-amber-500/5 border border-amber-500/20 rounded-xl space-y-3">
+                                <div className="flex items-center justify-between">
+                                    <label className="text-amber-400 font-bold flex items-center gap-1.5 text-xs">
+                                        <Target size={14} />
+                                        <span>Parameter Target Kemenangan (Otomatis Sistem)</span>
+                                    </label>
+                                    <span className="text-[10px] text-gray-400 font-mono">Auto Evaluator</span>
+                                </div>
+                                
+                                <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                                    <div className="sm:col-span-2">
+                                        <label className="block text-gray-300 text-[11px] mb-1">Aksi Sasaran Sistem</label>
+                                        <select
+                                            value={questFormData.parameters?.action_type || 'RECRUIT_MEMBERS'}
+                                            onChange={(e) => setQuestFormData({
+                                                ...questFormData,
+                                                parameters: {
+                                                    ...questFormData.parameters,
+                                                    action_type: e.target.value,
+                                                }
+                                            })}
+                                            className="w-full bg-[#0e0e12] border border-white/10 rounded-xl px-3 py-2 text-white text-xs focus:outline-none focus:border-amber-500"
+                                        >
+                                            <option value="RECRUIT_MEMBERS">Rekrut Anggota Baru (Referral Downline)</option>
+                                            <option value="REGISTER_MERCHANT_UNIMART">Daftarkan Toko / Bisnis ke Unimart POS</option>
+                                            <option value="REGISTER_WALIKELAS_TEACHER">Daftarkan Guru / Pendidik ke WaliKelas</option>
+                                            <option value="DIGITAL_PPOB_TRANSACTION">Transaksi Produk Digital / PPOB</option>
+                                            <option value="DAILY_CHECKIN_STREAK">Check-in Harian Berturut-turut</option>
+                                            <option value="MANUAL_PROOF_SUBMISSION">Verifikasi Bukti Lapangan / Khusus</option>
+                                        </select>
+                                    </div>
+
+                                    <div>
+                                        <label className="block text-gray-300 text-[11px] mb-1">Target Sasaran</label>
+                                        <input
+                                            type="number"
+                                            min="1"
+                                            required
+                                            value={questFormData.parameters?.target_threshold || 1}
+                                            onChange={(e) => setQuestFormData({
+                                                ...questFormData,
+                                                parameters: {
+                                                    ...questFormData.parameters,
+                                                    target_threshold: Math.max(1, Number(e.target.value)),
+                                                }
+                                            })}
+                                            className="w-full bg-[#0e0e12] border border-white/10 rounded-xl px-3 py-2 text-emerald-400 font-mono font-bold text-xs"
+                                        />
+                                    </div>
+                                </div>
+
+                                <p className="text-[11px] text-gray-400">
+                                    {questFormData.parameters?.action_type === 'RECRUIT_MEMBERS' && `Sistem akan otomatis memvalidasi kemenangan jika pengguna berhasil merekrut ${questFormData.parameters?.target_threshold || 1} anggota baru selama batas waktu misi.`}
+                                    {questFormData.parameters?.action_type === 'REGISTER_MERCHANT_UNIMART' && `Sistem akan memvalidasi kemenangan jika pengguna berhasil mendaftarkan ${questFormData.parameters?.target_threshold || 1} toko aktif ke Unimart POS.`}
+                                    {questFormData.parameters?.action_type === 'REGISTER_WALIKELAS_TEACHER' && `Sistem akan memvalidasi kemenangan jika pengguna berhasil mendaftarkan ${questFormData.parameters?.target_threshold || 1} guru/pendidik ke WaliKelas.`}
+                                    {questFormData.parameters?.action_type === 'DIGITAL_PPOB_TRANSACTION' && `Sistem akan memvalidasi kemenangan jika pengguna menyelesaikan ${questFormData.parameters?.target_threshold || 1} transaksi produk digital (pulsa/PLN).`}
+                                    {questFormData.parameters?.action_type === 'DAILY_CHECKIN_STREAK' && `Sistem akan memvalidasi kemenangan jika pengguna melakukan check-in selama ${questFormData.parameters?.target_threshold || 1} hari.`}
+                                    {questFormData.parameters?.action_type === 'MANUAL_PROOF_SUBMISSION' && `Misi ini membutuhkan verifikasi bukti foto/survei manual dari Admin atau Saudagar Pembina.`}
+                                </p>
                             </div>
 
                             <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">

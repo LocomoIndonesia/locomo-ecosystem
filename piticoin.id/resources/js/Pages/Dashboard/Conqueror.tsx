@@ -44,6 +44,10 @@ interface ConquerorProps {
         quest: {
             title: string;
             reward_amount_gold: number;
+            parameters?: {
+                action_type?: string;
+                target_threshold?: number;
+            };
         };
     }>;
     checkin_status: {
@@ -149,6 +153,57 @@ export default function Conqueror({
     const [animatedFiat, setAnimatedFiat] = useState<number>(
         Number(global_pool?.total_fiat_in_bank || 500000) - Number(global_pool?.total_gold_in_circulation || 0)
     );
+
+    // Quest Claim & Real-Time Progress State
+    const [claimingEscrowId, setClaimingEscrowId] = useState<string | null>(null);
+    const [claimFeedback, setClaimFeedback] = useState<{ id: string; success: boolean; message: string } | null>(null);
+    const [checkingEscrowId, setCheckingEscrowId] = useState<string | null>(null);
+    const [escrowProgressData, setEscrowProgressData] = useState<Record<string, any>>({});
+
+    const handleCheckProgress = async (escrowId: string) => {
+        setCheckingEscrowId(escrowId);
+        try {
+            const res = await fetch(`/api/quests/progress/${escrowId}`, {
+                headers: { 'Accept': 'application/json' },
+            });
+            const data = await res.json();
+            if (res.ok && data.success) {
+                setEscrowProgressData(prev => ({ ...prev, [escrowId]: data.evaluation }));
+            }
+        } catch (e) {
+            console.error(e);
+        } finally {
+            setCheckingEscrowId(null);
+        }
+    };
+
+    const handleClaimReward = async (escrowId: string) => {
+        setClaimingEscrowId(escrowId);
+        setClaimFeedback(null);
+        try {
+            const res = await fetch('/api/quests/claim', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Accept': 'application/json',
+                    'X-CSRF-TOKEN': (document.querySelector('meta[name="csrf-token"]') as HTMLMetaElement)?.content || '',
+                },
+                body: JSON.stringify({ escrow_id: escrowId }),
+            });
+            const data = await res.json();
+            if (res.ok && data.success) {
+                setClaimFeedback({ id: escrowId, success: true, message: data.message });
+                setEscrowList(prev => prev.map(e => e.id === escrowId ? { ...e, status: 'SUCCESS' } : e));
+                router.reload({ only: ['wallet', 'escrows'] });
+            } else {
+                setClaimFeedback({ id: escrowId, success: false, message: data.error || data.message || 'Klaim reward belum dapat diproses.' });
+            }
+        } catch (err) {
+            setClaimFeedback({ id: escrowId, success: false, message: 'Terjadi kesalahan koneksi saat memproses klaim.' });
+        } finally {
+            setClaimingEscrowId(null);
+        }
+    };
 
     // Modals
     const [showUpgradeModal, setShowUpgradeModal] = useState(false);
@@ -732,20 +787,84 @@ export default function Conqueror({
                                     <span className="w-2 h-2 rounded-full bg-primary-container animate-pulse"></span>
                                     Ekspedisi Berjalan (Escrow Terkunci)
                                 </h3>
-                                {escrowList.filter(e => e.status === 'LOCKED').map((escrow) => (
-                                    <div key={escrow.id} className="glass-panel rounded-xl p-4 border border-primary-container/40 space-y-2">
-                                        <div className="flex justify-between items-start">
-                                            <h4 className="font-bold text-sm text-on-surface">{escrow.quest?.title || 'Misi Berjalan'}</h4>
-                                            <span className="font-mono text-xs text-error font-bold">
-                                                {isMounted ? getRemainingTime(escrow.expires_at).label : '--:--:--'}
-                                            </span>
+                                {escrowList.filter(e => e.status === 'LOCKED').map((escrow) => {
+                                    const feedback = claimFeedback?.id === escrow.id ? claimFeedback : null;
+                                    const progress = escrowProgressData[escrow.id];
+                                    const params = escrow.quest?.parameters;
+
+                                    return (
+                                        <div key={escrow.id} className="glass-panel rounded-xl p-4 border border-primary-container/40 space-y-3">
+                                            <div className="flex justify-between items-start">
+                                                <div>
+                                                    <h4 className="font-bold text-sm text-on-surface">{escrow.quest?.title || 'Misi Berjalan'}</h4>
+                                                    {params?.action_type && (
+                                                        <p className="text-[11px] text-secondary font-mono mt-0.5">
+                                                            🎯 Sasaran: {params.action_type === 'RECRUIT_MEMBERS' ? `Ajak ${params.target_threshold ?? 1} Referral Baru` :
+                                                                        params.action_type === 'REGISTER_MERCHANT_UNIMART' ? `Daftarkan ${params.target_threshold ?? 1} Toko ke Unimart` :
+                                                                        params.action_type === 'REGISTER_WALIKELAS_TEACHER' ? `Daftarkan ${params.target_threshold ?? 1} Guru ke WaliKelas` :
+                                                                        params.action_type === 'DIGITAL_PPOB_TRANSACTION' ? `Selesaikan ${params.target_threshold ?? 1} Transaksi PPOB` :
+                                                                        params.action_type === 'DAILY_CHECKIN_STREAK' ? `Check-in ${params.target_threshold ?? 1} Hari` :
+                                                                        `Target: ${params.target_threshold ?? 1}`}
+                                                        </p>
+                                                    )}
+                                                </div>
+                                                <span className="font-mono text-xs text-error font-bold whitespace-nowrap">
+                                                    {isMounted ? getRemainingTime(escrow.expires_at).label : '--:--:--'}
+                                                </span>
+                                            </div>
+
+                                            {/* Progress Bar (Jika sudah dicek) */}
+                                            {progress && (
+                                                <div className="space-y-1 bg-black/30 p-2.5 rounded-lg border border-glass-stroke">
+                                                    <div className="flex justify-between text-[11px] font-mono">
+                                                        <span className="text-on-surface-variant">Capaian Progres:</span>
+                                                        <strong className="text-primary-container">{progress.current_progress} / {progress.target_threshold} ({progress.percentage}%)</strong>
+                                                    </div>
+                                                    <div className="w-full bg-white/10 rounded-full h-1.5 overflow-hidden">
+                                                        <div 
+                                                            className="bg-primary-container h-full rounded-full transition-all duration-300"
+                                                            style={{ width: `${progress.percentage}%` }}
+                                                        />
+                                                    </div>
+                                                </div>
+                                            )}
+
+                                            {feedback && (
+                                                <div className={`p-2.5 rounded-lg text-xs flex items-center gap-2 ${feedback.success ? 'bg-emerald-950/40 border border-emerald-500/40 text-emerald-300' : 'bg-red-950/40 border border-red-500/40 text-red-300'}`}>
+                                                    <span className="material-symbols-outlined text-sm">{feedback.success ? 'check_circle' : 'info'}</span>
+                                                    <span>{feedback.message}</span>
+                                                </div>
+                                            )}
+
+                                            <div className="flex justify-between items-center text-xs text-on-surface-variant pt-2 border-t border-glass-stroke">
+                                                <div className="flex items-center gap-2">
+                                                    <span>Staking: <strong>{formatCoin(escrow.staked_silver)} Perak</strong></span>
+                                                    <span className="text-primary-container font-bold">+{formatCoin(escrow.quest?.reward_amount_gold || 0)} Emas</span>
+                                                </div>
+
+                                                <div className="flex items-center gap-1.5">
+                                                    <button
+                                                        type="button"
+                                                        onClick={() => handleCheckProgress(escrow.id)}
+                                                        disabled={checkingEscrowId === escrow.id}
+                                                        className="px-2.5 py-1 rounded-lg bg-white/5 hover:bg-white/10 text-on-surface-variant hover:text-white text-[11px] font-mono border border-glass-stroke transition-all cursor-pointer"
+                                                    >
+                                                        {checkingEscrowId === escrow.id ? 'Cek...' : 'Cek Progres'}
+                                                    </button>
+                                                    <button
+                                                        type="button"
+                                                        onClick={() => handleClaimReward(escrow.id)}
+                                                        disabled={claimingEscrowId === escrow.id}
+                                                        className="px-3 py-1 rounded-lg bg-primary-container hover:bg-primary-container/80 text-on-primary-container font-bold text-[11px] flex items-center gap-1 transition-all shadow cursor-pointer"
+                                                    >
+                                                        {claimingEscrowId === escrow.id && <span className="material-symbols-outlined text-xs animate-spin">refresh</span>}
+                                                        <span>Klaim Hadiah</span>
+                                                    </button>
+                                                </div>
+                                            </div>
                                         </div>
-                                        <div className="flex justify-between text-xs text-on-surface-variant pt-1 border-t border-glass-stroke">
-                                            <span>Staking: <strong>{formatCoin(escrow.staked_silver)} Perak</strong></span>
-                                            <span className="text-primary-container font-bold">+{formatCoin(escrow.quest?.reward_amount_gold || 0)} Emas</span>
-                                        </div>
-                                    </div>
-                                ))}
+                                    );
+                                })}
                             </div>
                         )}
 

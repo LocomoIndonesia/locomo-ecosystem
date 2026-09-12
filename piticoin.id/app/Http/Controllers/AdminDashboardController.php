@@ -11,6 +11,7 @@ use App\Models\ServiceOrder;
 use App\Models\AffiliateCommission;
 use App\Models\Quest;
 use App\Models\EscrowTransaction;
+use App\Services\QuestEvaluatorService;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -189,6 +190,7 @@ class AdminDashboardController extends Controller
             'orders' => $orders,
             'recentCommissions' => $recentCommissions,
             'quests' => $quests,
+            'supportedQuestActions' => QuestEvaluatorService::supportedActionTypes(),
             'stats' => [
                 'pending_count' => $pendingUsers->count(),
                 'active_count' => $activeSaudagars->count(),
@@ -346,7 +348,15 @@ class AdminDashboardController extends Controller
             'time_limit_hours' => 'required|integer|min:1|max:720',
             'min_level' => 'nullable|integer|min:1',
             'is_active' => 'boolean',
+            'parameters' => 'nullable|array',
+            'parameters.action_type' => 'nullable|string',
+            'parameters.target_threshold' => 'nullable|numeric|min:1',
         ]);
+
+        $parameters = [
+            'action_type' => $request->input('parameters.action_type', QuestEvaluatorService::ACTION_RECRUIT_MEMBERS),
+            'target_threshold' => max(1, (int) $request->input('parameters.target_threshold', 1)),
+        ];
 
         $quest = Quest::create([
             'title' => $validated['title'],
@@ -359,6 +369,7 @@ class AdminDashboardController extends Controller
             'time_limit_hours' => (int) $validated['time_limit_hours'],
             'min_level' => $validated['min_level'] ?? 1,
             'is_active' => $request->boolean('is_active', true),
+            'parameters' => $parameters,
         ]);
 
         if ($request->wantsJson()) {
@@ -395,7 +406,15 @@ class AdminDashboardController extends Controller
             'time_limit_hours' => 'required|integer|min:1|max:720',
             'min_level' => 'nullable|integer|min:1',
             'is_active' => 'boolean',
+            'parameters' => 'nullable|array',
+            'parameters.action_type' => 'nullable|string',
+            'parameters.target_threshold' => 'nullable|numeric|min:1',
         ]);
+
+        $parameters = [
+            'action_type' => $request->input('parameters.action_type', $quest->parameters['action_type'] ?? QuestEvaluatorService::ACTION_RECRUIT_MEMBERS),
+            'target_threshold' => max(1, (int) $request->input('parameters.target_threshold', $quest->parameters['target_threshold'] ?? 1)),
+        ];
 
         $quest->update([
             'title' => $validated['title'],
@@ -408,6 +427,7 @@ class AdminDashboardController extends Controller
             'time_limit_hours' => (int) $validated['time_limit_hours'],
             'min_level' => $validated['min_level'] ?? 1,
             'is_active' => $request->boolean('is_active'),
+            'parameters' => $parameters,
         ]);
 
         if ($request->wantsJson()) {

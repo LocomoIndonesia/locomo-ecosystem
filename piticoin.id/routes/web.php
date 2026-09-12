@@ -12,6 +12,8 @@ Route::get('/', function () {
 Route::middleware('auth')->group(function () {
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
     Route::post('/api/quests/stake', [QuestController::class, 'stake'])->name('quests.stake');
+    Route::post('/api/quests/claim', [QuestController::class, 'claimReward'])->name('quests.claim');
+    Route::get('/api/quests/progress/{escrowId}', [QuestController::class, 'checkProgress'])->name('quests.progress');
     Route::get('/api/agent-missions/active', [\App\Http\Controllers\Api\AgentMissionController::class, 'getActiveMission'])->name('agent-missions.active');
     Route::post('/api/agent-missions/take', [\App\Http\Controllers\Api\AgentMissionController::class, 'takeMission'])->name('agent-missions.take');
     Route::post('/api/agent-missions/submit-lead', [\App\Http\Controllers\Api\AgentMissionController::class, 'submitLead'])->name('agent-missions.submit-lead');

@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\EscrowTransaction;
+use App\Services\QuestEvaluatorService;
 use App\Services\WalletService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -30,6 +32,74 @@ class QuestController extends Controller
             }
 
             return redirect()->back()->with('success', 'Misi berhasil diambil! Komitmen Koin Perak Anda terkunci di escrow.');
+        } catch (Exception $e) {
+            if ($request->wantsJson() || $request->ajax() || !$request->header('X-Inertia')) {
+                return response()->json([
+                    'success' => false,
+                    'error' => $e->getMessage(),
+                ], 422);
+            }
+
+            return redirect()->back()->withErrors(['error' => $e->getMessage()]);
+        }
+    }
+
+    /**
+     * Periksa progres terkini misi yang sedang berjalan.
+     */
+    public function checkProgress(Request $request, string $escrowId)
+    {
+        $escrow = EscrowTransaction::with(['quest'])->findOrFail($escrowId);
+
+        $user = Auth::user();
+        if (!$user || ($escrow->user_id !== $user->id && $user->role !== 'ADMIN')) {
+            return response()->json([
+                'success' => false,
+                'error' => 'Akses ditolak ke transaksi ekspedisi ini.',
+            ], 403);
+        }
+
+        $evaluation = QuestEvaluatorService::evaluateProgress($escrow);
+
+        return response()->json([
+            'success' => true,
+            'escrow_id' => $escrow->id,
+            'quest_title' => $escrow->quest->title ?? 'Misi Ekspedisi',
+            'evaluation' => $evaluation,
+        ]);
+    }
+
+    /**
+     * Klaim reward misi setelah memenuhi parameter sistem.
+     */
+    public function claimReward(Request $request)
+    {
+        $request->validate([
+            'escrow_id' => 'required|uuid',
+        ]);
+
+        $escrow = EscrowTransaction::findOrFail($request->escrow_id);
+
+        $user = Auth::user();
+        if (!$user || ($escrow->user_id !== $user->id && $user->role !== 'ADMIN')) {
+            return response()->json([
+                'success' => false,
+                'error' => 'Akses ditolak ke transaksi ekspedisi ini.',
+            ], 403);
+        }
+
+        try {
+            $result = QuestEvaluatorService::claimQuestReward($request->escrow_id);
+
+            if ($request->wantsJson() || $request->ajax() || !$request->header('X-Inertia')) {
+                return response()->json([
+                    'success' => true,
+                    'message' => $result['message'],
+                    'data' => $result,
+                ]);
+            }
+
+            return redirect()->back()->with('success', $result['message']);
         } catch (Exception $e) {
             if ($request->wantsJson() || $request->ajax() || !$request->header('X-Inertia')) {
                 return response()->json([
