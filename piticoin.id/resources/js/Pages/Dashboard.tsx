@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Head, router, Link } from '@inertiajs/react';
-import { Coins, Flame, Map, Users, ArrowRight, Shield, Award, LogOut, MessageSquare, Send, X, RefreshCw, User as UserIcon, HelpCircle } from 'lucide-react';
+import { Coins, Flame, Map, Users, ArrowRight, Shield, Award, LogOut, MessageSquare, Send, X, RefreshCw, User as UserIcon, HelpCircle, Heart, Gavel } from 'lucide-react';
 import CookieConsentBanner from '@/Components/CookieConsentBanner';
 
 interface DashboardProps {
@@ -295,6 +295,22 @@ export default function Dashboard({
                         >
                             <UserIcon size={13} className="text-[#ffd700]" />
                             <span>Profil</span>
+                        </Link>
+                        <Link
+                            href={route('baitul-mal.index')}
+                            className="btn btn-secondary"
+                            style={{ fontSize: '0.7rem', padding: '0.35rem 0.6rem', display: 'flex', alignItems: 'center', gap: '0.3rem', borderColor: 'rgba(255,215,0,0.35)', color: '#ffd700' }}
+                        >
+                            <Heart size={13} className="text-amber-400" />
+                            <span>Baitul Mal</span>
+                        </Link>
+                        <Link
+                            href={route('auction.index')}
+                            className="btn btn-secondary"
+                            style={{ fontSize: '0.7rem', padding: '0.35rem 0.6rem', display: 'flex', alignItems: 'center', gap: '0.3rem', borderColor: 'rgba(255,255,255,0.2)', color: '#fff' }}
+                        >
+                            <Gavel size={13} className="text-amber-400" />
+                            <span>Lelang</span>
                         </Link>
                         <Link
                             href={route('help.index')}
@@ -768,6 +784,10 @@ export default function Dashboard({
                     <span>•</span>
                     <Link href={route('help.index')} style={{ color: '#a0aec0', textDecoration: 'none' }}>
                         Pusat Bantuan & FAQ
+                    </Link>
+                    <span>•</span>
+                    <Link href={route('baitul-mal.index')} style={{ color: '#ffd700', textDecoration: 'none' }}>
+                        Baitul Mal Sosial
                     </Link>
                 </div>
                 <p>© 2026 PitiCoin.id — Gerbang Pembayaran Sentral & Ekosistem Gunung Mas.</p>

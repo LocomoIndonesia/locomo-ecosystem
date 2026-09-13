@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Head, router, Link } from '@inertiajs/react';
+import CookieConsentBanner from '@/Components/CookieConsentBanner';
 
 interface ConquerorProps {
     user: {
@@ -690,6 +691,110 @@ export default function Conqueror({
                                         {formatCoin(wallet?.gold_balance || 0)}
                                     </strong>
                                 </div>
+                            </div>
+                        </section>
+
+                        {/* QUICK ACCESS HUB MATRIX (PUSAT LAYANAN EKOSISTEM TERPADU) */}
+                        <section className="space-y-2.5">
+                            <div className="flex items-center justify-between px-1">
+                                <span className="text-[10px] text-primary-container font-bold uppercase tracking-widest font-mono flex items-center gap-1.5">
+                                    <span className="material-symbols-outlined text-xs">grid_view</span>
+                                    Pusat Layanan & Navigasi Ekosistem
+                                </span>
+                                <span className="text-[9px] text-on-surface-variant font-mono">Pintu Masuk Terpadu</span>
+                            </div>
+                            <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5">
+                                {/* Card 1: Baitul Mal */}
+                                <Link
+                                    href={route('baitul-mal.index')}
+                                    className="glass-panel p-3 rounded-2xl border border-amber-400/35 bg-gradient-to-br from-amber-500/10 via-transparent to-surface hover:border-amber-400/70 hover:scale-[1.02] active:scale-95 transition-all flex flex-col justify-between group shadow-[0_4px_20px_rgba(255,215,0,0.08)]"
+                                >
+                                    <div className="flex items-center justify-between mb-2">
+                                        <div className="w-8 h-8 rounded-xl bg-amber-400/20 text-amber-400 flex items-center justify-center border border-amber-400/40">
+                                            <span className="material-symbols-outlined text-base">volunteer_activism</span>
+                                        </div>
+                                        <span className="text-[9px] font-mono font-bold text-amber-400 bg-amber-400/15 px-1.5 py-0.5 rounded-md border border-amber-400/30">
+                                            Kas Sosial
+                                        </span>
+                                    </div>
+                                    <div>
+                                        <strong className="text-xs font-bold text-white group-hover:text-amber-300 transition-colors block">
+                                            Baitul Mal
+                                        </strong>
+                                        <span className="text-[10px] text-on-surface-variant block mt-0.5 leading-tight">
+                                            Sedekah & Mustahik
+                                        </span>
+                                    </div>
+                                </Link>
+
+                                {/* Card 2: Pasar Lelang */}
+                                <Link
+                                    href={route('auction.index')}
+                                    className="glass-panel p-3 rounded-2xl border border-glass-stroke hover:border-primary-container/50 hover:scale-[1.02] active:scale-95 transition-all flex flex-col justify-between group shadow"
+                                >
+                                    <div className="flex items-center justify-between mb-2">
+                                        <div className="w-8 h-8 rounded-xl bg-primary-container/15 text-primary-container flex items-center justify-center border border-primary-container/30">
+                                            <span className="material-symbols-outlined text-base">gavel</span>
+                                        </div>
+                                        <span className="text-[9px] font-mono font-bold text-on-surface-variant bg-surface/50 px-1.5 py-0.5 rounded-md border border-glass-stroke">
+                                            Bursa Nilai
+                                        </span>
+                                    </div>
+                                    <div>
+                                        <strong className="text-xs font-bold text-white group-hover:text-primary-container transition-colors block">
+                                            Pasar Lelang
+                                        </strong>
+                                        <span className="text-[10px] text-on-surface-variant block mt-0.5 leading-tight">
+                                            Aset & Hak Misi
+                                        </span>
+                                    </div>
+                                </Link>
+
+                                {/* Card 3: Profil Persona & Avatar */}
+                                <Link
+                                    href={route('profile.edit')}
+                                    className="glass-panel p-3 rounded-2xl border border-glass-stroke hover:border-primary-container/50 hover:scale-[1.02] active:scale-95 transition-all flex flex-col justify-between group shadow"
+                                >
+                                    <div className="flex items-center justify-between mb-2">
+                                        <div className="w-8 h-8 rounded-xl bg-surface-container text-on-surface flex items-center justify-center border border-glass-stroke">
+                                            <span className="material-symbols-outlined text-base">account_circle</span>
+                                        </div>
+                                        <span className="text-[9px] font-mono font-bold text-secondary bg-secondary/10 px-1.5 py-0.5 rounded-md border border-secondary/30">
+                                            Persona
+                                        </span>
+                                    </div>
+                                    <div>
+                                        <strong className="text-xs font-bold text-white group-hover:text-primary-container transition-colors block">
+                                            Profil Persona
+                                        </strong>
+                                        <span className="text-[10px] text-on-surface-variant block mt-0.5 leading-tight">
+                                            Avatar & Sesi Login
+                                        </span>
+                                    </div>
+                                </Link>
+
+                                {/* Card 4: Pusat Bantuan & FAQ */}
+                                <Link
+                                    href={route('help.index')}
+                                    className="glass-panel p-3 rounded-2xl border border-glass-stroke hover:border-blue-400/50 hover:scale-[1.02] active:scale-95 transition-all flex flex-col justify-between group shadow"
+                                >
+                                    <div className="flex items-center justify-between mb-2">
+                                        <div className="w-8 h-8 rounded-xl bg-blue-500/15 text-blue-400 flex items-center justify-center border border-blue-500/30">
+                                            <span className="material-symbols-outlined text-base">help</span>
+                                        </div>
+                                        <span className="text-[9px] font-mono font-bold text-blue-400 bg-blue-500/10 px-1.5 py-0.5 rounded-md border border-blue-500/30">
+                                            FAQ & CS
+                                        </span>
+                                    </div>
+                                    <div>
+                                        <strong className="text-xs font-bold text-white group-hover:text-blue-300 transition-colors block">
+                                            Pusat Bantuan
+                                        </strong>
+                                        <span className="text-[10px] text-on-surface-variant block mt-0.5 leading-tight">
+                                            Panduan & Bantuan
+                                        </span>
+                                    </div>
+                                </Link>
                             </div>
                         </section>
 
@@ -1673,42 +1778,154 @@ export default function Conqueror({
                             </div>
                         </div>
 
-                        {/* Menu Options */}
-                        <div className="glass-panel rounded-xl overflow-hidden border border-glass-stroke divide-y divide-glass-stroke text-xs">
+                        {/* Menu Options - Mapping Fitur Utama & Kepatuhan */}
+                        <div className="glass-panel rounded-2xl overflow-hidden border border-glass-stroke divide-y divide-glass-stroke text-xs shadow-lg">
+                            {/* 1. Profile Edit */}
+                            <Link
+                                href={route('profile.edit')}
+                                className="w-full p-3.5 flex items-center justify-between hover:bg-white/5 transition-colors text-left group"
+                            >
+                                <div className="flex items-center gap-3">
+                                    <div className="w-8 h-8 rounded-lg bg-primary-container/15 text-primary-container flex items-center justify-center border border-primary-container/30">
+                                        <span className="material-symbols-outlined text-base">manage_accounts</span>
+                                    </div>
+                                    <div>
+                                        <span className="font-semibold text-white group-hover:text-primary-container transition-colors block">
+                                            Pengaturan Profil & Avatar Kustom
+                                        </span>
+                                        <span className="text-[10px] text-on-surface-variant block">
+                                            Kustomisasi avatar, audio SFX, dan manajemen sesi login
+                                        </span>
+                                    </div>
+                                </div>
+                                <span className="material-symbols-outlined text-on-surface-variant text-sm group-hover:translate-x-1 transition-transform">chevron_right</span>
+                            </Link>
+
+                            {/* 2. Help Center */}
+                            <Link
+                                href={route('help.index')}
+                                className="w-full p-3.5 flex items-center justify-between hover:bg-white/5 transition-colors text-left group"
+                            >
+                                <div className="flex items-center gap-3">
+                                    <div className="w-8 h-8 rounded-lg bg-blue-500/15 text-blue-400 flex items-center justify-center border border-blue-500/30">
+                                        <span className="material-symbols-outlined text-base">help_center</span>
+                                    </div>
+                                    <div>
+                                        <span className="font-semibold text-white group-hover:text-blue-300 transition-colors block">
+                                            Pusat Bantuan & FAQ Interaktif
+                                        </span>
+                                        <span className="text-[10px] text-on-surface-variant block">
+                                            Panduan ekspedisi, tanya jawab, & konsultasi Saudagar
+                                        </span>
+                                    </div>
+                                </div>
+                                <span className="material-symbols-outlined text-on-surface-variant text-sm group-hover:translate-x-1 transition-transform">chevron_right</span>
+                            </Link>
+
+                            {/* 3. Baitul Mal */}
+                            <Link
+                                href={route('baitul-mal.index')}
+                                className="w-full p-3.5 flex items-center justify-between hover:bg-white/5 transition-colors text-left group"
+                            >
+                                <div className="flex items-center gap-3">
+                                    <div className="w-8 h-8 rounded-lg bg-amber-400/15 text-amber-400 flex items-center justify-center border border-amber-400/30">
+                                        <span className="material-symbols-outlined text-base">volunteer_activism</span>
+                                    </div>
+                                    <div>
+                                        <span className="font-semibold text-white group-hover:text-amber-300 transition-colors block">
+                                            Kas Sosial Baitul Mal & Sedekah Emas
+                                        </span>
+                                        <span className="text-[10px] text-on-surface-variant block">
+                                            Transparansi kas sosial, live wall muhsinin, & santunan mustahik
+                                        </span>
+                                    </div>
+                                </div>
+                                <span className="material-symbols-outlined text-on-surface-variant text-sm group-hover:translate-x-1 transition-transform">chevron_right</span>
+                            </Link>
+
+                            {/* 4. Pasar Lelang */}
+                            <Link
+                                href={route('auction.index')}
+                                className="w-full p-3.5 flex items-center justify-between hover:bg-white/5 transition-colors text-left group"
+                            >
+                                <div className="flex items-center gap-3">
+                                    <div className="w-8 h-8 rounded-lg bg-surface-container text-primary-container flex items-center justify-center border border-glass-stroke">
+                                        <span className="material-symbols-outlined text-base">gavel</span>
+                                    </div>
+                                    <div>
+                                        <span className="font-semibold text-white group-hover:text-primary-container transition-colors block">
+                                            Pasar Lelang Digital (Bursa Nilai)
+                                        </span>
+                                        <span className="text-[10px] text-on-surface-variant block">
+                                            Lelang aset langka, hak kontrak misi, & smart escrow
+                                        </span>
+                                    </div>
+                                </div>
+                                <span className="material-symbols-outlined text-on-surface-variant text-sm group-hover:translate-x-1 transition-transform">chevron_right</span>
+                            </Link>
+
+                            {/* 5. Upgrade Lisensi */}
                             <button
                                 onClick={() => setShowUpgradeModal(true)}
-                                className="w-full p-3.5 flex items-center justify-between hover:bg-white/5 transition-colors text-left"
+                                className="w-full p-3.5 flex items-center justify-between hover:bg-white/5 transition-colors text-left group"
                             >
                                 <div className="flex items-center gap-3">
-                                    <span className="material-symbols-outlined text-primary-container">stars</span>
-                                    <span>Tingkatkan Lisensi Saudagar</span>
+                                    <div className="w-8 h-8 rounded-lg bg-secondary/15 text-secondary flex items-center justify-center border border-secondary/30">
+                                        <span className="material-symbols-outlined text-base">stars</span>
+                                    </div>
+                                    <div>
+                                        <span className="font-semibold text-white group-hover:text-secondary transition-colors block">
+                                            Tingkatkan Lisensi Saudagar
+                                        </span>
+                                        <span className="text-[10px] text-on-surface-variant block">
+                                            Buka komisi 2-level karavan & akses modul POS Unimart
+                                        </span>
+                                    </div>
                                 </div>
-                                <span className="material-symbols-outlined text-on-surface-variant text-sm">chevron_right</span>
+                                <span className="material-symbols-outlined text-on-surface-variant text-sm group-hover:translate-x-1 transition-transform">chevron_right</span>
                             </button>
 
-                            <button
-                                onClick={() => showMsg('Pengaturan keamanan PIN transaksi aktif.')}
-                                className="w-full p-3.5 flex items-center justify-between hover:bg-white/5 transition-colors text-left"
+                            {/* 6. Syarat & Ketentuan */}
+                            <Link
+                                href={route('legal.terms')}
+                                className="w-full p-3.5 flex items-center justify-between hover:bg-white/5 transition-colors text-left group"
                             >
                                 <div className="flex items-center gap-3">
-                                    <span className="material-symbols-outlined text-on-surface-variant">lock</span>
-                                    <span>PIN Transaksi & Keamanan</span>
+                                    <div className="w-8 h-8 rounded-lg bg-surface-container text-on-surface-variant flex items-center justify-center border border-glass-stroke">
+                                        <span className="material-symbols-outlined text-base">description</span>
+                                    </div>
+                                    <div>
+                                        <span className="font-semibold text-white group-hover:text-primary-container transition-colors block">
+                                            Syarat & Ketentuan Layanan
+                                        </span>
+                                        <span className="text-[10px] text-on-surface-variant block">
+                                            Ketentuan staking perak, reward emas, dan federasi Locomo
+                                        </span>
+                                    </div>
                                 </div>
-                                <span className="material-symbols-outlined text-on-surface-variant text-sm">chevron_right</span>
-                            </button>
+                                <span className="material-symbols-outlined text-on-surface-variant text-sm group-hover:translate-x-1 transition-transform">chevron_right</span>
+                            </Link>
 
-                            <a
-                                href="https://wa.me/628123456789"
-                                target="_blank"
-                                rel="noreferrer"
-                                className="w-full p-3.5 flex items-center justify-between hover:bg-white/5 transition-colors text-left"
+                            {/* 7. Kebijakan Privasi UU PDP */}
+                            <Link
+                                href={route('legal.privacy')}
+                                className="w-full p-3.5 flex items-center justify-between hover:bg-white/5 transition-colors text-left group"
                             >
                                 <div className="flex items-center gap-3">
-                                    <span className="material-symbols-outlined text-secondary">support_agent</span>
-                                    <span>Pusat Bantuan & Tim Pendamping</span>
+                                    <div className="w-8 h-8 rounded-lg bg-surface-container text-emerald-400 flex items-center justify-center border border-glass-stroke">
+                                        <span className="material-symbols-outlined text-base">policy</span>
+                                    </div>
+                                    <div>
+                                        <span className="font-semibold text-white group-hover:text-emerald-300 transition-colors block">
+                                            Kebijakan Privasi (UU PDP No. 27/2022)
+                                        </span>
+                                        <span className="text-[10px] text-on-surface-variant block">
+                                            Hak subjek data, perlindungan WhatsApp, dan kuki
+                                        </span>
+                                    </div>
                                 </div>
-                                <span className="material-symbols-outlined text-on-surface-variant text-sm">chevron_right</span>
-                            </a>
+                                <span className="material-symbols-outlined text-on-surface-variant text-sm group-hover:translate-x-1 transition-transform">chevron_right</span>
+                            </Link>
                         </div>
 
                         {/* Logout Button */}
@@ -2098,6 +2315,32 @@ export default function Conqueror({
                     </div>
                 </div>
             )}
+
+            {/* Global Legal Compliance Footer */}
+            <footer className="mt-12 mb-6 pt-6 border-t border-glass-stroke text-center text-xs text-on-surface-variant/70 space-y-2 px-4">
+                <div className="flex justify-center items-center gap-3.5 flex-wrap font-mono text-[11px]">
+                    <Link href={route('legal.terms')} className="hover:text-primary-container transition-colors">
+                        Syarat & Ketentuan
+                    </Link>
+                    <span>•</span>
+                    <Link href={route('legal.privacy')} className="hover:text-emerald-400 transition-colors">
+                        Kebijakan Privasi (UU PDP)
+                    </Link>
+                    <span>•</span>
+                    <Link href={route('help.index')} className="hover:text-blue-400 transition-colors">
+                        Pusat Bantuan & FAQ
+                    </Link>
+                    <span>•</span>
+                    <Link href={route('baitul-mal.index')} className="hover:text-amber-400 transition-colors">
+                        Baitul Mal Sosial
+                    </Link>
+                </div>
+                <p className="text-[10px] text-on-surface-variant/50">
+                    © 2026 PitiCoin.id — Platform Ekosistem Gamifikasi & Gateway Bisnis Gunung Mas.
+                </p>
+            </footer>
+
+            <CookieConsentBanner />
 
             {/* Custom Laser Scan Animation Style */}
             <style>{`

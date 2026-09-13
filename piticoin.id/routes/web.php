@@ -82,6 +82,11 @@ Route::middleware('auth')->group(function () {
         Route::get('/transactions', [\App\Http\Controllers\Marketing\MarketingPortalController::class, 'transactions'])->name('transactions');
     });
 
+    // Baitul Mal & Kas Sosial Routes
+    Route::get('/baitul-mal', [\App\Http\Controllers\BaitulMalController::class, 'index'])->name('baitul-mal.index');
+    Route::post('/baitul-mal/donate', [\App\Http\Controllers\BaitulMalController::class, 'donate'])->name('baitul-mal.donate');
+    Route::post('/api/baitul-mal/aamiin/{id}', [\App\Http\Controllers\BaitulMalController::class, 'aamiin'])->name('baitul-mal.aamiin');
+
     // Profile & Persona Identity Management
     Route::get('/profile', [\App\Http\Controllers\ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [\App\Http\Controllers\ProfileController::class, 'update'])->name('profile.update');

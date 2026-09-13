@@ -1,4 +1,5 @@
 import { Head, Link } from '@inertiajs/react';
+import CookieConsentBanner from '@/Components/CookieConsentBanner';
 
 interface ObserverProps {
     user: {
@@ -33,9 +34,13 @@ export default function Observer({ user, wallet }: ObserverProps) {
                 <h1 className="font-headline-lg-mobile text-headline-lg-mobile font-bold text-primary-container tracking-widest text-center glow-text" style={{ fontFamily: "'Playfair Display', serif" }}>
                     PITICOIN.ID
                 </h1>
-                <div className="w-10 h-10 rounded-full bg-surface-container-high border-2 border-outline-variant flex items-center justify-center overflow-hidden grayscale opacity-70">
-                    <span className="material-symbols-outlined text-on-surface-variant" style={{ fontVariationSettings: "'FILL' 1" }}>person</span>
-                </div>
+                <Link
+                    href={route('profile.edit')}
+                    title="Pengaturan Profil & Avatar"
+                    className="w-10 h-10 rounded-full bg-surface-container-high border-2 border-primary-container/60 flex items-center justify-center overflow-hidden hover:border-primary-container active:scale-95 transition-all shadow-[0_0_10px_rgba(255,215,0,0.3)]"
+                >
+                    <span className="material-symbols-outlined text-primary-container" style={{ fontVariationSettings: "'FILL' 1" }}>person</span>
+                </Link>
             </header>
 
             <main className="max-w-container-max mx-auto px-margin-mobile flex flex-col gap-stack-lg pt-4">
@@ -62,19 +67,28 @@ export default function Observer({ user, wallet }: ObserverProps) {
                         <div className="absolute inset-0 bg-cover bg-center opacity-40 mix-blend-luminosity" style={{ backgroundImage: "url('https://lh3.googleusercontent.com/aida-public/AB6AXuD8CVndl4PnBK66gGKqIORjBNLIQgXsFLtawLsVFiDT92vzMwSRmsvFtKVtUaOtv1AtQshGgj0x7l7VL-b3SKfuah3bHWEyDxBmQ_BUBsE-IIkIHE0QSnCRlbMoTtcMxeeGcPE9txH0WHSF2FamuMhGSPVeJKIeDgOLjUvzCvmCkDbdCySny6JcKVt2nuZ63pAT0Pgc4NAgbaXgk57Xgg3xABseb01IVsvumiFgMh2z64hOjoaOd8g')" }}>
                         </div>
                         <div className="absolute inset-0 bg-gradient-to-t from-obsidian-surface to-transparent"></div>
-                        <div className="absolute bottom-4 left-0 w-full flex justify-center items-center gap-4 px-4">
-                            <button className="flex flex-col items-center gap-2 p-3 bg-obsidian-surface/60 backdrop-blur-xl border border-glass-stroke rounded-lg w-24 hover:border-primary-container/50 transition-colors opacity-50 cursor-not-allowed">
-                                <span className="material-symbols-outlined text-primary-container">store</span>
-                                <span className="font-label-sm text-label-sm text-on-surface">Toko</span>
-                            </button>
-                            <button className="flex flex-col items-center gap-2 p-3 bg-obsidian-surface/60 backdrop-blur-xl border border-glass-stroke rounded-lg w-24 hover:border-primary-container/50 transition-colors opacity-50 cursor-not-allowed">
-                                <span className="material-symbols-outlined text-primary-container">forum</span>
-                                <span className="font-label-sm text-label-sm text-on-surface">Ruang Informasi</span>
-                            </button>
-                            <button className="flex flex-col items-center gap-2 p-3 bg-obsidian-surface/60 backdrop-blur-xl border border-glass-stroke rounded-lg w-24 hover:border-primary-container/50 transition-colors opacity-50 cursor-not-allowed">
-                                <span className="material-symbols-outlined text-primary-container">campaign</span>
-                                <span className="font-label-sm text-label-sm text-on-surface">Pengumuman</span>
-                            </button>
+                        <div className="absolute bottom-4 left-0 w-full flex justify-center items-center gap-3 px-4">
+                            <Link
+                                href={route('auction.index')}
+                                className="flex flex-col items-center gap-1.5 p-2.5 bg-obsidian-surface/80 backdrop-blur-xl border border-glass-stroke rounded-xl w-24 hover:border-primary-container/60 hover:scale-105 active:scale-95 transition-all shadow-lg text-center"
+                            >
+                                <span className="material-symbols-outlined text-primary-container text-xl">gavel</span>
+                                <span className="font-label-sm text-[11px] text-on-surface font-semibold">Lelang</span>
+                            </Link>
+                            <Link
+                                href={route('baitul-mal.index')}
+                                className="flex flex-col items-center gap-1.5 p-2.5 bg-obsidian-surface/80 backdrop-blur-xl border border-amber-400/40 rounded-xl w-24 hover:border-amber-400 hover:scale-105 active:scale-95 transition-all shadow-lg text-center"
+                            >
+                                <span className="material-symbols-outlined text-amber-400 text-xl">volunteer_activism</span>
+                                <span className="font-label-sm text-[11px] text-amber-300 font-semibold">Baitul Mal</span>
+                            </Link>
+                            <Link
+                                href={route('help.index')}
+                                className="flex flex-col items-center gap-1.5 p-2.5 bg-obsidian-surface/80 backdrop-blur-xl border border-glass-stroke rounded-xl w-24 hover:border-blue-400/60 hover:scale-105 active:scale-95 transition-all shadow-lg text-center"
+                            >
+                                <span className="material-symbols-outlined text-blue-400 text-xl">help</span>
+                                <span className="font-label-sm text-[11px] text-on-surface font-semibold">Bantuan</span>
+                            </Link>
                         </div>
                     </div>
                 </section>
@@ -167,27 +181,53 @@ export default function Observer({ user, wallet }: ObserverProps) {
                     </div>
                 </section>
 
+                {/* Global Legal Compliance Footer */}
+                <footer className="mt-8 mb-4 pt-6 border-t border-glass-stroke text-center text-xs text-on-surface-variant/70 space-y-2">
+                    <div className="flex justify-center items-center gap-3.5 flex-wrap font-mono text-[11px]">
+                        <Link href={route('legal.terms')} className="hover:text-primary-container transition-colors">
+                            Syarat & Ketentuan
+                        </Link>
+                        <span>•</span>
+                        <Link href={route('legal.privacy')} className="hover:text-emerald-400 transition-colors">
+                            Kebijakan Privasi (UU PDP)
+                        </Link>
+                        <span>•</span>
+                        <Link href={route('help.index')} className="hover:text-blue-400 transition-colors">
+                            Pusat Bantuan & FAQ
+                        </Link>
+                        <span>•</span>
+                        <Link href={route('baitul-mal.index')} className="hover:text-amber-400 transition-colors">
+                            Baitul Mal Sosial
+                        </Link>
+                    </div>
+                    <p className="text-[10px] text-on-surface-variant/50">
+                        © 2026 PitiCoin.id — Platform Ekosistem Gamifikasi & Gateway Bisnis Gunung Mas.
+                    </p>
+                </footer>
+
             </main>
 
             {/* BottomNavBar */}
-            <nav className="bg-obsidian-surface/60 backdrop-blur-xl docked full-width bottom-0 rounded-t-xl border-t border-glass-stroke shadow-[0_-4px_20px_rgba(255,215,0,0.1)] fixed bottom-0 left-0 w-full z-50 flex justify-around items-center px-4 pb-6 pt-2">
+            <nav className="bg-obsidian-surface/80 backdrop-blur-xl docked full-width bottom-0 rounded-t-xl border-t border-glass-stroke shadow-[0_-4px_20px_rgba(255,215,0,0.1)] fixed bottom-0 left-0 w-full z-50 flex justify-around items-center px-4 pb-6 pt-2">
                 <div className="flex flex-col items-center justify-center text-primary-container scale-110 transition-transform cursor-pointer">
                     <span className="material-symbols-outlined" style={{ fontVariationSettings: "'FILL' 1" }}>explore</span>
                     <span className="font-label-sm text-label-sm mt-1">Quest</span>
                 </div>
-                <div className="flex flex-col items-center justify-center text-on-surface-variant/70 hover:text-primary transition-all duration-300 ease-out cursor-pointer">
-                    <span className="material-symbols-outlined">payments</span>
-                    <span className="font-label-sm text-label-sm mt-1">Vault</span>
-                </div>
-                <div className="flex flex-col items-center justify-center text-on-surface-variant/70 hover:text-primary transition-all duration-300 ease-out cursor-pointer">
-                    <span className="material-symbols-outlined">map</span>
-                    <span className="font-label-sm text-label-sm mt-1">Map</span>
-                </div>
-                <div className="flex flex-col items-center justify-center text-on-surface-variant/70 hover:text-primary transition-all duration-300 ease-out cursor-pointer">
+                <Link href={route('baitul-mal.index')} className="flex flex-col items-center justify-center text-on-surface-variant/70 hover:text-amber-400 transition-all duration-300 ease-out">
+                    <span className="material-symbols-outlined">volunteer_activism</span>
+                    <span className="font-label-sm text-label-sm mt-1">Baitul Mal</span>
+                </Link>
+                <Link href={route('auction.index')} className="flex flex-col items-center justify-center text-on-surface-variant/70 hover:text-primary transition-all duration-300 ease-out">
+                    <span className="material-symbols-outlined">gavel</span>
+                    <span className="font-label-sm text-label-sm mt-1">Lelang</span>
+                </Link>
+                <Link href={route('profile.edit')} className="flex flex-col items-center justify-center text-on-surface-variant/70 hover:text-primary transition-all duration-300 ease-out">
                     <span className="material-symbols-outlined">person</span>
                     <span className="font-label-sm text-label-sm mt-1">Profile</span>
-                </div>
+                </Link>
             </nav>
+
+            <CookieConsentBanner />
 
         </div>
     );
