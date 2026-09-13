@@ -81,7 +81,22 @@ Route::middleware('auth')->group(function () {
         Route::put('/services/{id}', [\App\Http\Controllers\Marketing\MarketingPortalController::class, 'updateService'])->name('services.update');
         Route::get('/transactions', [\App\Http\Controllers\Marketing\MarketingPortalController::class, 'transactions'])->name('transactions');
     });
+
+    // Profile & Persona Identity Management
+    Route::get('/profile', [\App\Http\Controllers\ProfileController::class, 'edit'])->name('profile.edit');
+    Route::patch('/profile', [\App\Http\Controllers\ProfileController::class, 'update'])->name('profile.update');
+    Route::post('/profile/avatar', [\App\Http\Controllers\ProfileController::class, 'updateAvatar'])->name('profile.avatar.update');
+    Route::post('/profile/avatar/preset', [\App\Http\Controllers\ProfileController::class, 'updateAvatarPreset'])->name('profile.avatar.preset');
+    Route::post('/profile/preferences', [\App\Http\Controllers\ProfileController::class, 'updatePreferences'])->name('profile.preferences');
+    Route::post('/profile/sessions/revoke-others', [\App\Http\Controllers\ProfileController::class, 'revokeOtherSessions'])->name('profile.sessions.revoke-others');
+    Route::delete('/profile', [\App\Http\Controllers\ProfileController::class, 'destroy'])->name('profile.destroy');
 });
+
+// Public Legal & Help Center Routes
+Route::get('/terms', [\App\Http\Controllers\LegalController::class, 'terms'])->name('legal.terms');
+Route::get('/privacy', [\App\Http\Controllers\LegalController::class, 'privacy'])->name('legal.privacy');
+Route::get('/help', [\App\Http\Controllers\HelpCenterController::class, 'index'])->name('help.index');
+Route::get('/faq', [\App\Http\Controllers\HelpCenterController::class, 'index'])->name('faq.index');
 
 // APIs that bypass auth middleware (with their own internal keys or mock triggers)
 Route::post('/api/quests/resolve', [QuestController::class, 'resolve'])->name('quests.resolve');

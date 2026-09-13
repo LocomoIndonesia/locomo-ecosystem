@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
-import { Head, router } from '@inertiajs/react';
-import { Coins, Flame, Map, Users, ArrowRight, Shield, Award, LogOut, MessageSquare, Send, X, RefreshCw } from 'lucide-react';
+import { Head, router, Link } from '@inertiajs/react';
+import { Coins, Flame, Map, Users, ArrowRight, Shield, Award, LogOut, MessageSquare, Send, X, RefreshCw, User as UserIcon, HelpCircle } from 'lucide-react';
+import CookieConsentBanner from '@/Components/CookieConsentBanner';
 
 interface DashboardProps {
     user: {
@@ -286,14 +287,30 @@ export default function Dashboard({
                         <span className="username">{user.name}</span>
                         <div style={{ fontSize: '0.65rem', color: '#a0aec0' }}>WA: {user.whatsapp}</div>
                     </div>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', flexWrap: 'wrap' }}>
+                        <Link
+                            href={route('profile.edit')}
+                            className="btn btn-secondary"
+                            style={{ fontSize: '0.7rem', padding: '0.35rem 0.6rem', display: 'flex', alignItems: 'center', gap: '0.3rem', borderColor: 'rgba(255,255,255,0.2)', color: '#fff' }}
+                        >
+                            <UserIcon size={13} className="text-[#ffd700]" />
+                            <span>Profil</span>
+                        </Link>
+                        <Link
+                            href={route('help.index')}
+                            className="btn btn-secondary"
+                            style={{ fontSize: '0.7rem', padding: '0.35rem 0.6rem', display: 'flex', alignItems: 'center', gap: '0.3rem', borderColor: 'rgba(255,255,255,0.2)', color: '#fff' }}
+                        >
+                            <HelpCircle size={13} className="text-[#ffd700]" />
+                            <span>Bantuan</span>
+                        </Link>
                         <button
                             onClick={openConsultation}
                             className="btn btn-secondary"
                             style={{ fontSize: '0.7rem', padding: '0.35rem 0.65rem', display: 'flex', alignItems: 'center', gap: '0.35rem', borderColor: 'rgba(255,215,0,0.4)', color: '#ffd700' }}
                         >
                             <MessageSquare size={13} />
-                            <span>Konsultasi Admin (Q&A)</span>
+                            <span>Konsultasi</span>
                         </button>
                         <span className={`user-badge ${user.role === 'MERCHANT' ? 'badge-merchant' : 'badge-guest'}`}>
                             {user.role === 'MERCHANT' ? 'Merchant Tier' : 'Free Tier'}
@@ -737,6 +754,26 @@ export default function Dashboard({
                     </div>
                 </div>
             )}
+
+            {/* Dashboard Global Footer & Compliance Links */}
+            <footer style={{ marginTop: '3rem', paddingTop: '1.5rem', borderTop: '1px solid rgba(255, 255, 255, 0.1)', textAlign: 'center', fontSize: '0.75rem', color: '#718096' }}>
+                <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '1.25rem', marginBottom: '0.75rem', flexWrap: 'wrap' }}>
+                    <Link href={route('legal.terms')} style={{ color: '#a0aec0', textDecoration: 'none' }}>
+                        Syarat & Ketentuan
+                    </Link>
+                    <span>•</span>
+                    <Link href={route('legal.privacy')} style={{ color: '#a0aec0', textDecoration: 'none' }}>
+                        Kebijakan Privasi (UU PDP)
+                    </Link>
+                    <span>•</span>
+                    <Link href={route('help.index')} style={{ color: '#a0aec0', textDecoration: 'none' }}>
+                        Pusat Bantuan & FAQ
+                    </Link>
+                </div>
+                <p>© 2026 PitiCoin.id — Gerbang Pembayaran Sentral & Ekosistem Gunung Mas.</p>
+            </footer>
+
+            <CookieConsentBanner />
         </div>
     );
 }

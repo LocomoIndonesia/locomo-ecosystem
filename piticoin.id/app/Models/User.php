@@ -29,8 +29,10 @@ class User extends Authenticatable
         'onboarding_step',
         'level',
         'experience_points',
+        'avatar_url',
         'rating',
         'total_reviews',
+        'audio_sfx_enabled',
     ];
 
     protected $hidden = [
@@ -42,6 +44,7 @@ class User extends Authenticatable
     {
         return [
             'password' => 'hashed',
+            'audio_sfx_enabled' => 'boolean',
         ];
     }
 

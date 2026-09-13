@@ -1,118 +1,131 @@
-import InputError from '@/Components/InputError';
-import InputLabel from '@/Components/InputLabel';
-import PrimaryButton from '@/Components/PrimaryButton';
-import TextInput from '@/Components/TextInput';
-import { Transition } from '@headlessui/react';
-import { Link, useForm, usePage } from '@inertiajs/react';
-import { FormEventHandler } from 'react';
+import React from 'react';
+import { useForm } from '@inertiajs/react';
+import { User, Phone, Lock, Sparkles, CheckCircle2, Star } from 'lucide-react';
 
-export default function UpdateProfileInformation({
-    mustVerifyEmail,
-    status,
-    className = '',
-}: {
-    mustVerifyEmail: boolean;
+interface UserData {
+    id: string;
+    name: string;
+    username: string | null;
+    whatsapp: string;
+    role: string;
+    faction: string;
+    license_type: string;
+    level: number;
+    experience_points: number;
+    rating: number;
+    total_reviews: number;
+}
+
+interface UpdateProfileProps {
+    user: UserData;
     status?: string;
-    className?: string;
-}) {
-    const user = usePage().props.auth.user;
+}
 
-    const { data, setData, patch, errors, processing, recentlySuccessful } =
-        useForm({
-            name: user.name,
-            email: user.email,
-        });
+export default function UpdateProfileInformationForm({ user, status }: UpdateProfileProps) {
+    const { data, setData, patch, errors, processing, recentlySuccessful } = useForm({
+        name: user.name,
+        username: user.username || '',
+    });
 
-    const submit: FormEventHandler = (e) => {
+    const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
-
-        patch(route('profile.update'));
+        patch(route('profile.update'), {
+            preserveScroll: true,
+        });
     };
 
     return (
-        <section className={className}>
-            <header>
-                <h2 className="text-lg font-medium text-gray-900">
-                    Profile Information
-                </h2>
-
-                <p className="mt-1 text-sm text-gray-600">
-                    Update your account's profile information and email address.
+        <div className="glass-panel p-6 sm:p-8 rounded-2xl border border-white/10 space-y-6">
+            <div className="border-b border-white/10 pb-4">
+                <h3 className="text-lg font-bold text-white flex items-center gap-2">
+                    <User size={20} className="text-[#ffd700]" />
+                    <span>Identitas Profil Saudagar</span>
+                </h3>
+                <p className="text-xs text-gray-400 mt-1">
+                    Perbarui nama tampilan dan username unik Anda di dunia ekspedisi Gunung Mas.
                 </p>
-            </header>
+            </div>
 
-            <form onSubmit={submit} className="mt-6 space-y-6">
-                <div>
-                    <InputLabel htmlFor="name" value="Name" />
-
-                    <TextInput
+            <form onSubmit={handleSubmit} className="space-y-5">
+                {/* Name */}
+                <div className="space-y-1.5">
+                    <label htmlFor="name" className="text-xs font-semibold text-gray-300">
+                        Nama Lengkap / Gelar Saudagar
+                    </label>
+                    <input
                         id="name"
-                        className="mt-1 block w-full"
+                        type="text"
                         value={data.name}
                         onChange={(e) => setData('name', e.target.value)}
                         required
-                        isFocused
-                        autoComplete="name"
+                        className="w-full px-4 py-2.5 rounded-xl bg-black/40 border border-white/15 text-white text-sm focus:outline-none focus:border-[#ffd700] focus:ring-1 focus:ring-[#ffd700] transition-all"
                     />
-
-                    <InputError className="mt-2" message={errors.name} />
+                    {errors.name && <p className="text-xs text-red-400">{errors.name}</p>}
                 </div>
 
-                <div>
-                    <InputLabel htmlFor="email" value="Email" />
-
-                    <TextInput
-                        id="email"
-                        type="email"
-                        className="mt-1 block w-full"
-                        value={data.email}
-                        onChange={(e) => setData('email', e.target.value)}
-                        required
-                        autoComplete="username"
-                    />
-
-                    <InputError className="mt-2" message={errors.email} />
-                </div>
-
-                {mustVerifyEmail && user.email_verified_at === null && (
-                    <div>
-                        <p className="mt-2 text-sm text-gray-800">
-                            Your email address is unverified.
-                            <Link
-                                href={route('verification.send')}
-                                method="post"
-                                as="button"
-                                className="rounded-md text-sm text-gray-600 underline hover:text-gray-900 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
-                            >
-                                Click here to re-send the verification email.
-                            </Link>
-                        </p>
-
-                        {status === 'verification-link-sent' && (
-                            <div className="mt-2 text-sm font-medium text-green-600">
-                                A new verification link has been sent to your
-                                email address.
-                            </div>
-                        )}
+                {/* Username */}
+                <div className="space-y-1.5">
+                    <label htmlFor="username" className="text-xs font-semibold text-gray-300">
+                        Username Unik (@)
+                    </label>
+                    <div className="relative">
+                        <span className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400 text-sm font-mono">@</span>
+                        <input
+                            id="username"
+                            type="text"
+                            value={data.username}
+                            onChange={(e) => setData('username', e.target.value.toLowerCase().replace(/[^a-z0-9._]/g, ''))}
+                            placeholder="nama_saudagar"
+                            className="w-full pl-8 pr-4 py-2.5 rounded-xl bg-black/40 border border-white/15 text-white text-sm font-mono focus:outline-none focus:border-[#ffd700] focus:ring-1 focus:ring-[#ffd700] transition-all"
+                        />
                     </div>
-                )}
+                    {errors.username && <p className="text-xs text-red-400">{errors.username}</p>}
+                </div>
 
-                <div className="flex items-center gap-4">
-                    <PrimaryButton disabled={processing}>Save</PrimaryButton>
+                {/* WhatsApp (Immutable / Readonly Binding) */}
+                <div className="space-y-1.5">
+                    <div className="flex items-center justify-between">
+                        <label className="text-xs font-semibold text-gray-300 flex items-center gap-1.5">
+                            <Phone size={14} className="text-emerald-400" />
+                            <span>Nomor WhatsApp Terikat</span>
+                        </label>
+                        <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 text-[10px] font-semibold">
+                            <CheckCircle2 size={11} />
+                            Terverifikasi
+                        </span>
+                    </div>
+                    <div className="relative">
+                        <input
+                            type="text"
+                            value={user.whatsapp}
+                            disabled
+                            className="w-full px-4 py-2.5 rounded-xl bg-black/60 border border-white/10 text-gray-400 text-sm font-mono cursor-not-allowed"
+                        />
+                        <Lock size={14} className="absolute right-3.5 top-1/2 -translate-y-1/2 text-gray-500" />
+                    </div>
+                    <p className="text-[11px] text-gray-500">
+                        Nomor WhatsApp terikat langsung dengan identitas SSO Mandeh.ID Anda dan tidak dapat diubah sembarangan demi keamanan finansial.
+                    </p>
+                </div>
 
-                    <Transition
-                        show={recentlySuccessful}
-                        enter="transition ease-in-out"
-                        enterFrom="opacity-0"
-                        leave="transition ease-in-out"
-                        leaveTo="opacity-0"
+                {/* Submit & Status Message */}
+                <div className="flex items-center justify-between pt-2 border-t border-white/5">
+                    {recentlySuccessful ? (
+                        <span className="text-xs text-emerald-400 flex items-center gap-1">
+                            <CheckCircle2 size={14} />
+                            Perubahan tersimpan!
+                        </span>
+                    ) : <span />}
+
+                    <button
+                        type="submit"
+                        disabled={processing}
+                        className="px-5 py-2.5 rounded-xl text-xs font-bold bg-gradient-to-r from-[#ffd700] to-[#e6be00] text-black hover:opacity-90 transition-all shadow-md bloom-gold"
                     >
-                        <p className="text-sm text-gray-600">
-                            Saved.
-                        </p>
-                    </Transition>
+                        {processing ? 'Menyimpan...' : 'Simpan Perubahan'}
+                    </button>
                 </div>
             </form>
-        </section>
+        </div>
     );
 }

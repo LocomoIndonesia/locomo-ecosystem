@@ -4,6 +4,7 @@ import NavLink from '@/Components/NavLink';
 import ResponsiveNavLink from '@/Components/ResponsiveNavLink';
 import { Link, usePage } from '@inertiajs/react';
 import { PropsWithChildren, ReactNode, useState } from 'react';
+import CookieConsentBanner from '@/Components/CookieConsentBanner';
 
 export default function Authenticated({
     header,
@@ -68,6 +69,11 @@ export default function Authenticated({
                                             href={route('profile.edit')}
                                         >
                                             Profile
+                                        </Dropdown.Link>
+                                        <Dropdown.Link
+                                            href={route('help.index')}
+                                        >
+                                            Pusat Bantuan
                                         </Dropdown.Link>
                                         <Dropdown.Link
                                             href={route('logout')}
@@ -174,6 +180,7 @@ export default function Authenticated({
             )}
 
             <main>{children}</main>
+            <CookieConsentBanner />
         </div>
     );
 }

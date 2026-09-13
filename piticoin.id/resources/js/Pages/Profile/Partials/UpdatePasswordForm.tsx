@@ -1,16 +1,8 @@
-import InputError from '@/Components/InputError';
-import InputLabel from '@/Components/InputLabel';
-import PrimaryButton from '@/Components/PrimaryButton';
-import TextInput from '@/Components/TextInput';
-import { Transition } from '@headlessui/react';
+import React, { useRef } from 'react';
 import { useForm } from '@inertiajs/react';
-import { FormEventHandler, useRef } from 'react';
+import { KeyRound, CheckCircle2 } from 'lucide-react';
 
-export default function UpdatePasswordForm({
-    className = '',
-}: {
-    className?: string;
-}) {
+export default function UpdatePasswordForm() {
     const passwordInput = useRef<HTMLInputElement>(null);
     const currentPasswordInput = useRef<HTMLInputElement>(null);
 
@@ -28,19 +20,18 @@ export default function UpdatePasswordForm({
         password_confirmation: '',
     });
 
-    const updatePassword: FormEventHandler = (e) => {
+    const updatePassword = (e: React.FormEvent) => {
         e.preventDefault();
 
         put(route('password.update'), {
             preserveScroll: true,
             onSuccess: () => reset(),
-            onError: (errors) => {
-                if (errors.password) {
+            onError: (errs) => {
+                if (errs.password) {
                     reset('password', 'password_confirmation');
                     passwordInput.current?.focus();
                 }
-
-                if (errors.current_password) {
+                if (errs.current_password) {
                     reset('current_password');
                     currentPasswordInput.current?.focus();
                 }
@@ -49,98 +40,92 @@ export default function UpdatePasswordForm({
     };
 
     return (
-        <section className={className}>
-            <header>
-                <h2 className="text-lg font-medium text-gray-900">
-                    Update Password
-                </h2>
-
-                <p className="mt-1 text-sm text-gray-600">
-                    Ensure your account is using a long, random password to stay
-                    secure.
+        <div className="glass-panel p-6 sm:p-8 rounded-2xl border border-white/10 space-y-6">
+            <div className="border-b border-white/10 pb-4">
+                <h3 className="text-lg font-bold text-white flex items-center gap-2">
+                    <KeyRound size={20} className="text-[#ffd700]" />
+                    <span>Perbarui Kata Sandi</span>
+                </h3>
+                <p className="text-xs text-gray-400 mt-1">
+                    Pastikan akun Anda menggunakan kombinasi kata sandi yang panjang dan aman.
                 </p>
-            </header>
+            </div>
 
-            <form onSubmit={updatePassword} className="mt-6 space-y-6">
-                <div>
-                    <InputLabel
-                        htmlFor="current_password"
-                        value="Current Password"
-                    />
-
-                    <TextInput
+            <form onSubmit={updatePassword} className="space-y-4 max-w-xl">
+                {/* Current Password */}
+                <div className="space-y-1.5">
+                    <label htmlFor="current_password" className="text-xs font-semibold text-gray-300">
+                        Kata Sandi Saat Ini
+                    </label>
+                    <input
                         id="current_password"
                         ref={currentPasswordInput}
                         value={data.current_password}
-                        onChange={(e) =>
-                            setData('current_password', e.target.value)
-                        }
+                        onChange={(e) => setData('current_password', e.target.value)}
                         type="password"
-                        className="mt-1 block w-full"
                         autoComplete="current-password"
+                        className="w-full px-4 py-2.5 rounded-xl bg-black/40 border border-white/15 text-white text-sm focus:outline-none focus:border-[#ffd700] focus:ring-1 focus:ring-[#ffd700] transition-all"
                     />
-
-                    <InputError
-                        message={errors.current_password}
-                        className="mt-2"
-                    />
+                    {errors.current_password && (
+                        <p className="text-xs text-red-400">{errors.current_password}</p>
+                    )}
                 </div>
 
-                <div>
-                    <InputLabel htmlFor="password" value="New Password" />
-
-                    <TextInput
+                {/* New Password */}
+                <div className="space-y-1.5">
+                    <label htmlFor="password" className="text-xs font-semibold text-gray-300">
+                        Kata Sandi Baru
+                    </label>
+                    <input
                         id="password"
                         ref={passwordInput}
                         value={data.password}
                         onChange={(e) => setData('password', e.target.value)}
                         type="password"
-                        className="mt-1 block w-full"
                         autoComplete="new-password"
+                        className="w-full px-4 py-2.5 rounded-xl bg-black/40 border border-white/15 text-white text-sm focus:outline-none focus:border-[#ffd700] focus:ring-1 focus:ring-[#ffd700] transition-all"
                     />
-
-                    <InputError message={errors.password} className="mt-2" />
+                    {errors.password && (
+                        <p className="text-xs text-red-400">{errors.password}</p>
+                    )}
                 </div>
 
-                <div>
-                    <InputLabel
-                        htmlFor="password_confirmation"
-                        value="Confirm Password"
-                    />
-
-                    <TextInput
+                {/* Confirm Password */}
+                <div className="space-y-1.5">
+                    <label htmlFor="password_confirmation" className="text-xs font-semibold text-gray-300">
+                        Konfirmasi Kata Sandi Baru
+                    </label>
+                    <input
                         id="password_confirmation"
                         value={data.password_confirmation}
-                        onChange={(e) =>
-                            setData('password_confirmation', e.target.value)
-                        }
+                        onChange={(e) => setData('password_confirmation', e.target.value)}
                         type="password"
-                        className="mt-1 block w-full"
                         autoComplete="new-password"
+                        className="w-full px-4 py-2.5 rounded-xl bg-black/40 border border-white/15 text-white text-sm focus:outline-none focus:border-[#ffd700] focus:ring-1 focus:ring-[#ffd700] transition-all"
                     />
-
-                    <InputError
-                        message={errors.password_confirmation}
-                        className="mt-2"
-                    />
+                    {errors.password_confirmation && (
+                        <p className="text-xs text-red-400">{errors.password_confirmation}</p>
+                    )}
                 </div>
 
-                <div className="flex items-center gap-4">
-                    <PrimaryButton disabled={processing}>Save</PrimaryButton>
+                {/* Submit & Status */}
+                <div className="flex items-center justify-between pt-2 border-t border-white/5">
+                    {recentlySuccessful ? (
+                        <span className="text-xs text-emerald-400 flex items-center gap-1">
+                            <CheckCircle2 size={14} />
+                            Kata sandi berhasil diganti!
+                        </span>
+                    ) : <span />}
 
-                    <Transition
-                        show={recentlySuccessful}
-                        enter="transition ease-in-out"
-                        enterFrom="opacity-0"
-                        leave="transition ease-in-out"
-                        leaveTo="opacity-0"
+                    <button
+                        type="submit"
+                        disabled={processing}
+                        className="px-5 py-2.5 rounded-xl text-xs font-bold bg-white/10 hover:bg-white/20 border border-white/20 text-white transition-all shadow-md"
                     >
-                        <p className="text-sm text-gray-600">
-                            Saved.
-                        </p>
-                    </Transition>
+                        {processing ? 'Menyimpan...' : 'Perbarui Kata Sandi'}
+                    </button>
                 </div>
             </form>
-        </section>
+        </div>
     );
 }
