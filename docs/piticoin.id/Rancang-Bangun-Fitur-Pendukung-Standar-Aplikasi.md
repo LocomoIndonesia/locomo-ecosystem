@@ -130,6 +130,6 @@ docs/piticoin.id/
 
 NB:
 - fitur WebPush Notif
-- Fitur Rating & Reputasi 
+- Fitur Rating & Reputasi berdasarkan apresiasi jaringan maupun dari client yang bertransaksi, serta termasuk riwayat check-in + serta tingkat penyelesaian misi
 - verifikasi misi dari pengguna di luar jaringan yang akan di kirim oleh sistem secara acak minimal 5 orang yang melakukan verifikasi
 - pasar lelang digital
