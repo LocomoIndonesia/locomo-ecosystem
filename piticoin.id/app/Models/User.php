@@ -73,9 +73,14 @@ class User extends Authenticatable
         return $this->hasMany(User::class, 'grand_upline_id');
     }
 
-    public function escrowTransactions()
+    public function escrows()
     {
-        return $this->hasMany(EscrowTransaction::class, 'user_id');
+        return $this->hasMany(EscrowTransaction::class);
+    }
+
+    public function reputation()
+    {
+        return $this->hasOne(UserReputation::class, 'user_id');
     }
 
     public function agentMissions()

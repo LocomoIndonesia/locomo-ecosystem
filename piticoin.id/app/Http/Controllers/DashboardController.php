@@ -23,7 +23,13 @@ class DashboardController extends Controller
         }
 
         // 1. Fetch User and Wallet details
-        $userWithWallet = User::with('wallet')->find($user->id);
+        $userWithWallet = User::with(['wallet', 'reputation'])->find($user->id);
+
+        if (!$userWithWallet->reputation) {
+            $repService = app(\App\Services\ReputationService::class);
+            $repService->initializeUser($user->id);
+            $userWithWallet->load('reputation');
+        }
 
         // If license status is PENDING, lock user in pending payment verification page
         if ($userWithWallet && $userWithWallet->license_status === 'PENDING') {
@@ -113,6 +119,7 @@ class DashboardController extends Controller
             'license_status' => $userWithWallet->license_status,
             'level' => $userWithWallet->level,
             'experience_points' => $userWithWallet->experience_points,
+            'reputation' => $userWithWallet->reputation,
         ];
 
         $ledgerEntries = \App\Models\LedgerEntry::where('wallet_id', $user->id)

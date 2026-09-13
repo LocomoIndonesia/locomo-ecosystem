@@ -76,6 +76,7 @@ flowchart TD
     E --> F1[Manajemen Jaringan: Lihat Downline & Bonus]
     E --> F2[Dompet Keuangan: Top-up, Withdraw, Histori Koin]
     E --> F3[Tugas & Misi: Staking Perak untuk Aksi Ekosistem]
+    E --> F4[Hub Baitul Mal: Donasi Koin Emas & Transparansi Distribusi]
     
     %% Jembatan Ekspansi (Data Dispatcher)
     E --> G[Menu Ekspansi & Pendaftaran Layanan]
@@ -96,10 +97,12 @@ flowchart TD
     I --> J1[Bayar Langganan Layanan (Unimart/WaliKelas)]
     I --> J2[Bursa PPOB: Beli Pulsa, Token PLN, dll]
     I --> J3[Bursa Perbekalan: Beli Item Game Misi]
+    I --> J4[Pasar Lelang & Smart Escrow]
     
     J1 --> K[Bayar pakai Koin Emas / Fiat]
     J2 --> K
     J3 --> K
+    J4 --> K
 ```
 
 ---
@@ -160,3 +163,4 @@ Untuk memperkuat gamifikasi "Perburuan Harta Karun Gunung Mas", pengguna dapat m
    - Unimart -> PitiCoin (`POST /api/billing/create-invoice`)
    - PitiCoin -> Provider PPOB (Digiflazz/Tripay) untuk pemrosesan pulsa/token.
 3. **Stateless Identity:** Pengguna hanya perlu login satu kali melalui **Mandeh.ID** (SSO/JWT Token) untuk berpindah dari dasbor PitiCoin ke Unimart POS tanpa perlu login ulang.
+4. **Kepatuhan Privasi Data (UU PDP No. 27/2022):** Setiap data publik yang ditampilkan dalam fitur publik ekosistem (seperti daftar donatur di Baitul Mal atau pemenang lelang) akan diproses melalui enkripsi dan *masking* algoritma (cth. `Ahmad` $\rightarrow$ `Ah***`, `08123456` $\rightarrow$ `0812****56`).

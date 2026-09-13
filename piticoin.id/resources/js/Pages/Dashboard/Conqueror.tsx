@@ -17,6 +17,14 @@ interface ConquerorProps {
         license_status: string;
         level: number;
         experience_points: number;
+        reputation?: {
+            total_score: number;
+            current_status: string;
+            network_score: number;
+            transaction_score: number;
+            checkin_score: number;
+            mission_score: number;
+        };
     };
     wallet: {
         silver_balance: number;
@@ -508,10 +516,20 @@ export default function Conqueror({
                             >
                                 {currentUser.name}
                             </h3>
-                            <div className="flex items-center gap-1.5">
+                            <div className="flex items-center gap-1.5 flex-wrap">
                                 <span className="font-label-sm text-[9px] md:text-[10px] text-on-surface-variant uppercase tracking-wider truncate">
                                     {currentUser.role} • {currentUser.persona}
                                 </span>
+                                {currentUser.reputation && (
+                                    <span className={`text-[8px] md:text-[9px] font-bold uppercase px-1.5 py-0.5 rounded border ${
+                                        currentUser.reputation.current_status === 'DIASINGKAN' ? 'bg-red-500/20 border-red-500/40 text-red-400' :
+                                        currentUser.reputation.current_status === 'DIBENCI' ? 'bg-orange-500/20 border-orange-500/40 text-orange-400' :
+                                        currentUser.reputation.current_status === 'DICINTAI' ? 'bg-pink-500/20 border-pink-500/40 text-pink-400' :
+                                        'bg-yellow-500/10 border-yellow-500/30 text-[#ffd700]'
+                                    }`}>
+                                        {currentUser.reputation.current_status} ({currentUser.reputation.total_score} RSP)
+                                    </span>
+                                )}
                             </div>
 
                             {/* Green EXP Bar */}

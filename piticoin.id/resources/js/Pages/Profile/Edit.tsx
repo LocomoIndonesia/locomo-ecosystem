@@ -38,6 +38,14 @@ interface EditProps {
         total_reviews: number;
         avatar_url: string | null;
         audio_sfx_enabled: boolean;
+        reputation?: {
+            total_score: number;
+            current_status: string;
+            network_score: number;
+            transaction_score: number;
+            checkin_score: number;
+            mission_score: number;
+        };
     };
     presets: Array<{
         key: string;
@@ -238,6 +246,80 @@ export default function Edit({ user, presets, sessions, status }: EditProps) {
                         </div>
                     </div>
                 </div>
+
+                {/* Section: Respect Status & Social Standing */}
+                {user.reputation && (
+                    <div className="glass-panel p-6 sm:p-8 rounded-2xl border border-white/10 relative overflow-hidden bg-[#131313]">
+                        <div className="flex flex-col sm:flex-row items-center gap-6 justify-between mb-6">
+                            <div>
+                                <h3 className="text-lg font-bold text-white flex items-center gap-2">
+                                    <Shield className="text-[#ffd700]" size={20} />
+                                    Reputasi & Status Sosial
+                                </h3>
+                                <p className="text-xs text-gray-400 mt-1">Status dan pandangan masyarakat ekosistem terhadap Anda.</p>
+                            </div>
+                            <div className="text-center sm:text-right">
+                                <div className="text-3xl font-black bg-clip-text text-transparent bg-gradient-to-r from-[#ffd700] to-[#ffaa00]">
+                                    {user.reputation.total_score} <span className="text-sm text-[#ffd700]">RESPECT</span>
+                                </div>
+                                <div className={`text-xs font-bold uppercase tracking-wider mt-1 px-3 py-1 rounded-full border inline-block ${
+                                    user.reputation.current_status === 'DIASINGKAN' ? 'bg-red-500/20 border-red-500/40 text-red-400' :
+                                    user.reputation.current_status === 'DIBENCI' ? 'bg-orange-500/20 border-orange-500/40 text-orange-400' :
+                                    user.reputation.current_status === 'DICINTAI' ? 'bg-pink-500/20 border-pink-500/40 text-pink-400' :
+                                    'bg-yellow-500/10 border-yellow-500/30 text-[#ffd700]'
+                                }`}>
+                                    Status: {user.reputation.current_status}
+                                </div>
+                            </div>
+                        </div>
+
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                            {/* Variable: Network */}
+                            <div className="space-y-1">
+                                <div className="flex justify-between text-xs font-semibold text-gray-300">
+                                    <span>Jaringan & Apresiasi</span>
+                                    <span className="text-[#ffd700]">{user.reputation.network_score} Poin</span>
+                                </div>
+                                <div className="h-2 rounded-full bg-black/50 border border-white/5 overflow-hidden">
+                                    <div className="h-full bg-blue-500 rounded-full" style={{ width: `${Math.min(100, (user.reputation.network_score / 100) * 100)}%` }} />
+                                </div>
+                            </div>
+
+                            {/* Variable: Transaction */}
+                            <div className="space-y-1">
+                                <div className="flex justify-between text-xs font-semibold text-gray-300">
+                                    <span>Integritas Transaksi</span>
+                                    <span className="text-[#ffd700]">{user.reputation.transaction_score} Poin</span>
+                                </div>
+                                <div className="h-2 rounded-full bg-black/50 border border-white/5 overflow-hidden">
+                                    <div className="h-full bg-emerald-500 rounded-full" style={{ width: `${Math.min(100, (user.reputation.transaction_score / 100) * 100)}%` }} />
+                                </div>
+                            </div>
+
+                            {/* Variable: Check-in */}
+                            <div className="space-y-1">
+                                <div className="flex justify-between text-xs font-semibold text-gray-300">
+                                    <span>Konsistensi Kehadiran</span>
+                                    <span className="text-[#ffd700]">{user.reputation.checkin_score} Poin</span>
+                                </div>
+                                <div className="h-2 rounded-full bg-black/50 border border-white/5 overflow-hidden">
+                                    <div className="h-full bg-purple-500 rounded-full" style={{ width: `${Math.min(100, (user.reputation.checkin_score / 100) * 100)}%` }} />
+                                </div>
+                            </div>
+
+                            {/* Variable: Mission */}
+                            <div className="space-y-1">
+                                <div className="flex justify-between text-xs font-semibold text-gray-300">
+                                    <span>Keberhasilan Misi</span>
+                                    <span className="text-[#ffd700]">{user.reputation.mission_score} Poin</span>
+                                </div>
+                                <div className="h-2 rounded-full bg-black/50 border border-white/5 overflow-hidden">
+                                    <div className="h-full bg-amber-500 rounded-full" style={{ width: `${Math.min(100, (user.reputation.mission_score / 100) * 100)}%` }} />
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                )}
 
                 {/* Section 1: Avatar Customizer */}
                 <AvatarCustomizer currentAvatar={user.avatar_url} presets={presets} />

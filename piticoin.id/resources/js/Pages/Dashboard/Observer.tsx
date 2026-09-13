@@ -11,6 +11,14 @@ interface ObserverProps {
         role_class: string;
         level: number;
         experience_points: number;
+        reputation?: {
+            total_score: number;
+            current_status: string;
+            network_score: number;
+            transaction_score: number;
+            checkin_score: number;
+            mission_score: number;
+        };
     };
     wallet: {
         silver_balance: number;

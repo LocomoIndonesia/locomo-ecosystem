@@ -27,6 +27,13 @@ class ProfileController extends Controller
     public function edit(Request $request): Response
     {
         $user = $request->user();
+        
+        if (!$user->reputation) {
+            $repService = app(\App\Services\ReputationService::class);
+            $repService->initializeUser($user->id);
+            $user->load('reputation');
+        }
+
         $sessions = $this->sessionSecurityService->getActiveSessions($user, $request);
 
         return Inertia::render('Profile/Edit', [
@@ -46,6 +53,7 @@ class ProfileController extends Controller
                 'total_reviews' => (int) ($user->total_reviews ?? 0),
                 'avatar_url' => $user->avatar_url,
                 'audio_sfx_enabled' => (bool) ($user->audio_sfx_enabled ?? true),
+                'reputation' => $user->reputation,
             ],
             'presets' => array_values(ProfileService::PRESET_AVATARS),
             'sessions' => $sessions,

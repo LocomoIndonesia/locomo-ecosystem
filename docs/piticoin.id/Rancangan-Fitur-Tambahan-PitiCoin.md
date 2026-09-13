@@ -71,3 +71,15 @@ Bursa nilai dinamis (Dynamic Value Exchange) di dalam ekosistem Locomo. Tempat p
 
 ---
 *Rancangan ini siap untuk diturunkan menjadi ERD (Entity Relationship Diagram) dan skenario integrasi API.*
+
+---
+
+## 5. Fitur Baitul Mal & Kas Sosial Koin Emas (Treasury System)
+**Konsep Dasar:**
+Wadah serap moneter (*Treasury & Staking Sink*) sekaligus kotak amal digital untuk sedekah Koin Emas dari para pengguna. Tujuannya adalah menekan inflasi koin (sebagai counter-balance dari Angpao Harian) sekaligus memberikan perlindungan sosial (Bantuan Darurat) bagi pengguna ekosistem Locomo yang memenuhi kriteria (Mustahik).
+
+**Fitur & Mekanisme Kunci:**
+1. **Transparansi Ledger:** Saldo Baitul Mal (Uang Masuk dan Uang Keluar) direkam melalui skema Double-Entry Ledger, sehingga pengguna bisa melihat pergerakan Koin Emas secara *real-time* di Dashboard.
+2. **Kepatuhan Privasi Data (UU PDP No. 27/2022):** Identitas donatur dan penerima santunan akan dilindungi dan disamarkan secara sistem. (Contoh: `Budi Santoso` menjadi `Bu*** Sa*****` dan nomor ponsel `081234567890` menjadi `0812****7890`).
+3. **Anonimitas Penuh (Hamba Allah):** Pengguna dapat memilih opsi anonim penuh saat memberikan donasi Koin Emas, namun transaksinya tetap tercatat valid secara agregat di Ledger publik.
+4. **Distribusi Terjadwal:** Penyaluran (Distribution) kepada Mustahik dilakukan per *batch* / periode (contoh: Distribusi Batch September 2026), sehingga alur keuangan dapat di-audit secara berkala.
