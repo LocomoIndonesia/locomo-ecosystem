@@ -1,7 +1,8 @@
 import { useState, useEffect } from 'react';
 import { Head, router, Link } from '@inertiajs/react';
-import { Coins, Flame, Map, Users, ArrowRight, Shield, Award, LogOut, MessageSquare, Send, X, RefreshCw, User as UserIcon, HelpCircle, Heart, Gavel } from 'lucide-react';
+import { Coins, Flame, Map, Users, ArrowRight, Shield, Award, LogOut, MessageSquare, Send, X, RefreshCw, User as UserIcon, HelpCircle, Heart, Gavel, Bell } from 'lucide-react';
 import CookieConsentBanner from '@/Components/CookieConsentBanner';
+import NotificationDrawer from '@/Components/NotificationDrawer';
 
 interface DashboardProps {
     user: {
@@ -61,6 +62,9 @@ export default function Dashboard({
     const [animatedFiat, setAnimatedFiat] = useState<number>(
         Number(global_pool?.total_fiat_in_bank || 500000) - Number(global_pool?.total_gold_in_circulation || 0)
     );
+
+    // Notification Drawer & WebPush State
+    const [showNotificationDrawer, setShowNotificationDrawer] = useState(false);
 
     // Consultation & Q&A States
     const [showConsultModal, setShowConsultModal] = useState(false);
@@ -327,6 +331,15 @@ export default function Dashboard({
                         >
                             <MessageSquare size={13} />
                             <span>Konsultasi</span>
+                        </button>
+                        <button
+                            onClick={() => setShowNotificationDrawer(true)}
+                            className="btn btn-secondary"
+                            style={{ fontSize: '0.7rem', padding: '0.35rem 0.65rem', display: 'flex', alignItems: 'center', gap: '0.35rem', borderColor: 'rgba(255,215,0,0.4)', color: '#ffd700' }}
+                            title="Pusat Notifikasi & WebPush"
+                        >
+                            <Bell size={13} />
+                            <span>Notifikasi</span>
                         </button>
                         <span className={`user-badge ${user.role === 'MERCHANT' ? 'badge-merchant' : 'badge-guest'}`}>
                             {user.role === 'MERCHANT' ? 'Merchant Tier' : 'Free Tier'}
@@ -794,6 +807,10 @@ export default function Dashboard({
             </footer>
 
             <CookieConsentBanner />
+            <NotificationDrawer
+                isOpen={showNotificationDrawer}
+                onClose={() => setShowNotificationDrawer(false)}
+            />
         </div>
     );
 }

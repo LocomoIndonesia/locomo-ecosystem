@@ -87,6 +87,12 @@ Route::middleware('auth')->group(function () {
     Route::post('/baitul-mal/donate', [\App\Http\Controllers\BaitulMalController::class, 'donate'])->name('baitul-mal.donate');
     Route::post('/api/baitul-mal/aamiin/{id}', [\App\Http\Controllers\BaitulMalController::class, 'aamiin'])->name('baitul-mal.aamiin');
 
+    // WebPush Notifications (RFC 8292 VAPID)
+    Route::get('/api/webpush/vapid-key', [\App\Http\Controllers\WebPushController::class, 'getPublicKey'])->name('webpush.vapid-key');
+    Route::post('/api/webpush/subscribe', [\App\Http\Controllers\WebPushController::class, 'subscribe'])->name('webpush.subscribe');
+    Route::post('/api/webpush/unsubscribe', [\App\Http\Controllers\WebPushController::class, 'unsubscribe'])->name('webpush.unsubscribe');
+    Route::post('/api/webpush/test', [\App\Http\Controllers\WebPushController::class, 'sendTest'])->name('webpush.test');
+
     // Profile & Persona Identity Management
     Route::get('/profile', [\App\Http\Controllers\ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [\App\Http\Controllers\ProfileController::class, 'update'])->name('profile.update');
