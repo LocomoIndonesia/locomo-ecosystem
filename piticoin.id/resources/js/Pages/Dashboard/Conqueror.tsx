@@ -1510,7 +1510,7 @@ export default function Conqueror({
                 {/* VIEW 2: MUTASI TRANSAKSI & CATATAN LEDGER                 */}
                 {/* ========================================================= */}
                 {activeBottomNav === 'MUTASI' && (
-                    <div className="space-y-4 animate-fade-in">
+                    <div className="space-y-4 animate-fade-in pt-3.5 md:pt-5">
                         {/* Summary Header Cards */}
                         <div className="grid grid-cols-2 gap-3 font-mono">
                             <div className="glass-panel p-3.5 rounded-xl border border-glass-stroke bg-surface/50">
@@ -1640,7 +1640,7 @@ export default function Conqueror({
                 {/* VIEW 3: WALLET & MANAJEMEN DOMPET DIGITAL                 */}
                 {/* ========================================================= */}
                 {activeBottomNav === 'WALLET' && (
-                    <div className="space-y-4 animate-fade-in">
+                    <div className="space-y-4 animate-fade-in pt-3.5 md:pt-5">
                         {/* Elite Black Metal Sovereign Card */}
                         <div className="relative rounded-2xl p-5 overflow-hidden border border-primary-container/50 shadow-2xl bg-gradient-to-br from-obsidian-surface via-surface to-obsidian-surface text-on-surface">
                             <div className="absolute top-0 right-0 w-36 h-36 bg-primary-container/10 rounded-full blur-2xl pointer-events-none"></div>
@@ -1753,7 +1753,7 @@ export default function Conqueror({
                 {/* VIEW 4: PROFIL & PENGATURAN AKUN SAUDAGAR                */}
                 {/* ========================================================= */}
                 {activeBottomNav === 'PROFILE' && (
-                    <div className="space-y-4 animate-fade-in">
+                    <div className="space-y-4 animate-fade-in pt-3.5 md:pt-5">
                         {/* Profile Identity Card */}
                         <div className="glass-panel rounded-2xl p-5 border border-primary-container/40 text-center space-y-3 relative overflow-hidden">
                             <div className="relative inline-block mx-auto">
