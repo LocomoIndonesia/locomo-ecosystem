@@ -526,50 +526,56 @@ export default function BaitulMalIndex({
                                                     </p>
                                                 )}
 
-                                                <div className="overflow-x-auto">
-                                                    <table className="w-full text-left text-xs">
-                                                        <thead>
-                                                            <tr className="border-b border-white/10 text-gray-400 font-mono text-[10px] uppercase">
-                                                                <th className="py-2.5 px-3">No</th>
-                                                                <th className="py-2.5 px-3">Penerima (Masked)</th>
-                                                                <th className="py-2.5 px-3">Kategori Mustahik</th>
-                                                                <th className="py-2.5 px-3 text-right">Jumlah Santunan</th>
-                                                                <th className="py-2.5 px-3">Keterangan Penyaluran</th>
-                                                            </tr>
-                                                        </thead>
-                                                        <tbody className="divide-y divide-white/5">
-                                                            {period.distributions.length === 0 ? (
-                                                                <tr>
-                                                                    <td colSpan={5} className="py-6 text-center text-gray-500">
-                                                                        Belum ada data rincian untuk periode ini.
-                                                                    </td>
-                                                                </tr>
-                                                            ) : (
-                                                                period.distributions.map((item, idx) => {
-                                                                    const catInfo = getCategoryLabel(item.beneficiary_category);
-                                                                    return (
-                                                                        <tr key={item.id} className="hover:bg-white/[0.02] transition-colors">
-                                                                            <td className="py-2.5 px-3 font-mono text-gray-500">{idx + 1}</td>
-                                                                            <td className="py-2.5 px-3 font-medium text-white">
-                                                                                {item.masked_beneficiary_name}
-                                                                            </td>
-                                                                            <td className="py-2.5 px-3">
-                                                                                <span className={`text-[10px] px-2 py-0.5 rounded-full border font-mono ${catInfo.color}`}>
+                                                {/* Modern Responsive Beneficiary List (Pills with Badge & Info) */}
+                                                <div className="space-y-2.5">
+                                                    {period.distributions.length === 0 ? (
+                                                        <div className="py-8 text-center text-gray-500 text-xs">
+                                                            Belum ada data rincian untuk periode ini.
+                                                        </div>
+                                                    ) : (
+                                                        period.distributions.map((item, idx) => {
+                                                            const catInfo = getCategoryLabel(item.beneficiary_category);
+                                                            return (
+                                                                <div
+                                                                    key={item.id}
+                                                                    className="p-3 sm:p-4 rounded-xl bg-white/[0.03] hover:bg-white/[0.06] border border-white/5 hover:border-amber-500/20 transition-all duration-200 flex flex-col sm:flex-row sm:items-center justify-between gap-3 shadow-sm"
+                                                                >
+                                                                    {/* Left: Index + Masked Name + Category Badge + Notes */}
+                                                                    <div className="flex items-start sm:items-center gap-3">
+                                                                        <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-amber-500/10 border border-amber-500/30 text-amber-400 font-mono font-bold text-xs flex items-center justify-center shrink-0 mt-0.5 sm:mt-0">
+                                                                            {idx + 1}
+                                                                        </div>
+                                                                        <div className="space-y-1 min-w-0">
+                                                                            <div className="flex items-center gap-2 flex-wrap">
+                                                                                <span className="font-bold text-white text-xs sm:text-sm">
+                                                                                    {item.masked_beneficiary_name}
+                                                                                </span>
+                                                                                <span className={`text-[10px] px-2 py-0.5 rounded-full border font-mono font-semibold ${catInfo.color}`}>
                                                                                     {catInfo.label}
                                                                                 </span>
-                                                                            </td>
-                                                                            <td className="py-2.5 px-3 text-right font-mono font-bold text-amber-400">
-                                                                                {Number(item.amount_gold).toLocaleString('id-ID')} Emas
-                                                                            </td>
-                                                                            <td className="py-2.5 px-3 text-gray-400 text-[11px]">
-                                                                                {item.distribution_note || '-'}
-                                                                            </td>
-                                                                        </tr>
-                                                                    );
-                                                                })
-                                                            )}
-                                                        </tbody>
-                                                    </table>
+                                                                            </div>
+                                                                            {item.distribution_note && (
+                                                                                <p className="text-[11px] sm:text-xs text-gray-400 leading-relaxed">
+                                                                                    {item.distribution_note}
+                                                                                </p>
+                                                                            )}
+                                                                        </div>
+                                                                    </div>
+
+                                                                    {/* Right: Amount in Gold Pill */}
+                                                                    <div className="flex items-center justify-between sm:justify-end gap-2 shrink-0 pt-2 sm:pt-0 border-t sm:border-t-0 border-white/5">
+                                                                        <span className="text-[10px] text-gray-500 font-medium sm:hidden uppercase tracking-wider">
+                                                                            Santunan:
+                                                                        </span>
+                                                                        <div className="flex items-center gap-1.5 px-3 py-1 rounded-lg bg-amber-500/10 border border-amber-500/30 text-amber-400 font-mono font-bold text-xs sm:text-sm shadow-inner">
+                                                                            <Coins size={13} className="text-amber-400" />
+                                                                            <span>+{Number(item.amount_gold).toLocaleString('id-ID')} Emas</span>
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
+                                                            );
+                                                        })
+                                                    )}
                                                 </div>
                                             </div>
                                         )}
