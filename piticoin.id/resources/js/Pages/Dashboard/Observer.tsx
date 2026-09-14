@@ -1,5 +1,6 @@
 import { Head, Link } from '@inertiajs/react';
 import CookieConsentBanner from '@/Components/CookieConsentBanner';
+import WebPushPermissionModal from '@/Components/WebPushPermissionModal';
 
 interface ObserverProps {
     user: {
@@ -236,6 +237,7 @@ export default function Observer({ user, wallet }: ObserverProps) {
             </nav>
 
             <CookieConsentBanner />
+            <WebPushPermissionModal />
 
         </div>
     );

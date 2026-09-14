@@ -1,6 +1,9 @@
 import { useState, useEffect } from 'react';
 import { Head, router, Link } from '@inertiajs/react';
 import CookieConsentBanner from '@/Components/CookieConsentBanner';
+import NotificationDrawer from '@/Components/NotificationDrawer';
+import WebPushPermissionModal from '@/Components/WebPushPermissionModal';
+import { Bell } from 'lucide-react';
 
 interface ConquerorProps {
     user: {
@@ -151,6 +154,7 @@ export default function Conqueror({
     const [showScanModal, setShowScanModal] = useState(false);
     const [scanTab, setScanTab] = useState<'SCANNER' | 'MY_QR'>('SCANNER');
     const [mutasiFilter, setMutasiFilter] = useState<'ALL' | 'SILVER' | 'GOLD' | 'CREDIT' | 'DEBIT'>('ALL');
+    const [showNotificationDrawer, setShowNotificationDrawer] = useState(false);
 
     // Live state
     const [wallet, setWallet] = useState(initialWallet);
@@ -599,16 +603,25 @@ export default function Conqueror({
                     {activeBottomNav === 'WALLET' && 'DOMPET DIGITAL'}
                     {activeBottomNav === 'PROFILE' && 'PROFIL SAUDAGAR'}
                 </h1>
-                <button
-                    onClick={() => setShowUpgradeModal(true)}
-                    className="text-on-surface-variant hover:text-primary-fixed-dim transition-colors w-10 h-10 rounded-full overflow-hidden border-2 border-primary-container shadow-[0_0_10px_rgba(255,215,0,0.4)] active:scale-95 duration-200"
-                >
-                    <img
-                        alt="Explorer Rank Icon"
-                        className="w-full h-full object-cover"
-                        src="https://lh3.googleusercontent.com/aida-public/AB6AXuDtnNnM6GYAk06weL4J1x3GacDiwegweSKP84SJLeHNza0vvwlFwOUmt95Zp-S_X6zG6qkVVm-b90g6cINFPfuTa-nBO-3nCvwowsn452NwPmp6pNvXqVPhxwzPz2t4xwLoiP_EH1vm9bu1Q57t2jjgzGpaiXRk_NOuzg4GfBJ4rpt0dZrV5lN1gNXxvmoF9bCGXy8lMrSt6FfvwopiDszDU135FTdSvBO4XcYORkyfoUAviuDfWCA"
-                    />
-                </button>
+                <div className="flex items-center gap-2">
+                    <button
+                        onClick={() => setShowNotificationDrawer(true)}
+                        title="Pusat Notifikasi & WebPush"
+                        className="text-amber-400 hover:text-white transition-colors p-2 rounded-full hover:bg-white/10 active:scale-95 duration-200"
+                    >
+                        <Bell size={20} />
+                    </button>
+                    <button
+                        onClick={() => setShowUpgradeModal(true)}
+                        className="text-on-surface-variant hover:text-primary-fixed-dim transition-colors w-10 h-10 rounded-full overflow-hidden border-2 border-primary-container shadow-[0_0_10px_rgba(255,215,0,0.4)] active:scale-95 duration-200"
+                    >
+                        <img
+                            alt="Explorer Rank Icon"
+                            className="w-full h-full object-cover"
+                            src="https://lh3.googleusercontent.com/aida-public/AB6AXuDtnNnM6GYAk06weL4J1x3GacDiwegweSKP84SJLeHNza0vvwlFwOUmt95Zp-S_X6zG6qkVVm-b90g6cINFPfuTa-nBO-3nCvwowsn452NwPmp6pNvXqVPhxwzPz2t4xwLoiP_EH1vm9bu1Q57t2jjgzGpaiXRk_NOuzg4GfBJ4rpt0dZrV5lN1gNXxvmoF9bCGXy8lMrSt6FfvwopiDszDU135FTdSvBO4XcYORkyfoUAviuDfWCA"
+                        />
+                    </button>
+                </div>
             </header>
 
             <main className="relative z-10 w-full max-w-container-max mx-auto px-margin-mobile md:px-margin-desktop flex flex-col gap-5">
@@ -2359,6 +2372,11 @@ export default function Conqueror({
             </footer>
 
             <CookieConsentBanner />
+            <WebPushPermissionModal />
+            <NotificationDrawer
+                isOpen={showNotificationDrawer}
+                onClose={() => setShowNotificationDrawer(false)}
+            />
 
             {/* Custom Laser Scan Animation Style */}
             <style>{`
