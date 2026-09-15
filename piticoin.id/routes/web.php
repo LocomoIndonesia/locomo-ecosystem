@@ -93,6 +93,12 @@ Route::middleware('auth')->group(function () {
     Route::post('/api/webpush/unsubscribe', [\App\Http\Controllers\WebPushController::class, 'unsubscribe'])->name('webpush.unsubscribe');
     Route::post('/api/webpush/test', [\App\Http\Controllers\WebPushController::class, 'sendTest'])->name('webpush.test');
 
+    // Konsensus Juri Verifikasi Misi Khusus (5 Juri Acak & Honeypot Trap System)
+    Route::get('/verifications', [\App\Http\Controllers\MissionVerificationController::class, 'index'])->name('verifications.index');
+    Route::get('/verifications/{id}', [\App\Http\Controllers\MissionVerificationController::class, 'show'])->name('verifications.show');
+    Route::post('/verifications/{id}/vote', [\App\Http\Controllers\MissionVerificationController::class, 'submitVote'])->name('verifications.vote');
+    Route::post('/verifications/submit', [\App\Http\Controllers\MissionVerificationController::class, 'submitProof'])->name('verifications.submit');
+
     // Profile & Persona Identity Management
     Route::get('/profile', [\App\Http\Controllers\ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [\App\Http\Controllers\ProfileController::class, 'update'])->name('profile.update');

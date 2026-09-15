@@ -33,6 +33,7 @@ class User extends Authenticatable
         'rating',
         'total_reviews',
         'audio_sfx_enabled',
+        'jury_banned_until',
     ];
 
     protected $hidden = [
@@ -45,6 +46,7 @@ class User extends Authenticatable
         return [
             'password' => 'hashed',
             'audio_sfx_enabled' => 'boolean',
+            'jury_banned_until' => 'datetime',
         ];
     }
 
@@ -111,5 +113,20 @@ class User extends Authenticatable
     public function affiliateCommissions()
     {
         return $this->hasMany(AffiliateCommission::class, 'upline_user_id');
+    }
+
+    public function jurorAssignments()
+    {
+        return $this->hasMany(MissionVerificationJuror::class, 'juror_user_id');
+    }
+
+    public function submittedVerifications()
+    {
+        return $this->hasMany(MissionVerification::class, 'submitter_user_id');
+    }
+
+    public function isJuryBanned(): bool
+    {
+        return $this->jury_banned_until && $this->jury_banned_until->isFuture();
     }
 }

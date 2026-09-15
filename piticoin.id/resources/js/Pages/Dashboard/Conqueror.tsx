@@ -734,7 +734,7 @@ export default function Conqueror({
                                 </span>
                                 <span className="text-[9px] text-on-surface-variant font-mono">Pintu Masuk Terpadu</span>
                             </div>
-                            <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5">
+                            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-2.5">
                                 {/* Card 1: Baitul Mal */}
                                 <Link
                                     href={route('baitul-mal.index')}
@@ -754,6 +754,29 @@ export default function Conqueror({
                                         </strong>
                                         <span className="text-[10px] text-on-surface-variant block mt-0.5 leading-tight">
                                             Sedekah & Mustahik
+                                        </span>
+                                    </div>
+                                </Link>
+
+                                {/* Card 2: Juri Verifikasi */}
+                                <Link
+                                    href={route('verifications.index')}
+                                    className="glass-panel p-3 rounded-2xl border border-glass-stroke hover:border-amber-400/60 hover:scale-[1.02] active:scale-95 transition-all flex flex-col justify-between group shadow"
+                                >
+                                    <div className="flex items-center justify-between mb-2">
+                                        <div className="w-8 h-8 rounded-xl bg-amber-400/15 text-amber-400 flex items-center justify-center border border-amber-400/30">
+                                            <span className="material-symbols-outlined text-base">balance</span>
+                                        </div>
+                                        <span className="text-[9px] font-mono font-bold text-amber-400 bg-amber-400/10 px-1.5 py-0.5 rounded-md border border-amber-400/30">
+                                            5 Juri
+                                        </span>
+                                    </div>
+                                    <div>
+                                        <strong className="text-xs font-bold text-white group-hover:text-amber-300 transition-colors block">
+                                            Juri Verifikasi
+                                        </strong>
+                                        <span className="text-[10px] text-on-surface-variant block mt-0.5 leading-tight">
+                                            Konsensus & Pasak
                                         </span>
                                     </div>
                                 </Link>
@@ -1868,6 +1891,27 @@ export default function Conqueror({
                                         </span>
                                         <span className="text-[10px] text-on-surface-variant block">
                                             Transparansi kas sosial, live wall muhsinin, & santunan mustahik
+                                        </span>
+                                    </div>
+                                </div>
+                                <span className="material-symbols-outlined text-on-surface-variant text-sm group-hover:translate-x-1 transition-transform">chevron_right</span>
+                            </Link>
+
+                            {/* 3b. Konsensus Juri Misi */}
+                            <Link
+                                href={route('verifications.index')}
+                                className="w-full p-3.5 flex items-center justify-between hover:bg-white/5 transition-colors text-left group"
+                            >
+                                <div className="flex items-center gap-3">
+                                    <div className="w-8 h-8 rounded-lg bg-amber-400/15 text-amber-400 flex items-center justify-center border border-amber-400/30">
+                                        <span className="material-symbols-outlined text-base">balance</span>
+                                    </div>
+                                    <div>
+                                        <span className="font-semibold text-white group-hover:text-amber-300 transition-colors block">
+                                            Konsensus Juri Misi (5 Juri & Honeypot)
+                                        </span>
+                                        <span className="text-[10px] text-on-surface-variant block">
+                                            Validasi blind consensus 5 juri acak, pasak 50 Perak, & proteksi integritas
                                         </span>
                                     </div>
                                 </div>
