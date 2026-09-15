@@ -63,6 +63,7 @@ def sync(project_code, graph_path, base_url):
 
     nodes = data.get("nodes", [])
     print(f"Found {len(nodes)} nodes. Starting synchronization for project '{project_code}'...")
+    active_ids = [n.get("id") for n in nodes if n.get("id")]
 
     store_url = f"{base_url}/memory/store"
     synced_count = 0
@@ -157,6 +158,17 @@ def sync(project_code, graph_path, base_url):
             print(f"Processed {i}/{len(nodes)} nodes, generated {synced_count} vector records...")
 
     print(f"Synchronization complete. Successfully stored {synced_count} semantic memory records.")
+
+    # 3. Reconcile (Tiket 2.2): prune vektor basi yang tak lagi ada di graf
+    prune_url = f"{base_url}/memory/prune"
+    try:
+        status, text = http_post(prune_url, {"project_code": project_code, "active_ids": active_ids})
+        if status == 200:
+            print(f"Reconcile: pruned {json.loads(text).get('pruned', '?')} stale records.")
+        else:
+            print(f"Warning: prune returned status {status}: {text}")
+    except Exception as e:
+        print(f"Warning: reconcile prune gagal: {e}")
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Synchronize Graphify nodes to pgvector database with deep content RAG.")
