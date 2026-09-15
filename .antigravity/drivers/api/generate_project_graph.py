@@ -183,6 +183,111 @@ def parse_js_file(content, rel_path, file_node_id):
                 })
     return nodes, links
 
+CODE_EXTS = {'.php', '.js', '.jsx', '.py', '.ts', '.tsx', '.mts', '.cts', '.vue'}
+
+def parse_ts_file(content, rel_path, file_node_id, line_offset=0):
+    nodes = []
+    links = []
+    class_pattern = re.compile(r'^\s*(?:export\s+)?(?:default\s+)?(?:abstract\s+)?class\s+(\w+)')
+    iface_pattern = re.compile(r'^\s*(?:export\s+)?(?:default\s+)?interface\s+(\w+)')
+    enum_pattern = re.compile(r'^\s*(?:export\s+)?(?:declare\s+)?(?:const\s+)?enum\s+(\w+)')
+    type_pattern = re.compile(r'^\s*(?:export\s+)?type\s+(\w+)\s*=')
+    func_pattern = re.compile(r'^\s*(?:export\s+)?(?:default\s+)?(?:async\s+)?function\s+(\w+)|^\s*(?:export\s+)?const\s+(\w+)\s*[:=][^=]*=>')
+    method_pattern = re.compile(r'^\s*(?:public|private|protected|static|async|readonly|override|abstract|\*)\s+[\w\s\*]*?(\w+)\s*\(')
+
+    lines = content.splitlines()
+    current_class_id = None
+    depth = 0
+    class_depth = 0
+
+    def emit_type(name, kind, lineno):
+        type_id = f"{file_node_id}_{kind}_{name.lower()}"
+        nodes.append({
+            'label': f"{kind.capitalize()}: {name}",
+            'file_type': 'code',
+            'node_type': 'class',
+            'source_file': rel_path,
+            'source_location': f"L{lineno}",
+            'id': type_id
+        })
+        links.append({'source': file_node_id, 'target': type_id, 'type': 'defines'})
+        return type_id
+
+    for i, line in enumerate(lines, 1):
+        lineno = i + line_offset
+        if current_class_id and depth <= class_depth:
+            current_class_id = None
+        full_line = line
+        m = class_pattern.match(line)
+        if m:
+            class_depth = depth
+            current_class_id = emit_type(m.group(1), 'class', lineno)
+            line = line[m.end():]
+            if '{' in line:
+                line = line.split('{', 1)[1]
+            m = None
+        m = iface_pattern.match(line) or enum_pattern.match(line)
+        if m:
+            emit_type(m.group(1), 'interface' if 'interface' in line else 'enum', lineno)
+            continue
+        m = type_pattern.match(line)
+        if m:
+            emit_type(m.group(1), 'type', lineno)
+            continue
+        m = func_pattern.match(line)
+        if not m and current_class_id:
+            mm = method_pattern.match(line)
+            if mm and mm.group(1) not in ('if', 'for', 'while', 'switch', 'catch', 'return'):
+                m = mm
+        if m:
+            try:
+                func_name = m.group(1) or m.group(2)
+            except IndexError:
+                func_name = m.group(1)
+            if func_name and func_name not in ('if', 'for', 'while', 'switch', 'catch'):
+                if current_class_id:
+                    func_id = f"{current_class_id}_method_{func_name.lower()}"
+                    label, parent, ntype = f"Method: {func_name}", current_class_id, 'method'
+                else:
+                    func_id = f"{file_node_id}_func_{func_name.lower()}"
+                    label, parent, ntype = f"Function: {func_name}", file_node_id, 'function'
+                nodes.append({
+                    'label': label, 'file_type': 'code', 'node_type': ntype,
+                    'source_file': rel_path, 'source_location': f"L{lineno}", 'id': func_id
+                })
+                links.append({'source': parent, 'target': func_id, 'type': 'defines'})
+        depth += full_line.count('{') - full_line.count('}')
+        if current_class_id and depth <= class_depth:
+            current_class_id = None
+    return nodes, links
+
+def parse_vue_file(content, rel_path, file_node_id):
+    nodes = []
+    links = []
+    script_re = re.compile(r'<script[^>]*>(.*?)</script>', re.IGNORECASE | re.DOTALL)
+    blocks = list(script_re.finditer(content))
+    comp_name = os.path.splitext(os.path.basename(rel_path))[0]
+    name_match = re.search(r"name\s*:\s*['\"]([\w-]+)['\"]", content)
+    if name_match:
+        comp_name = name_match.group(1)
+    comp_id = f"{file_node_id}_component_{comp_name.lower().replace('-', '_')}"
+    script_start = content[:blocks[0].start()].count('\n') + 1 if blocks else 1
+    nodes.append({
+        'label': f"Component: {comp_name}",
+        'file_type': 'code',
+        'node_type': 'class',
+        'source_file': rel_path,
+        'source_location': f"L{script_start}",
+        'id': comp_id
+    })
+    links.append({'source': file_node_id, 'target': comp_id, 'type': 'defines'})
+    for b in blocks:
+        body_start = content[:b.start(1)].count('\n')
+        s_nodes, s_links = parse_ts_file(b.group(1), rel_path, comp_id, line_offset=body_start)
+        nodes.extend(s_nodes)
+        links.extend(s_links)
+    return nodes, links
+
 def generate_graph(project_dir, output_path):
     print(f"Scanning directory: {project_dir}")
     nodes = []
@@ -205,7 +310,7 @@ def generate_graph(project_dir, output_path):
             file_ext = os.path.splitext(file)[1].lower()
             
             # File Type Classification
-            if file_ext in ['.php', '.js', '.py']:
+            if file_ext in CODE_EXTS:
                 file_type = 'code'
             elif file_ext in ['.json', '.yml', '.yaml', '.xml', '.env']:
                 file_type = 'config'
@@ -233,8 +338,12 @@ def generate_graph(project_dir, output_path):
                         f_nodes, f_links = parse_python_file(content, rel_path, file_node_id)
                     elif file_ext == '.php':
                         f_nodes, f_links = parse_php_file(content, rel_path, file_node_id)
-                    elif file_ext == '.js':
+                    elif file_ext in ('.js', '.jsx'):
                         f_nodes, f_links = parse_js_file(content, rel_path, file_node_id)
+                    elif file_ext in ('.ts', '.tsx', '.mts', '.cts'):
+                        f_nodes, f_links = parse_ts_file(content, rel_path, file_node_id)
+                    elif file_ext == '.vue':
+                        f_nodes, f_links = parse_vue_file(content, rel_path, file_node_id)
                     else:
                         f_nodes, f_links = [], []
                         
