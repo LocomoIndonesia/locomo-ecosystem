@@ -23,6 +23,71 @@ OLLAMA_URL = "http://localhost:11434"
 
 MODIFICATIONS = []
 
+# Nama folder OS kanonis (Amandemen A5). Nama lama didukung sebagai legacy saat upgrade.
+OS_DIR_NAME = ".locomo.agent"
+LEGACY_OS_DIR_NAME = ".antigravity"
+
+# Kontrak upgrade non-destruktif (Tiket 1.3): path di bawah ini TIDAK PERNAH ditimpa master.
+PROTECTED_PATHS = ["id.json", "cortex", "docs/project-context.json", "brain", ".env", "scratch", "docs/changelogs", "docs/fplans"]
+
+# File instalasi yang SELALU disinkron dari master.
+MANAGED_DIRS = ["skills", "drivers"]
+MANAGED_FILES = ["SKILL.md", "skills.json", "locomo"]
+
+# Standar signature file (Amandemen A3).
+SIGNATURE_TEMPLATE = "{comment_open} CREATED BY {agent} VIA {tool} | LOCOMO SIGNATURE @2026 | {timestamp} {comment_close}"
+
+def signature_header(agent, tool, language="generic"):
+    styles = {
+        "python": ("#", ""), "shell": ("#", ""), "sql": ("--", ""),
+        "php": ("/*", "*/"), "js": ("/*", "*/"), "generic": ("/*", "*/"),
+    }
+    comment_open, comment_close = styles.get(language, styles["generic"])
+    return SIGNATURE_TEMPLATE.format(
+        comment_open=comment_open, comment_close=comment_close,
+        agent=agent, tool=tool,
+        timestamp=datetime.datetime.now().astimezone().isoformat(timespec="seconds"),
+    )
+
+def resolve_os_dir(require=True):
+    """Kembalikan path folder OS aktif: kanonis dulu, legacy bila ada (dengan peringatan)."""
+    for name in (OS_DIR_NAME, LEGACY_OS_DIR_NAME):
+        candidate = os.path.abspath(name)
+        if os.path.exists(candidate) and os.path.isdir(candidate):
+            if name == LEGACY_OS_DIR_NAME:
+                print(f"Peringatan: berjalan dari folder legacy {LEGACY_OS_DIR_NAME}; jalankan upgrade untuk migrasi ke {OS_DIR_NAME}.", file=sys.stderr)
+            return candidate
+    if os.path.basename(os.getcwd()) in (OS_DIR_NAME, LEGACY_OS_DIR_NAME):
+        if os.path.basename(os.getcwd()) == LEGACY_OS_DIR_NAME:
+            print(f"Peringatan: berjalan dari folder legacy {LEGACY_OS_DIR_NAME}; jalankan upgrade untuk migrasi ke {OS_DIR_NAME}.", file=sys.stderr)
+        return os.getcwd()
+    if require:
+        print(f"Error: Folder {OS_DIR_NAME} tidak ditemukan. Jalankan perintah ini dari project root.")
+        sys.exit(1)
+    return None
+
+def detect_agent_tools(root):
+    """Deteksi tools agent yang dipakai developer (Amandemen A2)."""
+    markers = {
+        "antigravity": [".antigravity"],
+        "cursor": [".cursor", ".cursorrules"],
+        "codex": [".codex"],
+        "opencode": [".opencode", "opencode.json"],
+        "openclaw": [".openclaw"],
+        "gemini": ["GEMINI.md", ".gemini"],
+        "copilot": [".github"],
+        "vscode": [".vscode"],
+    }
+    try:
+        entries = set(os.listdir(root))
+    except Exception:
+        entries = set()
+    found = set()
+    for tool, names in markers.items():
+        if any(n in entries for n in names):
+            found.add(tool)
+    return found
+
 # Helper Utility untuk HTTP POST request menggunakan library standar
 def http_post(url, data):
     req = urllib.request.Request(url, method='POST')
@@ -40,8 +105,8 @@ def http_post(url, data):
         return None
 
 def get_project_code():
-    anti_dir = os.path.abspath(".antigravity")
-    if not os.path.exists(anti_dir):
+    anti_dir = resolve_os_dir(require=False)
+    if not anti_dir:
         # Fallback to current working directory name
         return os.path.basename(os.getcwd())
     try:
@@ -59,7 +124,9 @@ def register_file_modification(path, action):
     })
 
 def run_in_docker(args_list):
-    anti_dir = os.path.abspath(".antigravity")
+    anti_dir = resolve_os_dir(require=False)
+    if not anti_dir:
+        return {"status": "error", "message": f"Folder {OS_DIR_NAME} tidak ditemukan."}
     drivers_dir = os.path.join(anti_dir, "drivers")
     # If container is not running, we print a warning and run via shell/docker compose
     cmd = ["docker", "compose", "exec", "-T", "semantic-api", "python3", "/app/docker_agent_editor.py"] + args_list
@@ -166,7 +233,7 @@ def tool_grep_search(args):
         else:
             files = []
             for root, dirs, filenames in os.walk(path):
-                dirs[:] = [d for d in dirs if d not in {'vendor', 'node_modules', '.git', '.antigravity'}]
+                dirs[:] = [d for d in dirs if d not in {'vendor', 'node_modules', '.git', '.antigravity', '.locomo.agent'}]
                 for f in filenames:
                     files.append(os.path.join(root, f))
         for f_path in files:
@@ -260,15 +327,67 @@ TOOLS = {
 }
 
 # Perintah CLI
+def cmd_bootcheck(args):
+    """Kontrak boot memori (Tiket 1.4): verifikasi driver + registrasi project + kesegaran graf."""
+    anti_dir = resolve_os_dir(require=True)
+    ctx_path = os.path.join(anti_dir, "docs", "project-context.json")
+    try:
+        with open(ctx_path, "r", encoding="utf-8") as f:
+            ctx = json.load(f)
+        project_code = ctx.get("active_project", "")
+    except Exception as e:
+        print(f"[BOOTCHECK] Gagal membaca project-context.json: {e}")
+        sys.exit(1)
+    if not project_code:
+        print("[BOOTCHECK] active_project kosong — jalankan `locomo select <project>` dulu.")
+        sys.exit(1)
+    print(f"[BOOTCHECK] Active project: {project_code}")
+
+    # 1. Liveness + registrasi via query (read-only, tanpa Auth — lihat Tiket 0.2 deferred)
+    res = http_post(f"{API_URL}/memory/query", {"project_code": project_code, "query": "bootcheck", "top_k": 1})
+    if res is None:
+        print("[BOOTCHECK] DRIVERLESS — semantic-api tidak merespons. Jalankan: cd <os>/drivers && docker compose up -d")
+        sys.exit(1)
+    rows = res.get("data", []) if isinstance(res, dict) else []
+    if rows:
+        print("[BOOTCHECK] Project TERDAFTAR di pgvector (memori ditemukan).")
+    else:
+        print("[BOOTCHECK] Project BELUM terdaftar (query kosong).")
+        if args.yes:
+            init_res = http_post(f"{API_URL}/project/init", {"project_code": project_code, "project_name": f"{project_code.upper()} Project"})
+            if init_res:
+                print("[BOOTCHECK] Registrasi init OK. Lanjut: `locomo graphify` untuk pemindaian awal.")
+            else:
+                print("[BOOTCHECK] Registrasi gagal — pastikan drivers berjalan.")
+                sys.exit(1)
+        else:
+            print("[BOOTCHECK] Remediasi: `locomo bootcheck --yes` (daftar + panduan graphify) atau `locomo select <project>`.")
+            sys.exit(1)
+
+    # 2. Kesegaran graf graphify
+    graph_path = os.path.join(anti_dir, "drivers", "api", "graphify-out", "graph.json")
+    if os.path.exists(graph_path):
+        age_h = (datetime.datetime.now().timestamp() - os.path.getmtime(graph_path)) / 3600
+        print(f"[BOOTCHECK] Graf graphify-out/graph.json umur {age_h:.1f} jam.")
+        if age_h > 24:
+            print("[BOOTCHECK] Graf basi (>24 jam) — jalankan `locomo graphify`.")
+    else:
+        print("[BOOTCHECK] Graf belum ada — jalankan `locomo graphify`.")
+    print("[BOOTCHECK] OK.")
+
 def cmd_init(args):
     target = os.path.abspath(args.target_dir)
     print(f"Initializing Locomo Agent OS at: {target}")
     
     os.makedirs(target, exist_ok=True)
     
-    anti_dir = os.path.join(target, ".antigravity")
+    anti_dir = os.path.join(target, OS_DIR_NAME)
+    legacy_dir = os.path.join(target, LEGACY_OS_DIR_NAME)
+    if os.path.exists(legacy_dir) and not os.path.exists(anti_dir):
+        print(f"Instalasi lama terdeteksi di {legacy_dir}. Gunakan perintah upgrade untuk migrasi ke {OS_DIR_NAME}.")
+        sys.exit(1)
     if os.path.exists(anti_dir):
-        print(f"Error: .antigravity folder already exists at {target}. Use upgrade command instead.")
+        print(f"Error: {OS_DIR_NAME} folder already exists at {target}. Use upgrade command instead.")
         sys.exit(1)
         
     source_dir = os.path.dirname(os.path.abspath(__file__))
@@ -309,9 +428,9 @@ Setiap kali sesi obrolan baru (chat session) dimulai di dalam workspace ini, Age
 ## 1. Menjalankan Protokol Onboarding ("jalankan locomo.agent")
 Agen harus langsung menganggap perintah "jalankan locomo.agent" telah dipicu secara otomatis.
 - **Langkah 1**: Baca status kognitif aktif dari berkas memori Trinity:
-  - `.antigravity/id.json` (Trinity 1 - Guardrails & Tech Stack)
-  - `.antigravity/cortex/cortex-core.json` (Trinity 2 - Status & Fase Aktif)
-  - `.antigravity/docs/project-context.json` (Cartridge - Project Context)
+  - `.locomo.agent/id.json` (Trinity 1 - Guardrails & Tech Stack)
+  - `.locomo.agent/cortex/cortex-core.json` (Trinity 2 - Status & Fase Aktif)
+  - `.locomo.agent/docs/project-context.json` (Cartridge - Project Context)
 - **Langkah 2**: Lakukan pelaporan boot sequence ke obrolan dengan format terstruktur:
   - **Locomo Agent OS Active Mode**: `[OS_MODE: COGNITIVE]` atau `[OS_MODE: DRIVERLESS]` (lakukan cek cepat status driver `docker ps` jika `env_status` bukan `running`)
   - **Environment Status**: `idle` / `running` / `error` (sesuai status aktif)
@@ -326,15 +445,41 @@ Setelah pelaporan boot selesai, patuhi batasan context lock:
 
 ## 3. Aturan Respon Sederhana & Dokumentasi Mandiri
 - Respon chat langsung wajib dibuat sederhana, ringkas, dan to-the-point.
-- Jika memerlukan laporan detail, panduan arsitektur, atau hasil analisis yang panjang, tulis dokumentasi tersebut ke dalam berkas Markdown (`.md`) di dalam folder `.antigravity/docs/` atau `.antigravity/scratch/` proyek aktif, kemudian cantumkan tautan berkasnya saja di chat.
+- Aturan penempatan file (A1): skrip temporary agen (.py, .sql, .ps1, .sh) WAJIB ke `.locomo.agent/scratch/`; dokumentasi project (.md) ke `.docs/` (satu project) atau `<nama-project>/.docs/` (multi-project). Dilarang menaruh file kerja di root project atau folder kode.
 
 ## 4. Aturan Eksekusi Perintah (Docker-Only Execution)
 - Semua perintah skrip (seperti `python`, `php`, `composer`, `npm`, `node`, dll.) **TIDAK BOLEH** dijalankan langsung di host (Windows/Linux).
 - Semua eksekusi wajib dijalankan di dalam kontainer Docker yang sesuai (menggunakan `docker compose exec` atau `docker compose exec semantic-api python3` untuk skrip Python).
+- Semua perintah toolchain HANYA dari registry kanonis `skills/roms/environment.md`. Dilarang trial-and-error merangkai perintah di terminal.
+
+## 5. Signature File Wajib (A3)
+- Setiap file yang dibuat/dimodifikasi agen wajib header: `CREATED BY <nama-agent> VIA <tool> | LOCOMO SIGNATURE @2026 | <timestamp ISO>` (sesuaikan format komentar per bahasa).
 """
         with open(agents_md_path, 'w', encoding='utf-8') as f:
             f.write(agents_content)
         
+    # Deteksi tools agent dan tulis shim yang dikenali (Amandemen A2)
+    tools = detect_agent_tools(target)
+    print(f"Agent tools terdeteksi: {sorted(tools) if tools else ['(tidak ada — hanya AGENTS.md generik)']}")
+    root_agents = os.path.join(target, "AGENTS.md")
+    if not os.path.exists(root_agents):
+        shutil.copy2(agents_md_path, root_agents)
+    if "gemini" in tools:
+        gemini_md = os.path.join(target, "GEMINI.md")
+        if not os.path.exists(gemini_md):
+            with open(gemini_md, "w", encoding="utf-8") as f:
+                f.write("# Gemini entrypoint — Locomo Agent OS\n\nAturan boot dan orkestrasi: lihat `AGENTS.md` dan `.agents/AGENTS.md`. Folder OS: `.locomo.agent/`.\n")
+    if "copilot" in tools:
+        gh_dir = os.path.join(target, ".github")
+        os.makedirs(gh_dir, exist_ok=True)
+        gh_md = os.path.join(gh_dir, "muse-instructions.md")
+        if not os.path.exists(gh_md):
+            with open(gh_md, "w", encoding="utf-8") as f:
+                f.write("# Copilot entrypoint — Locomo Agent OS\n\nAturan boot dan orkestrasi: lihat `AGENTS.md` dan `.agents/AGENTS.md`. Folder OS: `.locomo.agent/`.\n")
+
+    # Folder dokumentasi project (Amandemen A1)
+    os.makedirs(os.path.join(target, ".docs"), exist_ok=True)
+
     # Configure target project name in id.json
     id_path = os.path.join(anti_dir, "id.json")
     proj_name = args.name or os.path.basename(target)
@@ -368,37 +513,51 @@ Setelah pelaporan boot selesai, patuhi batasan context lock:
     print(f"  cd {anti_dir}/drivers && docker compose up -d")
 
 def cmd_upgrade(args):
-    anti_dir = os.path.abspath(".antigravity")
-    if not os.path.exists(anti_dir) or not os.path.isdir(anti_dir):
-        if os.path.basename(os.getcwd()) == ".antigravity":
-            anti_dir = os.getcwd()
-        else:
-            print("Error: Could not find .antigravity folder. Run this command from your project root.")
+    anti_dir = resolve_os_dir(require=True)
+    # Migrasi sekali-jalan dari nama lama (Amandemen A5) — wajib konfirmasi eksplisit.
+    if os.path.basename(anti_dir) == LEGACY_OS_DIR_NAME:
+        new_path = os.path.join(os.path.dirname(anti_dir), OS_DIR_NAME)
+        if os.path.exists(new_path):
+            print(f"Error: {LEGACY_OS_DIR_NAME} dan {OS_DIR_NAME} keduanya ada. Selesaikan manual sebelum upgrade.")
             sys.exit(1)
-            
-    master_dir = "/home/dev360_03/locomo.id/locomo.agent"
-    if not os.path.exists(master_dir):
-        if os.path.exists("/workspace/locomo.agent"):
-            master_dir = "/workspace/locomo.agent"
+        print(f"Instalasi legacy terdeteksi: {anti_dir}")
+        print(f"Upgrade akan memigrasi ke: {new_path}")
+        confirm = input("Ketik YA untuk melanjutkan migrasi (selain itu dibatalkan): ").strip()
+        if confirm != "YA":
+            print("Upgrade dibatalkan. Tidak ada perubahan.")
+            sys.exit(0)
+        print(f"Migrasi {anti_dir} -> {new_path} ...")
+        shutil.move(anti_dir, new_path)
+        anti_dir = new_path
+
+    master_dir = os.path.dirname(os.path.abspath(__file__))
+    if not os.path.exists(os.path.join(master_dir, "skills")):
+        for candidate in ("/app/locomo.agent", "/workspace/locomo.agent"):
+            if os.path.exists(candidate):
+                master_dir = candidate
+                break
         else:
-            print(f"Error: Master source template not found at {master_dir}")
+            print("Error: Master source template tidak ditemukan.")
             sys.exit(1)
-        
+
     print(f"Upgrading Locomo Agent OS at {anti_dir} from master template...")
-    
-    core_dirs = ["skills", "drivers"]
-    core_files = ["SKILL.md", "skills.json", "locomo"]
-    
+    print(f"PROTECTED (tidak disentuh): {PROTECTED_PATHS}")
+
+    # Backup sebelum upgrade (Tiket 1.3)
+    backup_dir = anti_dir + ".backup-" + datetime.datetime.now().strftime("%Y%m%d-%H%M%S")
+    shutil.copytree(anti_dir, backup_dir, ignore=shutil.ignore_patterns("__pycache__"))
+    print(f"Backup tersimpan di: {backup_dir}")
+
     ignore_patterns = shutil.ignore_patterns('.git', '__pycache__', '*.pyc', '.Zone.Identifier')
-    
-    for d_name in core_dirs:
+
+    for d_name in MANAGED_DIRS:
         src_d = os.path.join(master_dir, d_name)
         dst_d = os.path.join(anti_dir, d_name)
-        if os.path.exists(dst_d):
+        if d_name == "skills" and os.path.exists(dst_d):
             shutil.rmtree(dst_d)
-        shutil.copytree(src_d, dst_d, ignore=ignore_patterns)
-        
-    for f_name in core_files:
+        shutil.copytree(src_d, dst_d, ignore=ignore_patterns, dirs_exist_ok=True)
+
+    for f_name in MANAGED_FILES:
         src_f = os.path.join(master_dir, f_name)
         dst_f = os.path.join(anti_dir, f_name)
         shutil.copy2(src_f, dst_f)
@@ -407,13 +566,17 @@ def cmd_upgrade(args):
     if os.path.exists(copied_locomo):
         os.chmod(copied_locomo, 0o755)
         
+    # Also upgrade/create .agents folder in project root if it exists in master_dir
+    proj_root = os.path.dirname(anti_dir)
+    src_agents = os.path.join(master_dir, ".agents")
+    dst_agents = os.path.join(proj_root, ".agents")
+    if os.path.exists(src_agents):
+        shutil.copytree(src_agents, dst_agents, ignore=ignore_patterns, dirs_exist_ok=True)
+        
     print("Locomo Agent OS successfully upgraded to the latest master version!")
 
 def cmd_graphify(args):
-    anti_dir = os.path.abspath(".antigravity")
-    if not os.path.exists(anti_dir) or not os.path.isdir(anti_dir):
-        print("Error: .antigravity folder not found. Run this from project root.")
-        sys.exit(1)
+    anti_dir = resolve_os_dir(require=True)
         
     project_code = get_project_code()
     print(f"Starting Graphify for project: {project_code}")
@@ -444,10 +607,7 @@ def cmd_graphify(args):
 
 def cmd_select(args):
     project_name = args.project_name
-    anti_dir = os.path.abspath(".antigravity")
-    if not os.path.exists(anti_dir) or not os.path.isdir(anti_dir):
-        print("Error: .antigravity folder not found. Run this from project root.")
-        sys.exit(1)
+    anti_dir = resolve_os_dir(require=True)
         
     project_dir = os.path.join(os.getcwd(), project_name)
     
@@ -667,7 +827,7 @@ def cmd_think(args):
     
     project_code = get_project_code()
     tech_stack = "General"
-    id_path = os.path.abspath(".antigravity/id.json")
+    id_path = os.path.join(resolve_os_dir(require=False) or ".", "id.json")
     if os.path.exists(id_path):
         try:
             with open(id_path, 'r') as f:
@@ -879,6 +1039,10 @@ def main():
     p_select = subparsers.add_parser("select", help="Switch or create active project in the workspace")
     p_select.add_argument("project_name", help="Name of the project folder/code")
 
+    # Command: bootcheck (Tiket 1.4)
+    p_bootcheck = subparsers.add_parser("bootcheck", help="Verify drivers, project registration, and graph freshness")
+    p_bootcheck.add_argument("--yes", action="store_true", help="Daftarkan project bila belum terdaftar (persetujuan eksplisit)")
+
     args = parser.parse_args()
 
     if not args.command:
@@ -893,7 +1057,8 @@ def main():
         "read": cmd_read,
         "update": cmd_update,
         "think": cmd_think,
-        "select": cmd_select
+        "select": cmd_select,
+        "bootcheck": cmd_bootcheck
     }
 
     commands[args.command](args)
