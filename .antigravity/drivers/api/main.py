@@ -9,7 +9,9 @@ from pgvector.psycopg2 import register_vector
 
 app = FastAPI(title="Locomo Cognitive Driver")
 
-DB_URL = os.getenv("DATABASE_URL", "postgresql://postgres:postgres@pgvector-db:5432/locomo_memory")
+DB_URL = os.getenv("DATABASE_URL")
+if not DB_URL:
+    raise RuntimeError("DATABASE_URL belum diset — salin drivers/.env.example menjadi drivers/.env dan isi nilainya.")
 OLLAMA_URL = os.getenv("OLLAMA_URL", "http://ollama-local:11434")
 EMBEDDING_MODEL = "qwen2.5:1.5b" # Menggunakan Qwen untuk embedding & inference
 
