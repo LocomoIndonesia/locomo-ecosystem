@@ -597,6 +597,46 @@ Setelah pelaporan boot selesai, patuhi batasan context lock:
     print("To start drivers, run:")
     print(f"  cd {anti_dir}/drivers && docker compose up -d")
 
+# Backup & rollback (Tiket 3.4): retensi 5 backup terbaru, restore via `rollback`.
+BACKUP_RETENTION = 5
+
+def _list_backups(anti_dir):
+    parent = os.path.dirname(anti_dir)
+    base = os.path.basename(anti_dir)
+    cands = [os.path.join(parent, d) for d in os.listdir(parent)
+             if d.startswith(base + ".backup-") and os.path.isdir(os.path.join(parent, d))]
+    return sorted(cands)
+
+def _prune_backups(anti_dir):
+    backups = _list_backups(anti_dir)
+    for old in backups[:-BACKUP_RETENTION]:
+        shutil.rmtree(old)
+        print(f"Backup lama dihapus (retensi {BACKUP_RETENTION}): {old}")
+
+def cmd_rollback(args):
+    anti_dir = resolve_os_dir(require=True)
+    backups = _list_backups(anti_dir)
+    if args.list:
+        if not backups:
+            print("Tidak ada backup tersedia.")
+        for b in backups:
+            print(b + (" (terbaru)" if b == backups[-1] else ""))
+        return
+    if not backups:
+        print("Error: tidak ada backup untuk dikembalikan.")
+        sys.exit(1)
+    src = backups[-1]
+    if not args.yes:
+        print(f"Rollback akan mengganti {anti_dir} dengan backup terbaru:")
+        print(f"  {src}")
+        print("Ulangi dengan --yes untuk mengeksekusi. Instalasi saat ini dipindah ke .pre-rollback-<ts> sebagai pengaman.")
+        sys.exit(0)
+    aside = anti_dir + ".pre-rollback-" + datetime.datetime.now().strftime("%Y%m%d-%H%M%S")
+    shutil.move(anti_dir, aside)
+    shutil.copytree(src, anti_dir, ignore=shutil.ignore_patterns("__pycache__"))
+    print(f"Rollback selesai dari: {src}")
+    print(f"Instalasi sebelumnya diamankan di: {aside}")
+
 def cmd_upgrade(args):
     anti_dir = resolve_os_dir(require=True)
     # Migrasi sekali-jalan dari nama lama (Amandemen A5) — wajib konfirmasi eksplisit.
@@ -628,16 +668,20 @@ def cmd_upgrade(args):
     print(f"Upgrading Locomo Agent OS at {anti_dir} from master template...")
     print(f"PROTECTED (tidak disentuh): {PROTECTED_PATHS}")
 
-    # Backup sebelum upgrade (Tiket 1.3)
+    # Backup sebelum upgrade (Tiket 1.3) + retensi (Tiket 3.4)
     backup_dir = anti_dir + ".backup-" + datetime.datetime.now().strftime("%Y%m%d-%H%M%S")
     shutil.copytree(anti_dir, backup_dir, ignore=shutil.ignore_patterns("__pycache__"))
     print(f"Backup tersimpan di: {backup_dir}")
+    _prune_backups(anti_dir)
 
     ignore_patterns = shutil.ignore_patterns('.git', '__pycache__', '*.pyc', '.Zone.Identifier')
 
     for d_name in MANAGED_DIRS:
         src_d = os.path.join(master_dir, d_name)
         dst_d = os.path.join(anti_dir, d_name)
+        if os.path.realpath(src_d) == os.path.realpath(dst_d):
+            print(f"Lewati {d_name}: master dan instalasi sama (cegah hapus diri).")
+            continue
         if d_name == "skills" and os.path.exists(dst_d):
             shutil.rmtree(dst_d)
         shutil.copytree(src_d, dst_d, ignore=ignore_patterns, dirs_exist_ok=True)
@@ -657,7 +701,21 @@ def cmd_upgrade(args):
     dst_agents = os.path.join(proj_root, ".agents")
     if os.path.exists(src_agents):
         shutil.copytree(src_agents, dst_agents, ignore=ignore_patterns, dirs_exist_ok=True)
-        
+
+    # Validasi pasca-upgrade (Tiket 3.4): cortex rusak = rollback otomatis.
+    errors, warnings = validate_cortex(anti_dir)
+    for w in warnings:
+        print(f"[UPGRADE] PERINGATAN: {w}")
+    if errors:
+        print("[UPGRADE] Cortex hasil upgrade RUSAK — rollback otomatis ke backup:")
+        for e in errors:
+            print(f"  - {e}")
+        aside = anti_dir + ".pre-rollback-" + datetime.datetime.now().strftime("%Y%m%d-%H%M%S")
+        shutil.move(anti_dir, aside)
+        shutil.copytree(backup_dir, anti_dir, ignore=shutil.ignore_patterns("__pycache__"))
+        print(f"Rollback otomatis selesai. Hasil upgrade gagal diamankan di: {aside}")
+        sys.exit(1)
+
     print("Locomo Agent OS successfully upgraded to the latest master version!")
 
 def cmd_graphify(args):
@@ -1171,6 +1229,11 @@ def main():
     # Command: upgrade
     subparsers.add_parser("upgrade", help="Upgrade local Locomo Agent OS directory from master source")
 
+    # Command: rollback (Tiket 3.4)
+    p_rollback = subparsers.add_parser("rollback", help="Kembalikan instalasi ke backup upgrade terbaru")
+    p_rollback.add_argument("--list", action="store_true", help="Tampilkan daftar backup tanpa mengembalikan")
+    p_rollback.add_argument("--yes", action="store_true", help="Eksekusi rollback (tanpa ini hanya pratinjau)")
+
     # Command: graphify
     subparsers.add_parser("graphify", help="Scan project files and sync graph context to pgvector database")
 
@@ -1225,6 +1288,7 @@ def main():
     commands = {
         "init": cmd_init,
         "upgrade": cmd_upgrade,
+        "rollback": cmd_rollback,
         "graphify": cmd_graphify,
         "store": cmd_store,
         "read": cmd_read,
