@@ -402,6 +402,66 @@ def cmd_validate(args):
         sys.exit(1)
     print("[VALIDATE] OK." + (f" ({len(warnings)} peringatan)" if warnings else ""))
 
+def _post_json(url, data, timeout=5):
+    try:
+        req = urllib.request.Request(url, data=json.dumps(data).encode('utf-8'), method='POST')
+        req.add_header('Content-Type', 'application/json')
+        with urllib.request.urlopen(req, data=req.data, timeout=timeout) as response:
+            return json.loads(response.read().decode('utf-8'))
+    except Exception:
+        return None
+
+def cmd_status(args):
+    """Snapshot audit read-only (Tiket 4.2): OS, project, cortex, drivers, graf, backup. Offline-tolerant."""
+    anti_dir = resolve_os_dir(require=True)
+    print(f"[STATUS] OS dir: {os.path.basename(anti_dir)} ({anti_dir})")
+    try:
+        with open(os.path.join(anti_dir, "skills.json")) as f:
+            print(f"[STATUS] OS version: {json.load(f).get('version', '?')}")
+    except Exception as e:
+        print(f"[STATUS] OS version: <tak terbaca: {e}>")
+    try:
+        with open(os.path.join(anti_dir, "docs", "project-context.json")) as f:
+            ctx = json.load(f)
+        project_code = ctx.get("active_project", "")
+        print(f"[STATUS] Active project: {project_code} ({len(ctx.get('projects', []))} terdaftar)")
+    except Exception as e:
+        project_code = ""
+        print(f"[STATUS] Project: <tak terbaca: {e}>")
+    try:
+        with open(os.path.join(anti_dir, "cortex", "cortex-core.json")) as f:
+            cortex = json.load(f)
+        print(f"[STATUS] Cortex: phase={cortex.get('current_phase')} health={cortex.get('system_health')} "
+              f"strategy={cortex.get('active_strategy')} tasks={len(cortex.get('tasks', []))}")
+    except Exception as e:
+        print(f"[STATUS] Cortex: <tak terbaca: {e}>")
+    errors, warnings = validate_cortex(anti_dir)
+    print(f"[STATUS] Cortex validity: {len(errors)} error, {len(warnings)} peringatan")
+    for e in errors:
+        print(f"[STATUS]   ERROR: {e}")
+    api_res = _post_json(f"{API_URL}/memory/query",
+                         {"project_code": project_code or "-", "query": "status", "top_k": 1}) if project_code else None
+    print(f"[STATUS] semantic-api: {'OK' if api_res is not None else 'MATI/tak terjangkau'}")
+    try:
+        with urllib.request.urlopen(f"{OLLAMA_URL}/api/tags", timeout=5) as r:
+            models = [m.get("name", "?") for m in json.loads(r.read().decode('utf-8')).get("models", [])]
+        print(f"[STATUS] ollama: OK ({len(models)} model: {', '.join(models[:3])}{'...' if len(models) > 3 else ''})")
+    except Exception:
+        print("[STATUS] ollama: MATI/tak terjangkau")
+    graph_path = os.path.join(anti_dir, "drivers", "api", "graphify-out", "graph.json")
+    if os.path.exists(graph_path):
+        age_h = (datetime.datetime.now().timestamp() - os.path.getmtime(graph_path)) / 3600
+        flag = " (BASI >24 jam)" if age_h > 24 else ""
+        print(f"[STATUS] Graf: umur {age_h:.1f} jam{flag}")
+    else:
+        print("[STATUS] Graf: belum ada — jalankan `locomo graphify`")
+    print(f"[STATUS] Backup: {len(_list_backups(anti_dir))} tersedia (`locomo rollback --list`)")
+    env_path = os.path.join(anti_dir, "drivers", ".env")
+    print(f"[STATUS] drivers/.env: {'ada' if os.path.exists(env_path) else 'HILANG — salin dari .env.example'}")
+    if errors:
+        sys.exit(1)
+    print("[STATUS] OK.")
+
 def cmd_bootcheck(args):
     """Kontrak boot memori (Tiket 1.4): verifikasi driver + registrasi project + kesegaran graf."""
     anti_dir = resolve_os_dir(require=True)
@@ -1272,6 +1332,9 @@ def main():
     p_config.add_argument("key", nargs="?", help="Kunci konfigurasi (lihat `config list`)")
     p_config.add_argument("value", nargs="?", help="Nilai baru (untuk aksi set)")
 
+    # Command: status (Tiket 4.2, snapshot audit read-only)
+    subparsers.add_parser("status", help="Snapshot audit: OS, project, cortex, drivers, graf, backup")
+
     # Command: validate (Tiket 2.4, offline — tanpa butuh drivers)
     subparsers.add_parser("validate", help="Validasi konsistensi cortex-core.json (offline)")
 
@@ -1297,6 +1360,7 @@ def main():
         "select": cmd_select,
         "config": cmd_config,
         "validate": cmd_validate,
+        "status": cmd_status,
         "bootcheck": cmd_bootcheck
     }
 
