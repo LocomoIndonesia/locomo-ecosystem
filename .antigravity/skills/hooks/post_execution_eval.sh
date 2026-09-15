@@ -1,58 +1,118 @@
+# CREATED BY ibot VIA openclaw | LOCOMO SIGNATURE @2026 | 2026-09-15T19:00:00+07:00
 #!/bin/bash
 # ==============================================================================
-# LOCOMO AGENT OS V2.0 - POST-EXECUTION EVALUATION HOOK TEMPLATE
+# LOCOMO AGENT OS - POST-EXECUTION EVALUATION HOOK (Tiket 0.3)
 # ==============================================================================
-# Skrip ini memverifikasi integritas kode pasca-penulisan oleh Coder:
-# 1. Melakukan static analysis singkat terhadap file baru/berubah.
-# 2. Memeriksa ketiadaan kata kunci terlarang (Guardrails) dari id.json.
-# 3. Menjalankan rangkaian unit test otomatis.
+# Menegakkan Definition of Done secara JUJUR:
+#   1. Guardrail scan HANYA pada file berubah (bukan seluruh repo).
+#   2. Signature Locomo wajib pada file baru/ubah di luar scratch (Amandemen A3).
+#   3. Test HARUS jalan di container (Docker-Only). Tanpa runner = gagal, bukan lolos.
+#
+# Pemakaian:
+#   ./post_execution_eval.sh [file ...]          # scan file eksplisit, atau
+#   ./post_execution_eval.sh                     # scan `git diff --name-only HEAD`
+# Konfigurasi test via environment:
+#   HOOK_PROJECT_DIR  direktori project (tempat docker compose / sail berada)
+#   HOOK_TEST_CMD     perintah test lengkap, mis. "./vendor/bin/sail artisan test"
+#
+# Exit code: 0 PASS | 1 GUARDRAIL/SIGNATURE | 2 NO_RUNNER | 3 TEST_FAIL
 # ==============================================================================
 
-echo "=== [START] Post-Execution Evaluation Hooks ==="
+set -u
 
-# 1. Pengecekan Guardrails (Ketiadaan Fungsi Terlarang)
-echo "[INFO] Menjalankan pengecekan guardrails..."
-FORBIDDEN_FUNCTIONS=("eval" "exec" "passthru" "shell_exec" "system")
+EXCLUDE_RE='(^|/)(vendor|node_modules|\.git|\.antigravity|\.locomo\.agent)/'
+SCRATCH_RE='(^|/)scratch/'
 
-# Contoh memindai kode di repositori utama untuk mencari fungsi terlarang
-# (Dalam eksekusi nyata, skrip ini memindai file PHP yang baru dimodifikasi)
-VIOLATIONS=0
-for func in "${FORBIDDEN_FUNCTIONS[@]}"; do
-    # Cari pola fungsi dalam file .php di repositori utama (tidak termasuk .antigravity / locomo.agent)
-    # Gunakan grep untuk memindai
-    matches=$(grep -rnw --include="*.php" "$func" . 2>/dev/null | grep -v ".antigravity" | grep -v "locomo.agent")
-    if [ ! -z "$matches" ]; then
-        echo -e "\e[31m[ERROR] Pelanggaran Guardrail ditemukan! Fungsi '$func' dilarang:\e[0m"
-        echo "$matches"
-        VIOLATIONS=$((VIOLATIONS + 1))
+# --- Kumpulkan daftar file ---
+if [ "$#" -gt 0 ]; then
+    FILES="$*"
+else
+    if git rev-parse --is-inside-work-tree >/dev/null 2>&1; then
+        FILES=$(git diff --name-only HEAD 2>/dev/null)
+    else
+        echo "[ERROR] Bukan repo git dan tidak ada file eksplisit. Berikan daftar file."
+        exit 2
     fi
+fi
+
+# --- Filter: hanya file yang ada & relevan, kecualikan direktori sistem ---
+TARGETS=""
+for f in $FILES; do
+    if [ ! -f "$f" ]; then
+        continue
+    fi
+    if echo "$f" | grep -Eq "$EXCLUDE_RE"; then
+        continue
+    fi
+    case "$f" in
+        *.php|*.js|*.ts|*.py|*.sh) TARGETS="$TARGETS $f" ;;
+    esac
 done
 
-if [ $VIOLATIONS -gt 0 ]; then
-    echo -e "\e[31m=== [FAILED] Evaluasi Gagal: Pelanggaran Guardrail Keamanan! ===\e[0m"
+if [ -z "$TARGETS" ]; then
+    echo "[INFO] Tidak ada file kode yang berubah. Lanjut ke tahap test."
+fi
+
+# --- 1. Guardrail scan: fungsi terlarang pada file berubah ---
+echo "[INFO] Guardrail scan pada file berubah..."
+FORBIDDEN="eval|exec|passthru|shell_exec|system"
+VIOLATIONS=0
+for f in $TARGETS; do
+    case "$f" in
+        *.php)
+            if echo "$f" | grep -Eq "$SCRATCH_RE"; then
+                continue  # scratch = sandbox, bebas bereksperimen
+            fi
+            hits=$(grep -nwE "\b($FORBIDDEN)\s*\(" "$f" 2>/dev/null || true)
+            if [ -n "$hits" ]; then
+                echo "[ERROR] Guardrail: fungsi terlarang di $f:"
+                echo "$hits"
+                VIOLATIONS=$((VIOLATIONS + 1))
+            fi
+            ;;
+    esac
+done
+if [ "$VIOLATIONS" -gt 0 ]; then
+    echo "[FAILED] Guardrail violation. Exit 1."
     exit 1
 fi
-echo "[PASS] Pengecekan guardrails sukses (tidak ada pelanggaran)."
+echo "[PASS] Guardrail bersih."
 
-# 2. Menjalankan Unit Test Terkait
-echo "[INFO] Menjalankan automated test suite..."
-# Silakan pasang perintah runner test sesuai dengan tumpukan teknologi Anda (Misal: vendor/bin/phpunit atau npm test)
-# Contoh fallback simulasi:
-if [ -f "vendor/bin/phpunit" ]; then
-    vendor/bin/phpunit
-    TEST_EXIT_CODE=$?
-elif [ -f "package.json" ] && grep -q "test" package.json; then
-    npm test
-    TEST_EXIT_CODE=$?
-else
-    echo "[WARNING] Tidak ada runner pengujian otomatis yang terdeteksi di root proyek. Skip test run."
-    TEST_EXIT_CODE=0
+# --- 2. Signature check (A3): file baru/ubah di luar scratch wajib ber-header ---
+echo "[INFO] Signature check..."
+MISSING_SIG=0
+for f in $TARGETS; do
+    if echo "$f" | grep -Eq "$SCRATCH_RE"; then
+        continue
+    fi
+    if ! head -n 5 "$f" 2>/dev/null | grep -q "LOCOMO SIGNATURE"; then
+        echo "[ERROR] Signature hilang: $f (tambahkan header CREATED BY ... VIA ... | LOCOMO SIGNATURE ...)"
+        MISSING_SIG=$((MISSING_SIG + 1))
+    fi
+done
+if [ "$MISSING_SIG" -gt 0 ]; then
+    echo "[FAILED] Signature violation. Exit 1."
+    exit 1
+fi
+echo "[PASS] Signature lengkap."
+
+# --- 3. Test via container (Docker-Only). Tanpa runner = GAGAL, bukan lolos ---
+echo "[INFO] Menjalankan test suite..."
+if [ -z "${HOOK_PROJECT_DIR:-}" ] || [ -z "${HOOK_TEST_CMD:-}" ]; then
+    echo "[FAILED] NO_RUNNER: set HOOK_PROJECT_DIR dan HOOK_TEST_CMD. Contoh:"
+    echo '  HOOK_PROJECT_DIR=/home/dev360_03/locomo.id/piticoin.id HOOK_TEST_CMD="./vendor/bin/sail artisan test"'
+    exit 2
+fi
+if [ ! -d "$HOOK_PROJECT_DIR" ]; then
+    echo "[FAILED] NO_RUNNER: direktori $HOOK_PROJECT_DIR tidak ada."
+    exit 2
+fi
+(cd "$HOOK_PROJECT_DIR" && sh -c "$HOOK_TEST_CMD")
+TEST_EXIT_CODE=$?
+if [ "$TEST_EXIT_CODE" -ne 0 ]; then
+    echo "[FAILED] Test gagal (exit $TEST_EXIT_CODE). Exit 3."
+    exit 3
 fi
 
-if [ $TEST_EXIT_CODE -ne 0 ]; then
-    echo -e "\e[31m=== [FAILED] Evaluasi Gagal: Unit Test tidak lolos! ===\e[0m"
-    exit $TEST_EXIT_CODE
-fi
-
-echo -e "\e[32m=== [SUCCESS] Seluruh Evaluasi Lulus (DoD Terpenuhi) ===\e[0m"
+echo "[SUCCESS] Seluruh evaluasi lulus (DoD terpenuhi). Exit 0."
 exit 0
