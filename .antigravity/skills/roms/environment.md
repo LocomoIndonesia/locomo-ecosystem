@@ -5,13 +5,17 @@
 
 Dokumen ini memetakan topologi direktori dan aturan eksekusi terminal (Environment). Semua agen eksekutor (Tester, Fixer, Architect, Coder) WAJIB patuh pada pola direktori dan perintah Docker-only di bawah ini.
 
-## 1. DIRECTORY TOPOLOGY
+## 1. DIRECTORY TOPOLOGY (terverifikasi 2026-09-15 — hanya entri di bawah yang boleh dipakai)
 - **OS Root (Direct WSL Linux):** `/home/dev360_03/locomo.id/`
 - **Application Core Path Map:**
-  - `locomo-web` (Learning & LMS Project): `/home/dev360_03/locomo.id/locomo-web/`
-  - `mandeh.online` (Wisata & Reputasi): `/home/dev360_03/locomo.id/mandeh.online/`
+  - `locomo-web` (Portal utama ecosystem): `/home/dev360_03/locomo.id/locomo-web/`
   - `mandeh.id` (Identity SSO Provider): `/home/dev360_03/locomo.id/mandeh.id/`
-  - `tapak.pandeka` (Reputasi Pemuda): `/home/dev360_03/locomo.id/tapak.pandeka/`
+  - `mandeh.online.v2` (Wisata & Reputasi): `/home/dev360_03/locomo.id/mandeh.online.v2/`
+  - `unimart.group` (SaaS POS F&B): `/home/dev360_03/locomo.id/unimart.group/`
+  - `piticoin.id` (Gamifikasi, active project): `/home/dev360_03/locomo.id/piticoin.id/`
+  - `locomo.gateway` (WebSocket bridge): `/home/dev360_03/locomo.id/locomo.gateway/`
+  - `locomo.custom/` (PHP native: donasi, servis-hape, dls): `/home/dev360_03/locomo.id/locomo.custom/`
+- **Kosong (dilarang target eksekusi):** `tapak.pandeka/`, `walikelas.id/`, `izone.hotspot/`, `ard.asisten-rumah-digital/`, `Web-Donasi-PSB/`
 
 ## 2. TERMINAL EXECUTION RULES (DOCKER-ONLY POLICY)
 AntiGravity Agent beroperasi langsung di lingkungan Shell Linux Native (Ubuntu WSL), namun **DILARANG KERAS** menjalankan toolchain bahasa pemrograman secara native di mesin host. Semua perintah wajib dieksekusi di dalam kontainer Docker yang sesuai.
@@ -35,4 +39,19 @@ Seluruh pengerjaan lokal menggunakan container Docker untuk runtime execution:
 - **URL Resolution:** Default local `.env` adalah `http://localhost`.
 - **Packaging Format:** Distribusi project menggunakan format `tar.gz` di folder masing-masing sub-project `/dist/` jika direquest.
 - **Exclusion Rules:** Abaikan direktori `node_modules`, `vendor`, `.git`, dan file `.env` saat *packaging*.
+
+## 5. COMMAND REGISTRY (Tiket 0.4 — kanonis, diverifikasi via inspeksi file 2026-09-15)
+Aturan: agen HANYA boleh menjalankan perintah pada tabel ini. Di luar tabel = usulkan dulu, disetujui dulu. Dilarang trial-and-error merangkai perintah di terminal.
+
+| Project | Cwd | Perintah test kanonis | Status |
+|---|---|---|---|
+| `locomo-web` | `locomo-web/` | `./vendor/bin/sail artisan test` | ✅ sail + container `locomoid-laravel.test-1` UP |
+| `piticoin.id` | `piticoin.id/` | `docker compose exec -T app ./vendor/bin/phpunit` | ✅ phpunit + container `piticoinid-app-1` UP |
+| `unimart.group` | `unimart.group/` | — | ⛔ GAP: phpunit ada, container belum ada |
+| `mandeh.id` | `mandeh.id/` | — | ⛔ GAP: phpunit ada, container belum ada |
+| `mandeh.online.v2` | `mandeh.online.v2/` | — | ⛔ GAP: phpunit ada, container belum ada |
+| `locomo.gateway` | `locomo.gateway/` | — | ⛔ GAP: tidak ada test script (`start` saja) |
+| `semantic-api` | `.antigravity/drivers/` | `docker compose exec -T semantic-api python3 <script>` (skrip ad-hoc) | ⚠️ pola umum, tanpa test runner formal |
+
+Pemakaian hook: `HOOK_PROJECT_DIR=<cwd> HOOK_TEST_CMD="<perintah>" ./post_execution_eval.sh [file...]`. GAP = hook mengembalikan exit 2 (NO_RUNNER) sampai scaffold container tersedia.
 
