@@ -328,6 +328,80 @@ TOOLS = {
 }
 
 # Perintah CLI
+# Validasi cortex lanjutan (Tiket 2.4): satu fungsi dipakai bootcheck, `validate`,
+# dan `config set` (rollback bila error). Error = struktur rusak; warning = nilai
+# legacy di luar enum (contoh: phase/strategy free-text lama) — dilaporkan, tak diblokir.
+CORTEX_REQUIRED = ("current_phase", "system_health", "tasks", "priorities")
+CORTEX_PHASES = {"THINK", "SYNC", "ACT", "REFLECT", "IDLE"}
+CORTEX_HEALTH = {"healthy", "degraded", "critical"}
+CORTEX_TASK_STATUS = {"PENDING", "IN_PROGRESS", "COMPLETED", "BLOCKED"}
+
+def validate_cortex(anti_dir):
+    errors, warnings = [], []
+    cortex_path = os.path.join(anti_dir, "cortex", "cortex-core.json")
+    try:
+        with open(cortex_path, "r", encoding="utf-8") as f:
+            cortex = json.load(f)
+    except Exception as e:
+        return [f"cortex-core.json tidak bisa dibaca: {e}"], []
+    for field in CORTEX_REQUIRED:
+        if field not in cortex:
+            errors.append(f"field wajib '{field}' hilang")
+    health = cortex.get("system_health", "")
+    if "system_health" in cortex and health not in CORTEX_HEALTH:
+        errors.append(f"system_health '{health}' di luar {sorted(CORTEX_HEALTH)}")
+    phase = cortex.get("current_phase", "")
+    if "current_phase" in cortex and phase not in CORTEX_PHASES:
+        warnings.append(f"current_phase '{phase}' di luar enum {sorted(CORTEX_PHASES)} (nilai legacy?)")
+    tasks = cortex.get("tasks", None)
+    if tasks is not None:
+        if not isinstance(tasks, list):
+            errors.append("'tasks' bukan list")
+        else:
+            seen = set()
+            for i, t in enumerate(tasks):
+                if not isinstance(t, dict):
+                    errors.append(f"tasks[{i}] bukan objek"); continue
+                for f in ("id", "status", "label"):
+                    if f not in t:
+                        errors.append(f"tasks[{i}] kehilangan '{f}'")
+                if t.get("status") not in CORTEX_TASK_STATUS:
+                    errors.append(f"tasks[{i}] status '{t.get('status')}' di luar {sorted(CORTEX_TASK_STATUS)}")
+                if t.get("id") in seen:
+                    warnings.append(f"tasks[{i}] id duplikat '{t.get('id')}'")
+                seen.add(t.get("id"))
+    prio = cortex.get("priorities", None)
+    if prio is not None:
+        if not isinstance(prio, list):
+            errors.append("'priorities' bukan list")
+        elif not prio:
+            warnings.append("'priorities' kosong — orkestrator tak punya skor tertinggi")
+        elif any(not isinstance(p, str) for p in prio):
+            errors.append("'priorities' harus list string")
+    strat = cortex.get("active_strategy", "")
+    if strat:
+        try:
+            with open(os.path.join(anti_dir, "cortex", "strategies.json")) as f:
+                ids = {s["id"] for s in json.load(f).get("strategies", [])}
+            if strat not in ids:
+                warnings.append(f"active_strategy '{strat}' tak ada di strategies.json (nilai legacy?)")
+        except Exception:
+            pass
+    if health == "critical":
+        errors.append("system_health=critical — hentikan eksekusi (Authorization Gate)")
+    return errors, warnings
+
+def cmd_validate(args):
+    anti_dir = resolve_os_dir(require=True)
+    errors, warnings = validate_cortex(anti_dir)
+    for w in warnings:
+        print(f"[VALIDATE] PERINGATAN: {w}")
+    if errors:
+        for e in errors:
+            print(f"[VALIDATE] ERROR: {e}")
+        sys.exit(1)
+    print("[VALIDATE] OK." + (f" ({len(warnings)} peringatan)" if warnings else ""))
+
 def cmd_bootcheck(args):
     """Kontrak boot memori (Tiket 1.4): verifikasi driver + registrasi project + kesegaran graf."""
     anti_dir = resolve_os_dir(require=True)
@@ -375,24 +449,15 @@ def cmd_bootcheck(args):
     else:
         print("[BOOTCHECK] Graf belum ada — jalankan `locomo graphify`.")
 
-    # 3. Validasi skema cortex (Tiket 1.3): enum phase + system_health
-    cortex_path = os.path.join(anti_dir, "cortex", "cortex-core.json")
-    try:
-        with open(cortex_path, "r", encoding="utf-8") as f:
-            cortex = json.load(f)
-        valid_phases = {"THINK", "SYNC", "ACT", "REFLECT", "IDLE"}
-        phase = cortex.get("current_phase", "")
-        health = cortex.get("system_health", "")
-        if phase not in valid_phases:
-            print(f"[BOOTCHECK] PERINGATAN: current_phase '{phase}' di luar enum {sorted(valid_phases)} — perbaiki manual.")
-        else:
-            print(f"[BOOTCHECK] Phase valid: {phase} | health: {health}")
-        if health == "critical":
-            print("[BOOTCHECK] PERINGATAN: system_health=critical — hentikan eksekusi (Authorization Gate).")
-            sys.exit(1)
-    except Exception as e:
-        print(f"[BOOTCHECK] Gagal membaca cortex-core.json: {e}")
+    # 3. Validasi skema cortex (Tiket 1.3, diperluas 2.4)
+    errors, warnings = validate_cortex(anti_dir)
+    for w in warnings:
+        print(f"[BOOTCHECK] PERINGATAN: {w}")
+    if errors:
+        for e in errors:
+            print(f"[BOOTCHECK] ERROR: {e}")
         sys.exit(1)
+    print("[BOOTCHECK] Cortex valid." + (f" ({len(warnings)} peringatan)" if warnings else ""))
     print("[BOOTCHECK] OK.")
 
 def cmd_init(args):
@@ -686,9 +751,22 @@ def cmd_config(args):
         print(f"Error: '{value}' tidak valid untuk {args.key}. Valid: {sorted(allowed)}")
         sys.exit(1)
     data, path = _config_load(anti_dir, spec)
+    old = data.get(spec["field"])
     data[spec["field"]] = value
     with open(path, 'w') as f:
         json.dump(data, f, indent=2)
+    # Tiket 2.4: validasi pasca-tulis; error = rollback agar cortex tak rusak.
+    errors, warnings = validate_cortex(anti_dir)
+    if errors:
+        data[spec["field"]] = old
+        with open(path, 'w') as f:
+            json.dump(data, f, indent=2)
+        print(f"Error: nilai '{value}' merusak konsistensi cortex — perubahan dibatalkan:")
+        for e in errors:
+            print(f"  - {e}")
+        sys.exit(1)
+    for w in warnings:
+        print(f"PERINGATAN: {w}")
     print(f"{args.key} = {value} (tersimpan di {spec['file']})")
 
 def cmd_select(args):
@@ -1131,6 +1209,9 @@ def main():
     p_config.add_argument("key", nargs="?", help="Kunci konfigurasi (lihat `config list`)")
     p_config.add_argument("value", nargs="?", help="Nilai baru (untuk aksi set)")
 
+    # Command: validate (Tiket 2.4, offline — tanpa butuh drivers)
+    subparsers.add_parser("validate", help="Validasi konsistensi cortex-core.json (offline)")
+
     # Command: bootcheck (Tiket 1.4)
     p_bootcheck = subparsers.add_parser("bootcheck", help="Verify drivers, project registration, and graph freshness")
     p_bootcheck.add_argument("--yes", action="store_true", help="Daftarkan project bila belum terdaftar (persetujuan eksplisit)")
@@ -1151,6 +1232,7 @@ def main():
         "think": cmd_think,
         "select": cmd_select,
         "config": cmd_config,
+        "validate": cmd_validate,
         "bootcheck": cmd_bootcheck
     }
 
