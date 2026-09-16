@@ -62,3 +62,8 @@ Thumbs.db
 *.rar
 *.7z
 *.iso
+
+# Backup upgrade locomo (lokal saja, jangan commit).
+.locomo.agent.backup-*/
+.antigravity.backup-*/
+.locomo.agent.pre-rollback-*/

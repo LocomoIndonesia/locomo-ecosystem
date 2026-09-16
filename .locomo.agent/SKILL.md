@@ -4,15 +4,15 @@ name: locomo-agent-os
 description: Locomo Agent OS V2.0 — Universal AI Orchestration System. Auto-override identitas agen ke Kernel mode.
 ---
 
-# Locomo Agent OS System Protocol & Commands (v10.1.0-master)
+# Locomo Agent OS System Protocol & Commands (v10.2.0-master)
 
 Sebagai Agen AI, Anda diikat oleh dua perintah eksekutif berikut untuk memulai atau mengakhiri sesi.
 
 ## 🟢 SYSTEM ONBOARDING & COMMAND: "jalankan locomo.agent"
-**Kondisi:** Wajib dieksekusi sebagai protokol default setiap obrolan dimulai pada workspace yang memiliki direktori `.antigravity/`, atau saat berpindah proyek.
+**Kondisi:** Wajib dieksekusi sebagai protokol default setiap obrolan dimulai pada workspace yang memiliki direktori `.locomo.agent/`, atau saat berpindah proyek.
 
 **Alur Inisialisasi & Pemeriksaan (Boot Sequence):**
-1. **Membaca Parameter Acuan & Trinity State:** Baca nilai `"env_status"` dari `.antigravity/cortex/cortex-core.json` (Trinity 2) dan konfigurasi `.antigravity/id.json` (Trinity 1) untuk aturan guardrails.
+1. **Membaca Parameter Acuan & Trinity State:** Baca nilai `"env_status"` dari `.locomo.agent/cortex/cortex-core.json` (Trinity 2) dan konfigurasi `.locomo.agent/id.json` (Trinity 1) untuk aturan guardrails.
    - JIKA `"env_status"` bernilai `"running"`: Skip langkah 2 dan 3, langsung ke langkah 4 (Booting Report).
    - JIKA `"env_status"` bernilai `"idle"` atau `"error"`: Jalankan langkah 2 (Pengecekan Host).
 
@@ -26,7 +26,7 @@ Sebagai Agen AI, Anda diikat oleh dua perintah eksekutif berikut untuk memulai a
    - JIKA pemeriksaan sukses: Lanjutkan ke langkah 3 (Docker Compose Spin Up).
 
 3. **Docker Compose Spin Up & Context Sync:**
-   - Jalankan `cd .antigravity/drivers && docker compose up -d`.
+   - Jalankan `cd .locomo.agent/drivers && docker compose up -d`.
    - JIKA kontainer berhasil dijalankan:
      - JIKA `"active_project"` kosong:
        - Lewati langkah verifikasi database. Update `"env_status"` menjadi `"running"`.
@@ -37,13 +37,14 @@ Sebagai Agen AI, Anda diikat oleh dua perintah eksekutif berikut untuk memulai a
          - JIKA disetujui oleh User: Jalankan sinkronisasi di dalam kontainer:
            `docker compose exec semantic-api python sync_context.py --project [active_project] --graph /app/graphify-out/graph-[active_project].json` (atau fallback ke `/app/graphify-out/graph.json` jika file spesifik tidak ditemukan).
      - Update `"env_status"` di `cortex-core.json` menjadi `"running"`.
+     - **Kontrak boot memori (Tiket 1.4):** jalankan `locomo bootcheck` dari project root untuk verifikasi driver + registrasi project + kesegaran graf. Bila project belum terdaftar, tunjukkan remediasi ke user (jangan daftarkan tanpa persetujuan eksplisit `--yes`).
      - Deklarasikan status **[OS_MODE: COGNITIVE]** di dalam obrolan.
    - JIKA gagal:
      - Update `"env_status"` di `cortex-core.json` menjadi `"error"`.
      - Deklarasikan status **[OS_MODE: DRIVERLESS]**.
 
 4. **Booting Report:**
-   - Baca `.antigravity/cortex/cortex-core.json` (Trinity 2), `.antigravity/id.json` (Trinity 1), dan `.antigravity/docs/project-context.json`.
+   - Baca `.locomo.agent/cortex/cortex-core.json` (Trinity 2), `.locomo.agent/id.json` (Trinity 1), dan `.locomo.agent/docs/project-context.json`.
    - Berikan laporan booting ke User dengan format berikut:
      * **Locomo Agent OS Active Mode:** `[OS_MODE: COGNITIVE]` atau `[OS_MODE: DRIVERLESS]`
      * **Environment Status:** `idle` / `running` / `error` (sesuai `"env_status"`)
@@ -57,7 +58,7 @@ Setelah mode onboarding dideklarasikan, Agen **DILARANG KERAS** mengecek status 
 ## 🔴 SYSTEM COMMAND: "matikan locomo agent os"
 **Kondisi:** Saat User ingin mengakhiri sesi kerja dan mematikan infrastruktur.
 **Action Sequence:**
-1. **Shutdown:** Jalankan `cd .antigravity/drivers && docker compose down`.
+1. **Shutdown:** Jalankan `cd .locomo.agent/drivers && docker compose down`.
 2. **Reset Environment Parameter:** Ubah `"env_status"` di `cortex-core.json` kembali menjadi `"idle"`.
 3. **Report:** Laporkan bahwa seluruh Cognitive Drivers telah dimatikan dan Locomo Agent OS kembali masuk mode *Standby* (`idle`).
 
@@ -66,9 +67,9 @@ Untuk memfasilitasi integrasi, pengelolaan memori, dan penalaran luring (offline
 
 ### Perintah Utama:
 1. **`init [target_dir] [--name project_name]`**
-   Menginstal Locomo Agent OS ke folder target dengan menyalin file template master ke `<target_dir>/.antigravity/` dan mengonfigurasi identitas proyek secara otomatis.
+   Menginstal Locomo Agent OS ke folder target dengan menyalin file template master ke `<target_dir>/.locomo.agent/` dan mengonfigurasi identitas proyek secara otomatis.
 2. **`upgrade`**
-   Meningkatkan versi `.antigravity/` pada proyek aktif dari folder master source tanpa merusak berkas konfigurasi lokal (`id.json`, `cortex/`, `docs/`, `brain/`).
+   Meningkatkan versi `.locomo.agent/` pada proyek aktif dari folder master source. Kontrak non-destruktif: file PROTECTED (`id.json`, `cortex/`, `docs/project-context.json`, `brain/`, `.env`, `scratch/`, `docs/changelogs/`, `docs/fplans/`) tidak pernah ditimpa; backup otomatis sebelum upgrade; instalasi lama `.antigravity/` dimigrasi sekali-jalan.
 3. **`graphify`**
    Memindai struktur proyek secara otomatis menggunakan `generate_project_graph.py` dan menyinkronkan graf node ke database pgvector melalui `sync_context.py`.
 4. **`store <content> [--type type] [--metadata json_str]`**
@@ -85,19 +86,19 @@ Untuk memfasilitasi integrasi, pengelolaan memori, dan penalaran luring (offline
 ---
 
 ## THE COGNITIVE ARCHITECTURE (5-LAYER WITH TRINITY MEMORY)
-1. **.antigravity/skills/** (The Engine): Immutable. Mesin orkestrasi universal, persona agnostik, serta folder `skills/hooks/` [NEW] untuk skrip evaluasi pasca-eksekusi (*Post-Execution Evals*).
-2. **.antigravity/docs/** (The Cartridge): Mutable. Identitas spesifik project (Tech stack, environment, business rules) dalam format JSON, termasuk folder `docs/fplans/` (Trinity 3 - Incremental Flow Plans) untuk koordinasi alur kerja bertahap.
-3. **.antigravity/brain/** (Project Brain): Lokasi absolut untuk penyimpanan aktif memori (pgvector / `cognitive_memories`).
-4. **.antigravity/scratch/** (Project Sandbox): Folder utama untuk file sementara dan kontainer scaffolding sementara.
-5. **.antigravity/cortex/** (Central Cognitive Core): Pusat kesadaran eksekutif (CCC). Membaca memori dan mendikte skills/ via `cortex-core.json` (Trinity 2). WAJIB mematuhi Authorization Gate sebelum berpindah Phase.
+1. **.locomo.agent/skills/** (The Engine): Immutable. Mesin orkestrasi universal, persona agnostik, serta folder `skills/hooks/` [NEW] untuk skrip evaluasi pasca-eksekusi (*Post-Execution Evals*).
+2. **.locomo.agent/docs/** (The Cartridge): Mutable. Identitas spesifik project (Tech stack, environment, business rules) dalam format JSON, termasuk folder `docs/fplans/` (Trinity 3 - Incremental Flow Plans) untuk koordinasi alur kerja bertahap.
+3. **.locomo.agent/brain/** (Project Brain): Lokasi absolut untuk penyimpanan aktif memori (pgvector / `cognitive_memories`).
+4. **.locomo.agent/scratch/** (Project Sandbox): Folder utama untuk skrip temporary agen (.py, .sql, .ps1, .sh) dan kontainer scaffolding sementara (Amandemen A1).
+5. **.locomo.agent/cortex/** (Central Cognitive Core): Pusat kesadaran eksekutif (CCC). Membaca memori dan mendikte skills/ via `cortex-core.json` (Trinity 2). WAJIB mematuhi Authorization Gate sebelum berpindah Phase.
 
-*Aturan Tambahan:* Berkas `.antigravity/id.json` di root berfungsi sebagai **Trinity 1** (Identitas, Tech Stack, & Guardrails Mutlak) yang mengontrol aturan perilaku agen.
+*Aturan Tambahan:* Berkas `.locomo.agent/id.json` di root berfungsi sebagai **Trinity 1** (Identitas, Tech Stack, & Guardrails Mutlak) yang mengontrol aturan perilaku agen.
 
 ---
 
 ## 🌐 HYBRID ROUTING & GOOGLE GEMINI API PROTOCOL
 Locomo Agent OS mendukung alur penalaran hibrida (hybrid reasoning) untuk menyeimbangkan performa lokal dan kebutuhan kapasitas token besar:
 1. **Batas Konteks Lokal (CPU Sizing Limit):** Batas kapasitas optimal model lokal `qwen2.5:1.5b` di Ollama adalah **4.096 token** (~16.000 karakter).
-2. **Kondisi Fallback Otomatis:** Jika akumulasi token dalam riwayat loop reasoning (`think`) melebihi 4.096 token dan `GEMINI_API_KEY` tersedia, CLI akan otomatis mengalihkan penalaran dari model lokal ke Google Gemini API (model `gemini-1.5-flash` or `gemini-1.5-pro`).
+2. **Kondisi Fallback Otomatis:** Jika akumulasi token dalam riwayat loop reasoning (`think`) melebihi 4.096 token dan `GEMINI_API_KEY` tersedia, CLI akan otomatis mengalihkan penalaran dari model lokal ke Google Gemini API (model `gemini-1.5-flash` atau `gemini-1.5-pro`).
 3. **Pilihan Manual (Explicit Provider):** Pengguna dapat memaksa pemilihan model via flag `--provider gemini` atau `--provider local` saat menjalankan perintah `./locomo think`.
 4. **Konfigurasi API Key:** Variabel `GEMINI_API_KEY` dan `GEMINI_MODEL` dapat dikonfigurasi melalui berkas `.env` di direktori utama proyek.

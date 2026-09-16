@@ -709,7 +709,7 @@ def _preserve_kind(rel, preserve):
             return "recurse"   # leluhur preserve: wajib turun ke dalam
     return "sync"
 
-def _sync_tree(src, dst, preserve, ignore_names, label):
+def _sync_tree(src, dst, preserve, protected, ignore_names, label):
     os.makedirs(dst, exist_ok=True)
     try:
         src_items = set(os.listdir(src))
@@ -717,6 +717,9 @@ def _sync_tree(src, dst, preserve, ignore_names, label):
         return
     for item in set(os.listdir(dst)) - src_items:
         r = f"{label}/{item}" if label else item
+        if item == ".env" or any(p == r or r.startswith(p + "/") for p in protected):
+            print(f"Protected (tidak disentuh): {r}")
+            continue
         if _preserve_kind(r, preserve) in ("keep", "recurse"):
             continue
         full = os.path.join(dst, item)
@@ -742,19 +745,66 @@ def _sync_tree(src, dst, preserve, ignore_names, label):
         if kind == "recurse" and (os.path.isdir(s) and not os.path.islink(s)):
             if os.path.exists(d) and not os.path.isdir(d):
                 os.remove(d)
-            _sync_tree(s, os.path.join(dst, item), preserve, ignore_names, r)
+            _sync_tree(s, os.path.join(dst, item), preserve, protected, ignore_names, r)
             continue
         if os.path.isdir(s) and not os.path.islink(s):
             if os.path.exists(d) and not os.path.isdir(d):
                 os.remove(d)
-            _sync_tree(s, os.path.join(dst, item), preserve, ignore_names, r)
+            _sync_tree(s, os.path.join(dst, item), preserve, protected, ignore_names, r)
         else:
             shutil.copy2(s, d)
 
 def _sync_managed_dir(src_d, dst_d, ignore_patterns):
     top = os.path.basename(dst_d)
     preserve = {p.split("/", 1)[1] for p in PRESERVE_ON_UPGRADE if p.split("/")[0] == top}
-    _sync_tree(src_d, dst_d, preserve, {'.git', '__pycache__'}, "")
+    # Fix-1 koreksi (M-2): file proteksi tak boleh dihapus sync-tepat —
+    # PROTECTED_PATHS berelatif root OS + `.env` di level mana pun (secret lokal).
+    protected = {p.split("/", 1)[1] for p in PROTECTED_PATHS if p.startswith(top + "/")}
+    _sync_tree(src_d, dst_d, preserve, protected, {'.git', '__pycache__'}, "")
+
+def _deep_add_missing(template, live):
+    changed = False
+    if isinstance(template, dict) and isinstance(live, dict):
+        for k, v in template.items():
+            if k not in live:
+                live[k] = v
+                changed = True
+            elif _deep_add_missing(v, live[k]):
+                changed = True
+        return changed
+    if isinstance(template, list) and isinstance(live, list):
+        for i, tv in enumerate(template):
+            if i < len(live) and _deep_add_missing(tv, live[i]):
+                changed = True
+        return changed
+    return False
+
+def _merge_state_schemas(anti_dir, master_dir):
+    # Fix-1 lanjutan (M-2): file state yang di-preserve tetap mendapat FIELD BARU
+    # dari template (aditif saja — nilai instalasi tidak pernah ditimpa).
+    tpl_rt = os.path.join(master_dir, "skills", "runtime")
+    dst_rt = os.path.join(anti_dir, "skills", "runtime")
+    if not os.path.isdir(tpl_rt) or not os.path.isdir(dst_rt):
+        return
+    for fname in os.listdir(tpl_rt):
+        if not fname.endswith(".json"):
+            continue
+        src, dst = os.path.join(tpl_rt, fname), os.path.join(dst_rt, fname)
+        try:
+            with open(src) as f:
+                template = json.load(f)
+            if not os.path.exists(dst):
+                shutil.copy2(src, dst)
+                print(f"Schema: {fname} disalin dari template (belum ada).")
+                continue
+            with open(dst) as f:
+                live = json.load(f)
+            if _deep_add_missing(template, live):
+                with open(dst, "w") as f:
+                    json.dump(live, f, indent=2)
+                print(f"Schema: {fname} ditambah field baru dari template (nilai lama utuh).")
+        except Exception as e:
+            print(f"Schema: lewati {fname} ({e})")
 
 def cmd_upgrade(args):
     anti_dir = resolve_os_dir(require=True)
@@ -818,6 +868,9 @@ def cmd_upgrade(args):
     dst_agents = os.path.join(proj_root, ".agents")
     if os.path.exists(src_agents):
         shutil.copytree(src_agents, dst_agents, ignore=ignore_patterns, dirs_exist_ok=True)
+
+    # Merge skema state (M-2): file preserve mendapat field baru template.
+    _merge_state_schemas(anti_dir, master_dir)
 
     # Validasi pasca-upgrade (Tiket 3.4): cortex rusak = rollback otomatis.
     errors, warnings = validate_cortex(anti_dir)

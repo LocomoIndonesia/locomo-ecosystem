@@ -1,8 +1,10 @@
 {
-  "version": "10.1.0-master",
+  "version": "10.2.0-master",
   "name": "Locomo Agent OS — Universal AI Software Factory",
   "description": "5-Layer Full Cognitive Architecture V2.0 with Trinity Pattern Memory, Evals & Hooks, and Model Routing.",
   "kernel": "skills/kernel.md",
+  "os_dir": ".locomo.agent",
+  "legacy_os_dir": ".antigravity",
   "identity": "id.json",
   "docs": "docs",
   "cortex": "cortex",

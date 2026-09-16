@@ -18,7 +18,10 @@
       "trust_level_applied": null,
       "hitl_approvals": [],
       "auto_approvals": [],
-      "graphify_diff_summary": null
+      "graphify_diff_summary": null,
+      "lane": null,
+      "speed_mode": null,
+      "decisions": []
     }
   ]
 }

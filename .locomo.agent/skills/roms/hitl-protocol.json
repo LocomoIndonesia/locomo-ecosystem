@@ -1,0 +1,54 @@
+{
+  "protocol_id": "hitl-protocol",
+  "version": "6.1.0-agentic.swarm",
+  "description": "Human-in-the-Loop (HITL) protocol: 4 manual gates + 2 automatic gates. Names aligned with skills/kernel.md (Fix-1: PLANNING_GATE/MERGE_GATE retired).",
+  "hitl_reduction_strategy": "Agen HANYA meminta persetujuan pada gerbang manual. Di luar itu, agen berstatus FULLY AUTONOMOUS, diizinkan gagal, merevisi kodenya sendiri, dan mengulang loop internal hingga lolos kompilasi dan audit.",
+  "gates": {
+    "START_APPROVAL": {
+      "level": 0,
+      "type": "manual",
+      "description": "THINK: persetujuan Goal Stack, Scope arsitektur & Flow Plan awal (wajib bila berdampak masif)."
+    },
+    "CCC_AUTHORIZATION_GATE": {
+      "level": 1,
+      "type": "automatic",
+      "description": "Pra-SYNC/Pra-ACT: verifikasi system_health cortex dan pemilihan task prioritas tertinggi."
+    },
+    "STRICT_VALIDATION": {
+      "level": 1,
+      "type": "automatic",
+      "description": "ACT: kode lolos hanya jika Test dan Post-Execution Evals PASS."
+    },
+    "MERGE_APPROVAL": {
+      "level": 0,
+      "type": "manual",
+      "description": "REFLECT: persetujuan final merge + verifikasi blok disclosure keputusan otonom."
+    },
+    "DESTRUCTIVE_GATE": {
+      "level": 0,
+      "type": "manual",
+      "description": "Kapan pun: konfirmasi sebelum DROP/DELETE database atau hapus file krusial."
+    },
+    "ESCALATION_GATE": {
+      "level": 0,
+      "type": "manual",
+      "description": "Intervensi darurat saat Circuit Breaker aktif atau infinite loop terdeteksi."
+    }
+  },
+  "trust_levels": {
+    "0": "Manual Approval Required",
+    "1": "Autonomous execution with Post-Action Notification",
+    "2": "Fully Autonomous"
+  },
+  "lanes": {
+    "VIBE": {"trust": 2, "gates": ["DESTRUCTIVE_GATE"], "authority": "orchestrator auto for trivial signals; user may force"},
+    "FACTORY": {"trust": 1, "gates": ["START_APPROVAL", "STRICT_VALIDATION", "MERGE_APPROVAL"], "authority": "default; START_APPROVAL wajib bila berdampak masif; user may force"},
+    "CRITICAL": {"trust": 0, "gates": ["START_APPROVAL", "CCC_AUTHORIZATION_GATE", "STRICT_VALIDATION", "MERGE_APPROVAL", "DESTRUCTIVE_GATE", "ESCALATION_GATE"], "authority": "auto when critical signals match; security auditor mandatory; explicit HITL"}
+  },
+  "lane_rules": [
+    "Classify lane at THINK start and record it (cortex task, FPLAN header, telemetry).",
+    "CRITICAL signals always win over other classifications.",
+    "Escalation VIBE->FACTORY->CRITICAL allowed anytime; no automatic de-escalation.",
+    "speed_mode must not bypass lane mapping."
+  ]
+}
