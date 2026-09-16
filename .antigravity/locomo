@@ -697,6 +697,65 @@ def cmd_rollback(args):
     print(f"Rollback selesai dari: {src}")
     print(f"Instalasi sebelumnya diamankan di: {aside}")
 
+# State milik instalasi yang TIDAK BOLEH ditimpa upgrade (Fix-1): riwayat belajar
+# dan graf hasil pindaian adalah data hidup project, bukan template.
+PRESERVE_ON_UPGRADE = ["skills/runtime", "drivers/api/graphify-out"]
+
+def _preserve_kind(rel, preserve):
+    for p in preserve:
+        if p == rel or rel.startswith(p + "/"):
+            return "keep"      # tepat preserve leaf / di dalamnya: pertahankan utuh
+        if p.startswith(rel + "/"):
+            return "recurse"   # leluhur preserve: wajib turun ke dalam
+    return "sync"
+
+def _sync_tree(src, dst, preserve, ignore_names, label):
+    os.makedirs(dst, exist_ok=True)
+    try:
+        src_items = set(os.listdir(src))
+    except FileNotFoundError:
+        return
+    for item in set(os.listdir(dst)) - src_items:
+        r = f"{label}/{item}" if label else item
+        if _preserve_kind(r, preserve) in ("keep", "recurse"):
+            continue
+        full = os.path.join(dst, item)
+        if os.path.isdir(full) and not os.path.islink(full):
+            shutil.rmtree(full)
+        else:
+            os.remove(full)
+    for item in src_items:
+        if item in ignore_names or item.endswith(('.pyc', '.Zone.Identifier')):
+            continue
+        r = f"{label}/{item}" if label else item
+        s, d = os.path.join(src, item), os.path.join(dst, item)
+        kind = _preserve_kind(r, preserve)
+        if kind == "keep":
+            if not os.path.exists(d):
+                if os.path.isdir(s) and not os.path.islink(s):
+                    shutil.copytree(s, d)
+                else:
+                    shutil.copy2(s, d)
+            else:
+                print(f"Preserve (state instalasi): {r}")
+            continue
+        if kind == "recurse" and (os.path.isdir(s) and not os.path.islink(s)):
+            if os.path.exists(d) and not os.path.isdir(d):
+                os.remove(d)
+            _sync_tree(s, os.path.join(dst, item), preserve, ignore_names, r)
+            continue
+        if os.path.isdir(s) and not os.path.islink(s):
+            if os.path.exists(d) and not os.path.isdir(d):
+                os.remove(d)
+            _sync_tree(s, os.path.join(dst, item), preserve, ignore_names, r)
+        else:
+            shutil.copy2(s, d)
+
+def _sync_managed_dir(src_d, dst_d, ignore_patterns):
+    top = os.path.basename(dst_d)
+    preserve = {p.split("/", 1)[1] for p in PRESERVE_ON_UPGRADE if p.split("/")[0] == top}
+    _sync_tree(src_d, dst_d, preserve, {'.git', '__pycache__'}, "")
+
 def cmd_upgrade(args):
     anti_dir = resolve_os_dir(require=True)
     # Migrasi sekali-jalan dari nama lama (Amandemen A5) — wajib konfirmasi eksplisit.
@@ -742,9 +801,7 @@ def cmd_upgrade(args):
         if os.path.realpath(src_d) == os.path.realpath(dst_d):
             print(f"Lewati {d_name}: master dan instalasi sama (cegah hapus diri).")
             continue
-        if d_name == "skills" and os.path.exists(dst_d):
-            shutil.rmtree(dst_d)
-        shutil.copytree(src_d, dst_d, ignore=ignore_patterns, dirs_exist_ok=True)
+        _sync_managed_dir(src_d, dst_d, ignore_patterns)
 
     for f_name in MANAGED_FILES:
         src_f = os.path.join(master_dir, f_name)
