@@ -29,15 +29,21 @@
 
 ---
 
-## 1. Eksekutif & Penyelarasan Strategis (VC Submission Alignment)
+### 1.1 Status Keputusan & Legenda
+Dokumen teknis ini menggunakan standar penandaan status yang selaras dengan dokumen fundamental:
+- **[Dikunci]:** Prinsip dan invarian arsitektur yang telah disepakati dan tidak boleh diubah tanpa konsensus founder.
+- **[Hipotesis]:** Arah kerja atau estimasi teknis yang masuk akal namun wajib divalidasi melalui data empiris pilot.
+- **[Terbuka]:** Usulan teknis (termasuk pilihan tumpukan teknologi/tools) yang menunggu tinjauan dan keputusan founder/tim legal/pedagogi.
+- **[Di luar MVP]:** Fitur atau integrasi yang sengaja ditunda demi menjaga fokus sprint MVP.
 
-### 1.1 Perubahan Strategis: Unimart ke WaliKelas.id
+### 1.2 Perubahan Strategis: Unimart ke WaliKelas.id
 Peralihan dari `unimart.group` (Voice B2B OS) ke `walikelas.id` (Human-Guided EdTech & AI Co-Pilot) membawa proposisi nilai yang lebih kuat dan mendalam:
-1. **Defensibilitas Nyata:** Bukan sekadar wrapper LLM, melainkan *closed-loop workflow* yang menghubungkan tiga pihak (Guru, Wali, Murid) yang didukung kurasi pedagogi dan kepatuhan privasi anak (UU PDP & COPPA-aligned).
-2. **Distribusi Organik (High-Trust Network):** Akses pilot instan melalui jaringan guru SD dan ikatan emosional keluarga terhadap pendidikan anak dasar.
-3. **Efisiensi Waktu Guru (Direct ROI):** Mengurangi hingga 40% waktu administrasi penelaahan tugas guru tanpa menambah durasi layar (screen time) anak.
+1. **Defensibilitas Nyata [Dikunci]:** Bukan sekadar wrapper LLM, melainkan *closed-loop workflow* yang menghubungkan tiga pihak (Guru, Wali, Murid) yang didukung kurasi pedagogi dan arsitektur data privasi anak (berprinsip *data minimization*, menunggu peninjauan formal penasihat hukum terkait kepatuhan regulasi).
+2. **Distribusi Organik (High-Trust Network) [Hipotesis]:** Akses pilot awal melalui jaringan guru SD mitra desain dan relasi kolaboratif keluarga.
+3. **Efisiensi Beban Guru [Hipotesis]:** Menguji apakah platform mampu memotong beban waktu administrasi penelaahan tugas membaca guru secara signifikan tanpa menambah durasi layar (*screen time*) anak. **Peringatan:** Angka efisiensi atau peningkatan literasi tidak boleh diklaim sebagai capaian sebelum data pilot terkumpul.
 
-### 1.2 Target Milestone & Deadline Submission 2026
+### 1.3 Target Milestone & Deadline Submission 2026
+
 
 | Milestone / Program | Deadline / Tanggal Target | Prasyarat Teknis yang Harus Siap |
 |---|---|---|
@@ -155,21 +161,22 @@ flowchart TB
 
 ---
 
-## 4. Tumpukan Teknologi (Technology Stack)
+## 4. Tumpukan Teknologi (Technology Stack) — [Terbuka: Usulan Teknis untuk Review Founder]
 
-Sesuai filosofi arsitektur *Fat Service, Skinny Controller*, keandalan relasional, dan kecepatan implementasi pra-November 2026:
+Sesuai filosofi arsitektur *Fat Service, Skinny Controller*, keandalan relasional, dan kecepatan implementasi pra-November 2026, berikut adalah usulan tumpukan teknologi yang terbuka untuk ditinjau dan dikonfirmasi founder:
 
-| Layer | Komponen / Teknologi | Justifikasi Teknis & Kepatuhan |
-|---|---|---|
-| **Backend Framework** | **Node.js (TypeScript) + Fastify** atau **NestJS** | Performa tinggi, throughput I/O cepat, dukungan Zod schema validation end-to-end, kompatibilitas TypeScript dengan frontend. |
-| **Primary Database** | **PostgreSQL 16** | Relasional murni, transaksi ACID kuat, integrasi JSONB untuk konfigurasi fleksibel rubrik, indexing performa tinggi (BRIN/B-Tree). |
-| **ORM / Query Builder** | **Prisma** atau **Drizzle ORM** | Type-safety penuh, migrasi skema terkelola dengan versi kode, proteksi bawaan terhadap SQL Injection. |
-| **Cache & Job Queue** | **Redis 7 + BullMQ** | Manajemen antrean FSM asinkron, scheduled reminders (pengingat jam belajar), rate limiting, dan buffer scoring AI. |
-| **AI LLM Gateway** | **LiteLLM / Direct SDK (OpenAI gpt-4o-mini & Claude 3.5 Haiku)** | Penilaian rubrik terstruktur menggunakan JSON Strict Mode (`response_format`). Model ringkas menjamin latensi < 1.5s dan efisiensi biaya. |
-| **Frontend Web/PWA** | **Next.js 14 / Vite React (TypeScript) + TailwindCSS** | Akses cepat via browser ponsel tanpa unduh APK berat. Desain modular untuk 3 persona (Siswa, Wali, Guru). |
-| **Audio & Media Delivery** | **Web Audio API + AWS S3 / Cloudflare R2** | Format audio terkompresi (Opus/AAC) untuk narasi membaca teks kelas 3 SD; bandwidth-friendly. |
-| **Notification Engine** | **Fonnte / WhatsApp Business API + Resend (Email)** | WhatsApp adalah kanal utama orang tua di Indonesia; pesan dibatasi oleh *daily quiet-hour budget*. |
-| **Container & CI/CD** | **Docker + Docker Compose + GitHub Actions** | Portabel dari WSL dev environment ke cloud VPS (AWS Lightsail / Hetzner / Railway) tanpa deviasi runtime. |
+| Layer | Usulan Komponen / Teknologi | Status | Justifikasi Teknis & Opsi Alternatif |
+|---|---|:---:|---|
+| **Backend Framework** | **Node.js (TypeScript) + Fastify** atau **NestJS** | [Terbuka] | Throughput I/O tinggi, validasi Zod schema terpadu. *Alternatif:* Python (FastAPI) jika tim memprioritaskan ekosistem data AI terintegrasi. |
+| **Primary Database** | **PostgreSQL 16** | [Dikunci] | Relasional murni, integritas transaksi ACID, dukungan audit trail, dan JSONB terkelola untuk rubrik pedagogi. |
+| **ORM / Data Access** | **Prisma** atau **Drizzle ORM** | [Terbuka] | Type-safety end-to-end, migrasi skema terkelola dalam repositori, proteksi bawaan dari injeksi SQL. |
+| **Cache & Job Queue** | **Redis 7 + BullMQ** | [Terbuka] | Antrean FSM asinkron, penjadwalan reminder jam tenang (*quiet hours*), dan rate limiting proteksi endpoint. |
+| **AI LLM Gateway** | **Gateway Agnostik (LiteLLM / Direct SDK)** *(Model: gpt-4o-mini / Claude 3.5 Haiku / Gemini 1.5 Flash)* | [Terbuka] | Model LLM dapat dikonfigurasi dan dipertukarkan via environment variables; wajib mendukung Structured Outputs (JSON Schema). |
+| **Frontend Web/PWA** | **Responsive PWA (Next.js / Vite React TypeScript)** | [Terbuka] | Ringan, dapat diakses instan via browser smartphone tanpa instalasi toko aplikasi. Pilihan styling (Vanilla CSS vs utility styling) menunggu arahan founder. |
+| **Audio & Media** | **Web Audio API + Object Storage (S3 / R2 / MinIO)** | [Terbuka] | Format audio terkompresi hemat kuota (Opus/AAC) untuk narasi membaca teks fabel. |
+| **Notification Engine** | **WhatsApp Gateway (Fonnte/WABA) + Resend (Email)** | [Terbuka] | WhatsApp sebagai kanal utama keluarga di Indonesia; tunduk pada anggaran perhatian (*attention budget*). |
+| **Container & Runtime** | **Docker + Docker Compose** | [Dikunci] | Sesuai Tiered Execution Locomo OS (Tier 1 Container / Tier 2 WSL). Menjamin portabilitas deployment. |
+
 
 ---
 
@@ -606,10 +613,12 @@ REPORTS & SUMMARIES:
 
 ## 9. Protokol Privasi, Keamanan Anak & Incident Response (Safeguarding)
 
-### 9.1 Kepatuhan UU Perlindungan Data Pribadi (UU PDP) & Zero Excessive Data
-1. **Data Anak Minimal:** Tidak mengumpulkan NIK, alamat rumah presisi, foto wajah asli, maupun rekam jejak digital di luar aplikasi.
-2. **Hak Wali (Data Subject Rights):** Orang tua dapat kapan saja mengekspor riwayat belajar anak dalam format PDF/JSON, atau meminta penghapusan akun (`Right to Erasure`).
-3. **Pencabutan Akses Guru:** Jika wali mencabut izin koneksi kelas, guru seketika kehilangan hak akses membaca aktivitas baru anak. Riwayat lama yang telah divalidasi disimpan dalam status terarsip (*anonymized audit record*).
+### 9.1 Prinsip Desain Perlindungan Data & Privasi Anak [Dikunci: Prinsip Desain; Terbuka: Telaah Hukum Formal]
+1. **Data Anak Minimal [Dikunci]:** Tidak mengumpulkan NIK, nomor KK, alamat rumah presisi, foto wajah asli, maupun rekam jejak digital di luar aplikasi. Hanya nama panggilan, tahun lahir, dan avatar yang disimpan.
+2. **Hak Wali (Data Subject Rights) [Dikunci]:** Orang tua memiliki kendali penuh untuk melihat data perwaliannya, mengekspor riwayat belajar anak dalam format PDF/JSON, atau meminta penghapusan data perwalian (`Right to Erasure`).
+3. **Pencabutan Akses Guru [Dikunci]:** Jika wali mencabut izin koneksi kelas, guru seketika kehilangan hak akses membaca aktivitas baru anak. Riwayat lama yang telah divalidasi disimpan dalam status terarsip (*anonymized audit record*).
+4. **Kepatuhan Regulasi Formal [Terbuka]:** Klausul hukum spesifik terkait implementasi UU Perlindungan Data Pribadi (UU PDP) dan standar perlindungan anak digital internasional wajib ditinjau dan disahkan oleh penasihat hukum sebelum pilot resmi dengan anak dimulai.
+
 
 ### 9.2 Circuit Breaker Insiden Keamanan & Konten
 Jika dalam isian teks terbuka (respons anak atau catatan wali) terdeteksi kata kunci darurat (kekerasan, perundungan ekstrem, ancaman fisik):
@@ -687,30 +696,31 @@ Pelaksanaan teknis dibagi menjadi **5 Fase terstruktur dan terukur** menuju kesi
   3. **Notification Engine (BullMQ + WhatsApp API):**
      - Pengingat jadwal misi membaca sore/pagi.
      - Penerapan jam tenang (*Quiet Hours 20.00 - 07.00 WIB*).
-- **Deliverables:** Guru pilot dapat menyelesaikan telaah 1 kelas (25 anak) dalam waktu < 10 menit.
+- **Deliverables:** Terujinya alur penelaahan guru berbasis antrean prioritas, di mana guru hanya perlu merespons kasus yang membutuhkan keputusan profesional tanpa memeriksa seluruh rincian mikro.
 
 ### FASE 4: Pilot Testing (5 Guru SD, 25 Siswa), Telemetri & Security Hardening
 *Target: 04 – 08 November 2026*
-- **Tujuan:** Menjalankan uji coba lapangan nyata selama 5 hari bersama mitra desain sekolah dasar.
+- **Tujuan:** Menjalankan uji coba lapangan nyata selama 5 hari bersama mitra desain sekolah dasar untuk menguji hipotesis produk.
 - **Detail Tugas:**
   1. Onboarding 5 guru SD mitra desain dan 20–30 orang tua dengan surat persetujuan digital.
   2. Pelaksanaan siklus literasi 5 misi naratif.
-  3. Pengumpulan instrumen telemetri:
+  3. Pengumpulan instrumen telemetri murni:
      - *Mission Completion Rate* (Digital + Offline).
-     - *Teacher Time Saved* (Menghitung selisih waktu koreksi).
-     - *Parent Usability Score* & keluhan screen time.
+     - *Teacher Time Saved* (Menghitung selisih waktu koreksi dibanding cara konvensional).
+     - *Parent Usability Score* & pemantauan durasi waktu layar.
   4. Pengujian Circuit Breaker keamanan anak (uji penetrasi kata kunci dan isolasi data).
-- **Deliverables:** Log pilot aktual, tidak ada insiden kebocoran privasi, data traction terverifikasi.
+- **Deliverables:** Log pilot aktual, tidak ada insiden kebocoran privasi, data traction terverifikasi murni dari hasil uji.
 
 ### FASE 5: Konsolidasi Metrik Pilot, Investor Data Room & Demo Deck VC
 *Target: 09 – 15 November 2026 (Menjelang Techstars Deadline 18 Nov)*
-- **Tujuan:** Mengonversi hasil teknis dan pilot menjadi bukti traksi kuat untuk seleksi wawancara YC dan submission Techstars.
+- **Tujuan:** Mengonversi hasil teknis dan pilot menjadi bukti traksi kuat untuk seleksi wawancara YC dan submission Techstars tanpa melebih-lebihkan klaim.
 - **Detail Tugas:**
   1. Pembangunan dashboard analitik ringkasan pilot untuk Data Room.
-  2. Perekaman video demo produk 90 detik (menampilkan alur anak membaca -> pendampingan orang tua -> triage 1 menit guru).
-  3. Penyusunan laporan dampak: *Waktu guru dihemat (±40%)*, *Tingkat keterlibatan wali (>80%)*, *Screen time anak terkendali (rata-rata 11 menit/sesi)*.
+  2. Perekaman video demo produk 90 detik (menampilkan alur anak membaca -> pendampingan orang tua -> triage terarah guru).
+  3. Penyusunan laporan dampak berdasarkan temuan empiris pilot: perbandingan waktu kerja guru, tingkat konfirmasi aktivitas offline keluarga, dan catatan durasi sesi anak (angka diisi murni berdasarkan data instrumen pilot, tanpa klaim asumtif).
   4. Finalisasi dokumen arsitektur dan security whitepaper untuk uji tuntas teknis (*technical due diligence*).
 - **Deliverables:** Master Data Room lengkap, video demo profesional, metrik pilot terverifikasi.
+
 
 ---
 
