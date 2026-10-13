@@ -1,5 +1,6 @@
 {
   "project_code": "locomo.id",
   "project_name": "locomo.id",
-  "gateway_url": "http://localhost:8000"
+  "gateway_url": "http://localhost:8000",
+  "version": "12.0"
 }
