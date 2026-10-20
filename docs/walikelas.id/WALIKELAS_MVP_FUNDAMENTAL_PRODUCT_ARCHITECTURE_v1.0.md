@@ -8,6 +8,21 @@
 **Horizon:** MVP/pilot awal menjelang pengajuan accelerator November 2026.  
 **Audiens dokumen:** Founder, tim produk, pakar pendidikan, guru pilot, desain UX, QA, pengembang, tim perlindungan anak, dan agent AI pendamping pengembangan.
 
+> [!IMPORTANT]
+> **CATATAN REVISI (21 Oktober 2026) — DOKUMEN INI KINI BERSTATUS PELENGKAP.**
+> Rujukan utama (*source of truth*) rancangan produk MVP WaliKelas adalah **[WALIKELAS_MVP_PRODUCT_BLUEPRINT_TECHNICAL_HANDOFF_v2.0.md](file:///home/dev360_03/locomo.id/docs/walikelas.id/WALIKELAS_MVP_PRODUCT_BLUEPRINT_TECHNICAL_HANDOFF_v2.0.md)**. Seluruh PRD, desain UX, backlog, QA, dan arsitektur teknis **wajib merujuk ke v2.0 terlebih dahulu**. Dokumen v1.0 ini tetap berlaku sebagai **pelengkap** untuk prinsip keselamatan anak, literasi, persetujuan wali, pengawasan manusia, tingkat keyakinan bukti, laporan 3 lapis, dan antipola, **selama tidak bertentangan dengan v2.0**.
+>
+> **Bagian v1.0 yang digantikan oleh v2.0:**
+> - Unit domain utama: *kelas/ruang kelas guru* → **Learning Program** dengan *program mode* `school` / `private` (v2 §4, D-05).
+> - Pendidik: hanya guru SD → **guru sekolah dan tutor privat dalam satu Educator Workspace**; sekolah tidak wajib (v2 §3.3, D-03/D-04).
+> - Pintu masuk siklus: *onboarding → asesmen awal* → **planning-first**: impor/wizard rencana → review → enrollment → baseline (v2 §5, D-06/D-07).
+> - Mode keluarga mandiri (§7.1, AC-01 di dokumen ini): dari **Wajib MVP** menjadi **[LATER] untuk pengalaman lengkap**; prinsip jalur keluarga tetap dikunci (v2 §4.2-D, D-12, O-11).
+> - Siklus status misi (§17): diganti oleh state misi v2 §9.5 (termasuk `NeedsGuardian`, `Returned`, `Deferred`); konfirmasi wali hanya wajib untuk tugas rumah.
+> - Metrik keberhasilan pilot (§30): north-star operasional menjadi **educator-completed learning cycles with verified outputs** dan **net educator time saved** (v2 §20.3).
+> - Skala pilot (§30.1): mengikuti v2 §20.2 (guru SD dan tutor privat; data sintetis sebelum izin lengkap).
+>
+> Jika ada perbedaan, gunakan urutan prioritas pada v2 §0.2.
+
 > **Pernyataan inti:** WaliKelas adalah platform pendampingan pendidikan anak berbasis AI dengan pengawasan manusia, yang menghubungkan kegiatan belajar di sekolah dan di rumah melalui misi literasi terarah, bukti perkembangan kompetensi, serta koordinasi guru–orang tua–siswa. Keberhasilan utamanya adalah perkembangan belajar yang dapat diperiksa **tanpa menambah beban guru dan tanpa memperpanjang waktu layar anak sebagai tujuan**.
 
 ---
