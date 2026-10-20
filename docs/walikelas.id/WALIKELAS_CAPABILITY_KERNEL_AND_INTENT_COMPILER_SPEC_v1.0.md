@@ -11,6 +11,10 @@
 - [WALIKELAS_MVP_FUNDAMENTAL_PRODUCT_ARCHITECTURE_v1.0.md](file:///home/dev360_03/locomo.id/docs/walikelas.id/WALIKELAS_MVP_FUNDAMENTAL_PRODUCT_ARCHITECTURE_v1.0.md)
 - [WALIKELAS_TECHNICAL_ARCHITECTURE_IMPLEMENTATION_PLAN_v1.0.md](file:///home/dev360_03/locomo.id/docs/walikelas.id/WALIKELAS_TECHNICAL_ARCHITECTURE_IMPLEMENTATION_PLAN_v1.0.md)
 
+> [!NOTE]
+> **STATUS PERANCANGAN (21 Oktober 2026) — STATUS [LATER / RANCANGAN EKSTENSIBILITAS MASA DEPAN]**
+> Mengacu pada **[WALIKELAS_MVP_PRODUCT_BLUEPRINT_TECHNICAL_HANDOFF_v2.0.md](file:///home/dev360_03/locomo.id/docs/walikelas.id/WALIKELAS_MVP_PRODUCT_BLUEPRINT_TECHNICAL_HANDOFF_v2.0.md)** Bagian 22 (*"Design extension points, not speculative features"*), spesifikasi *Dynamic Capability Kernel & Intent Compiler (SDUI/DSL)* ini ditunda implementasinya untuk MVP v0.1. Pada MVP, pustaka misi dan rubrik dikurasi sebagai file seed/JSON terstruktur berversi yang divalidasi skema statis. Dokumen ini disimpan sebagai arsitektur acuan ekspansi kemampuan di masa depan.
+
 ---
 
 ## DAFTAR ISI

@@ -10,6 +10,13 @@
 **Dokumen Induk (Single Source of Truth):** [WALIKELAS_MVP_FUNDAMENTAL_PRODUCT_ARCHITECTURE_v1.0.md](file:///home/dev360_03/locomo.id/docs/walikelas.id/WALIKELAS_MVP_FUNDAMENTAL_PRODUCT_ARCHITECTURE_v1.0.md)  
 **Konteks Submission:** Transisi dari *unimart.group* ke *walikelas.id* menuju akselerator global (Founder Institute Bali, Y Combinator W27, Techstars London/NYC) Oktober–November 2026.
 
+> [!IMPORTANT]
+> **CATATAN REVISI (21 Oktober 2026) — DOKUMEN INI TELAH DIGANTIKAN OLEH VERSI 2.0.**
+> Rujukan utama arsitektur teknis dan implementasi saat ini adalah:
+> **[WALIKELAS_TECHNICAL_ARCHITECTURE_IMPLEMENTATION_PLAN_v2.0.md](file:///home/dev360_03/locomo.id/docs/walikelas.id/WALIKELAS_TECHNICAL_ARCHITECTURE_IMPLEMENTATION_PLAN_v2.0.md)**
+> yang dirancang selaras dengan **[WALIKELAS_MVP_PRODUCT_BLUEPRINT_TECHNICAL_HANDOFF_v2.0.md](file:///home/dev360_03/locomo.id/docs/walikelas.id/WALIKELAS_MVP_PRODUCT_BLUEPRINT_TECHNICAL_HANDOFF_v2.0.md)**.
+> Dokumen v1.0 ini disimpan sebagai arsip historis dan pelengkap rujukan awal.
+
 ---
 
 ## DAFTAR ISI
