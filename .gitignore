@@ -32,6 +32,7 @@ env/
 **/storage/debugbar/
 .phpunit.cache/
 .phpunit.result.cache
+**/.vite/
 
 # Docker persistent local volumes / DB dumps
 *.sqlite
