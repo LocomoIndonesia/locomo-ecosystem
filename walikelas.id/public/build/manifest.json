@@ -5,7 +5,7 @@
     "isEntry": true
   },
   "resources/js/Pages/Dashboard.tsx": {
-    "file": "assets/Dashboard-Cpaq6jJn.js",
+    "file": "assets/Dashboard-CordIX7K.js",
     "name": "Dashboard",
     "src": "resources/js/Pages/Dashboard.tsx",
     "isDynamicEntry": true,
@@ -16,8 +16,44 @@
       "assets/app-Yom8aoXW.css"
     ]
   },
+  "resources/js/Pages/Guardian/Checkpoint.tsx": {
+    "file": "assets/Checkpoint-D1pgdFsF.js",
+    "name": "Checkpoint",
+    "src": "resources/js/Pages/Guardian/Checkpoint.tsx",
+    "isDynamicEntry": true,
+    "imports": [
+      "resources/js/app.tsx"
+    ],
+    "css": [
+      "assets/app-Yom8aoXW.css"
+    ]
+  },
+  "resources/js/Pages/Guardian/InviteClaim.tsx": {
+    "file": "assets/InviteClaim-DjOv5dlS.js",
+    "name": "InviteClaim",
+    "src": "resources/js/Pages/Guardian/InviteClaim.tsx",
+    "isDynamicEntry": true,
+    "imports": [
+      "resources/js/app.tsx"
+    ],
+    "css": [
+      "assets/app-Yom8aoXW.css"
+    ]
+  },
+  "resources/js/Pages/Learner/Runner.tsx": {
+    "file": "assets/Runner-BH4Ep-hs.js",
+    "name": "Runner",
+    "src": "resources/js/Pages/Learner/Runner.tsx",
+    "isDynamicEntry": true,
+    "imports": [
+      "resources/js/app.tsx"
+    ],
+    "css": [
+      "assets/app-Yom8aoXW.css"
+    ]
+  },
   "resources/js/Pages/Program/Workspace.tsx": {
-    "file": "assets/Workspace-CwBtYMPy.js",
+    "file": "assets/Workspace-BWf5Vg9o.js",
     "name": "Workspace",
     "src": "resources/js/Pages/Program/Workspace.tsx",
     "isDynamicEntry": true,
@@ -29,12 +65,15 @@
     ]
   },
   "resources/js/app.tsx": {
-    "file": "assets/app-PaLTA1Sa.js",
+    "file": "assets/app-CaYXoAri.js",
     "name": "app",
     "src": "resources/js/app.tsx",
     "isEntry": true,
     "dynamicImports": [
       "resources/js/Pages/Dashboard.tsx",
+      "resources/js/Pages/Guardian/Checkpoint.tsx",
+      "resources/js/Pages/Guardian/InviteClaim.tsx",
+      "resources/js/Pages/Learner/Runner.tsx",
       "resources/js/Pages/Program/Workspace.tsx"
     ],
     "css": [
