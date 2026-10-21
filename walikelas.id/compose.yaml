@@ -1,0 +1,45 @@
+services:
+  db:
+    image: postgres:16-alpine
+    restart: always
+    environment:
+      POSTGRES_USER: walikelas
+      POSTGRES_PASSWORD: walikelas_secret
+      POSTGRES_DB: walikelas_db
+    ports:
+      - "5435:5432"
+    volumes:
+      - pgdata_walikelas:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U walikelas -d walikelas_db"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  app:
+    image: sail-8.4/app:latest
+    working_dir: /var/www/html
+    volumes:
+      - .:/var/www/html
+    ports:
+      - "8088:80"
+    environment:
+      - WWWUSER=1000
+      - LARAVEL_SAIL=1
+    depends_on:
+      db:
+        condition: service_healthy
+
+  vite:
+    image: node:20
+    working_dir: /app
+    volumes:
+      - .:/app
+    ports:
+      - "5174:5173"
+    command: sh -c "npm install --legacy-peer-deps && npm run dev -- --host"
+    depends_on:
+      - app
+
+volumes:
+  pgdata_walikelas:
