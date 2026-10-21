@@ -5,7 +5,7 @@
     "isEntry": true
   },
   "resources/js/Pages/Dashboard.tsx": {
-    "file": "assets/Dashboard-CordIX7K.js",
+    "file": "assets/Dashboard-CQQAU9ri.js",
     "name": "Dashboard",
     "src": "resources/js/Pages/Dashboard.tsx",
     "isDynamicEntry": true,
@@ -17,7 +17,7 @@
     ]
   },
   "resources/js/Pages/Guardian/Checkpoint.tsx": {
-    "file": "assets/Checkpoint-D1pgdFsF.js",
+    "file": "assets/Checkpoint-CgqqdVqP.js",
     "name": "Checkpoint",
     "src": "resources/js/Pages/Guardian/Checkpoint.tsx",
     "isDynamicEntry": true,
@@ -29,7 +29,7 @@
     ]
   },
   "resources/js/Pages/Guardian/InviteClaim.tsx": {
-    "file": "assets/InviteClaim-DjOv5dlS.js",
+    "file": "assets/InviteClaim-2fdPK58f.js",
     "name": "InviteClaim",
     "src": "resources/js/Pages/Guardian/InviteClaim.tsx",
     "isDynamicEntry": true,
@@ -41,7 +41,7 @@
     ]
   },
   "resources/js/Pages/Learner/Runner.tsx": {
-    "file": "assets/Runner-BH4Ep-hs.js",
+    "file": "assets/Runner-BYQhJu57.js",
     "name": "Runner",
     "src": "resources/js/Pages/Learner/Runner.tsx",
     "isDynamicEntry": true,
@@ -53,7 +53,7 @@
     ]
   },
   "resources/js/Pages/Program/Workspace.tsx": {
-    "file": "assets/Workspace-BWf5Vg9o.js",
+    "file": "assets/Workspace-BKld5OGy.js",
     "name": "Workspace",
     "src": "resources/js/Pages/Program/Workspace.tsx",
     "isDynamicEntry": true,
@@ -64,8 +64,20 @@
       "assets/app-Yom8aoXW.css"
     ]
   },
+  "resources/js/Pages/Triage/Index.tsx": {
+    "file": "assets/Index-B_9d_KAK.js",
+    "name": "Index",
+    "src": "resources/js/Pages/Triage/Index.tsx",
+    "isDynamicEntry": true,
+    "imports": [
+      "resources/js/app.tsx"
+    ],
+    "css": [
+      "assets/app-Yom8aoXW.css"
+    ]
+  },
   "resources/js/app.tsx": {
-    "file": "assets/app-CaYXoAri.js",
+    "file": "assets/app-DjKa-Bhq.js",
     "name": "app",
     "src": "resources/js/app.tsx",
     "isEntry": true,
@@ -74,7 +86,8 @@
       "resources/js/Pages/Guardian/Checkpoint.tsx",
       "resources/js/Pages/Guardian/InviteClaim.tsx",
       "resources/js/Pages/Learner/Runner.tsx",
-      "resources/js/Pages/Program/Workspace.tsx"
+      "resources/js/Pages/Program/Workspace.tsx",
+      "resources/js/Pages/Triage/Index.tsx"
     ],
     "css": [
       "assets/app-Yom8aoXW.css"

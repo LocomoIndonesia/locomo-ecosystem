@@ -137,13 +137,13 @@ class GeminiService
     }
 
     /**
-     * Fallback deterministik cerdas untuk ekstraksi silabus dan wizard (TI-14, TAT-03, TAT-18)
+     * Fallback deterministik cerdas untuk ekstraksi silabus, penilaian rubrik, gap analysis, dan intervensi (TI-14, TAT-03, TAT-10, TAT-18, TAT-21)
      */
     protected function mockDeterministicResponse(string $purpose, string $prompt): array
     {
         if ($purpose === 'plan_extract') {
             $ambiguities = [];
-            // Deteksi teks yang tidak menyebutkan frekuensi asesmen atau durasi
+            // Deteksi teks yang tidak menyebutkan frekuensi asesmen atau durasi (TAT-18)
             if (!str_contains(strtolower($prompt), 'menit') && !str_contains(strtolower($prompt), 'jam')) {
                 $ambiguities[] = 'Alokasi waktu pertemuan tidak disebutkan secara spesifik dalam silabus.';
             }
@@ -179,6 +179,87 @@ class GeminiService
                     'rubrics' => ['LIT-B-EXP-01', 'LIT-B-SEQ-02', 'LIT-B-VOC-03'],
                 ],
                 'ambiguities' => $ambiguities,
+            ];
+        }
+
+        if ($purpose === 'rubric_score') {
+            $lower = strtolower($prompt);
+            $hasSelaput = str_contains($lower, 'selaput');
+            $hasKolam = str_contains($lower, 'kolam');
+            $hasJejak = str_contains($lower, 'jejak');
+
+            $criteriaMet = [];
+            if ($hasSelaput) {
+                $criteriaMet[] = 'Menyebutkan jejak kaki memiliki selaput tipis';
+            }
+            if ($hasKolam || $hasJejak) {
+                $criteriaMet[] = 'Menyebutkan jejak kaki basah di tanah dekat kolam';
+            }
+
+            $score = count($criteriaMet) >= 2 ? 4 : (count($criteriaMet) === 1 ? 3 : 2);
+            $level = $score >= 3 ? 'indicated_mastery' : 'needs_support';
+
+            return [
+                'score' => $score,
+                'level' => $level,
+                'criteria_met' => $criteriaMet,
+                'rationale' => count($criteriaMet) > 0
+                    ? 'Siswa berhasil mendeskripsikan ciri jejak berselaput dan lokasi sekitar kolam dari teks fabel.'
+                    : 'Jawaban siswa belum mencakup bukti eksplisit dari teks fabel.',
+                'feedback_for_student' => 'Kerja bagus! Terus amati petunjuk cerita dengan teliti ya.',
+                'uncertainty' => 'low',
+            ];
+        }
+
+        if ($purpose === 'gap_analysis') {
+            return [
+                'uncertainty' => 'low',
+                'identified_gaps' => [
+                    'Perlu penguatan pada pengurutan alur peristiwa (LIT-B-SEQ-02).',
+                ],
+                'suggested_focus' => 'Latihan membaca terpandu alur maju-mundur fabel.',
+            ];
+        }
+
+        if ($purpose === 'intervention') {
+            return [
+                'competency_code' => 'LIT-B-EXP-01',
+                'action_title' => 'Membaca Terpandu Berpasangan: Menandai Ciri Tokoh',
+                'description' => 'Aktivitas 15 menit mendampingi siswa membaca paragraf fabel dan melingkari kata kunci ciri fisik tokoh.',
+                'rationale' => 'Siswa memerlukan penguatan identifikasi detail tersurat sebelum berlanjut ke penarikan kesimpulan inferensial.',
+                'target_session' => 'Pertemuan remedial literasi berikutnya',
+            ];
+        }
+
+        if ($purpose === 'report_draft') {
+            return [
+                'facts_layer' => [
+                    'sessions_attended' => 2,
+                    'missions_completed' => 2,
+                    'offline_checkpoints_confirmed' => 1,
+                    'last_activity_date' => now()->toDateString(),
+                ],
+                'findings_layer' => [
+                    'competency_evaluations' => [
+                        [
+                            'code' => 'LIT-B-EXP-01',
+                            'title' => 'Identifikasi Informasi Tersurat Fabel',
+                            'status' => 'indicated_mastery',
+                            'evidence_summary' => 'Menjawab benar kuis tokoh berang-berang dan menguraikan jejak berselaput.',
+                        ],
+                    ],
+                ],
+                'recommendations_layer' => [
+                    'next_steps' => [
+                        'Lanjutkan ke materi pengayaan pengurutan alur cerita (LIT-B-SEQ-02).',
+                        'Pertahankan kebiasaan mendongeng 5 menit bersama keluarga di rumah.',
+                    ],
+                ],
+                'attribution_tags' => [
+                    'human_note' => ['Catatan observasi guru pada sesi tatap muka.'],
+                    'auto_assessment' => ['Kuis digital skor 100% pada 2 langkah.'],
+                    'educator_validated' => ['Divalidasi oleh wali kelas.'],
+                ],
             ];
         }
 

@@ -159,6 +159,13 @@ export default function Workspace({ program, competencies, auth }: ProgramWorksp
                     </div>
 
                     <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+                        <Link
+                            href={`/programs/${program.id}/triage`}
+                            className="btn btn-primary"
+                            style={{ padding: '0.375rem 0.875rem', fontSize: '0.8125rem', backgroundColor: '#e11d48', borderColor: '#be123c', color: '#fff', fontWeight: 700 }}
+                        >
+                            🚨 Inbox Triage & Intervensi
+                        </Link>
                         <span className="badge badge-neutral">Pendidik: {auth.user.name}</span>
                     </div>
                 </div>

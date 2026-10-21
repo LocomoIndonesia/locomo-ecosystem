@@ -106,14 +106,28 @@ class OutboxNotificationService
             ]);
         }
 
-        // 4. Jika lolos seluruh aturan, status link_ready
+        // 4. TI-09 & TAT-14: Pemeriksaan Ketersediaan Adapter Saluran (WhatsApp vs Web Link)
+        $effectiveChannel = $channel;
+        if ($channel === 'whatsapp') {
+            $isWhatsAppOnline = config('services.whatsapp.enabled', false) && !($payload['simulate_wa_offline'] ?? false);
+            if (!$isWhatsAppOnline) {
+                $policyLogs['adapter_status'] = 'OFFLINE';
+                $policyLogs['fallback_channel'] = 'web_link';
+                $policyLogs['reason'] = 'Adapter WhatsApp offline. Disimpan sebagai tautan web aman untuk dibagikan pendidik secara manual.';
+                $effectiveChannel = 'web_link';
+            } else {
+                $policyLogs['adapter_status'] = 'ONLINE';
+            }
+        }
+
+        // 5. Jika lolos seluruh aturan, status link_ready
         $policyLogs['policy_result'] = 'APPROVED';
 
         return OutboxMessage::create([
             'id' => Str::uuid()->toString(),
             'guardian_relation_id' => $guardianRelation->id,
             'program_id' => $program->id,
-            'channel' => $channel,
+            'channel' => $effectiveChannel,
             'template_key' => $templateKey,
             'status' => 'link_ready',
             'policy_check' => $policyLogs,

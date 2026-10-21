@@ -46,3 +46,13 @@ Route::get('/guardian/invite/{rawToken}', [GuardianPortalController::class, 'sho
 Route::post('/guardian/invite/{rawToken}', [GuardianPortalController::class, 'claimInvite'])->name('guardian.invite.claim');
 Route::get('/guardian/checkpoint/{assignmentId}', [GuardianPortalController::class, 'showCheckpoint'])->name('guardian.checkpoint.show');
 Route::post('/guardian/checkpoint/{assignmentId}', [GuardianPortalController::class, 'confirmCheckpoint'])->name('guardian.checkpoint.confirm');
+
+// Triage Queue, AI Rubric Scoring & 3-Layer Reports (Fase 3)
+use App\Http\Controllers\TriageController;
+Route::get('/programs/{program}/triage', [TriageController::class, 'index'])->name('programs.triage.index');
+Route::post('/programs/{program}/ai-suggestions/{suggestion}/decision', [TriageController::class, 'decideAiSuggestion'])->name('programs.ai_suggestions.decision');
+Route::post('/programs/{program}/score-response', [TriageController::class, 'evaluateRubric'])->name('programs.score_response');
+Route::post('/programs/{program}/validate-mastery', [TriageController::class, 'validateMastery'])->name('programs.validate_mastery');
+Route::post('/programs/{program}/reports/generate', [TriageController::class, 'generateReport'])->name('programs.reports.generate');
+Route::post('/programs/{program}/complete', [TriageController::class, 'completeProgram'])->name('programs.complete');
+

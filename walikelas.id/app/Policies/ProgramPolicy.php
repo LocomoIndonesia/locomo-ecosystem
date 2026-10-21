@@ -39,6 +39,18 @@ class ProgramPolicy
     }
 
     /**
+     * Pendidik hanya dapat mengubah data jika program belum berstatus completed/archived (TAT-15)
+     */
+    public function canMutate(?User $user, LearningProgram $program): bool
+    {
+        if (!$this->manage($user, $program)) {
+            return false;
+        }
+
+        return !in_array($program->status, ['completed', 'archived']);
+    }
+
+    /**
      * Memeriksa apakah wali sah berhak melihat progres anak di program tertentu (TI-03)
      */
     public function viewLearnerProgress(?User $user, LearningProgram $program, string $learnerId): bool

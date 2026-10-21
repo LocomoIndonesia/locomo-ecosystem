@@ -89,4 +89,21 @@ class LearningProgram extends Model
     {
         return $this->hasMany(OutboxMessage::class, 'program_id');
     }
+
+    public function complete(User $educator): self
+    {
+        $this->update(['status' => 'completed']);
+
+        AuditEvent::log(
+            actorType: 'educator',
+            actorId: $educator->id,
+            action: 'PROGRAM_COMPLETED',
+            subjectType: 'learning_program',
+            subjectId: $this->id,
+            programId: $this->id,
+            payload: ['status' => 'completed']
+        );
+
+        return $this;
+    }
 }
