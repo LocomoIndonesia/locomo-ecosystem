@@ -56,3 +56,11 @@ Route::post('/programs/{program}/validate-mastery', [TriageController::class, 'v
 Route::post('/programs/{program}/reports/generate', [TriageController::class, 'generateReport'])->name('programs.reports.generate');
 Route::post('/programs/{program}/complete', [TriageController::class, 'completeProgram'])->name('programs.complete');
 
+// Telemetry & VC Data Room Assets (Fase 4)
+use App\Http\Controllers\TelemetryController;
+Route::post('/telemetry/session/start', [TelemetryController::class, 'start'])->name('telemetry.start');
+Route::post('/telemetry/session/end', [TelemetryController::class, 'end'])->name('telemetry.end');
+Route::get('/telemetry/metrics', [TelemetryController::class, 'metrics'])->name('telemetry.metrics');
+Route::get('/telemetry/export-csv', [TelemetryController::class, 'exportCsv'])->name('telemetry.export_csv');
+
+

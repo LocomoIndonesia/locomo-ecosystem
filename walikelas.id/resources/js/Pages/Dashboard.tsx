@@ -203,6 +203,28 @@ export default function Dashboard({ auth, programs, metrics }: DashboardProps) {
                             Data minimalis aman anak
                         </div>
                     </div>
+
+                    <div className="card" style={{ padding: '1.25rem', borderLeft: '4px solid #8b5cf6' }}>
+                        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                            <div style={{ fontSize: '0.8125rem', fontWeight: 600, color: '#7c3aed', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+                                Telemetri Efisiensi (VC)
+                            </div>
+                            <span className="badge badge-accent" style={{ fontSize: '0.6875rem' }}>80%+ Saved</span>
+                        </div>
+                        <div style={{ marginTop: '0.5rem' }}>
+                            <a
+                                href="/telemetry/export-csv"
+                                download
+                                className="btn btn-outline"
+                                style={{ padding: '0.375rem 0.625rem', fontSize: '0.75rem', fontWeight: 700, borderColor: '#8b5cf6', color: '#7c3aed', display: 'inline-block' }}
+                            >
+                                📊 Unduh CSV Data Room
+                            </a>
+                        </div>
+                        <div style={{ fontSize: '0.8125rem', color: 'var(--slate-500)', marginTop: '0.375rem' }}>
+                            Audit net time saved penelaahan tugas guru
+                        </div>
+                    </div>
                 </div>
 
                 {/* Filter Tabs */}
