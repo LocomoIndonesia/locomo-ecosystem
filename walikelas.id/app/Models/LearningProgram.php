@@ -52,8 +52,7 @@ class LearningProgram extends Model
     public function educators(): BelongsToMany
     {
         return $this->belongsToMany(User::class, 'program_educators', 'program_id', 'user_id')
-            ->withPivot(['id', 'role', 'started_at', 'ended_at'])
-            ->withTimestamps(false);
+            ->withPivot(['id', 'role', 'started_at', 'ended_at']);
     }
 
     public function activeEducators(): BelongsToMany

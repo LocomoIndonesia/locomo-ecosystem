@@ -30,7 +30,7 @@
             "Database\\Factories\\": "database/factories/",
             "Database\\Seeders\\": "database/seeders/",
             "Inertia\\": "vendor/inertiajs/inertia-laravel/src/",
-            "Tightenco\\Ziggy\\": "vendor/tightenco/ziggy/src/"
+            "Tighten\\Ziggy\\": "vendor/tightenco/ziggy/src/"
         }
     },
     "autoload-dev": {

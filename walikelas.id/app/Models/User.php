@@ -53,8 +53,7 @@ class User extends Authenticatable
     public function programs(): BelongsToMany
     {
         return $this->belongsToMany(LearningProgram::class, 'program_educators', 'user_id', 'program_id')
-            ->withPivot(['id', 'role', 'started_at', 'ended_at'])
-            ->withTimestamps(false);
+            ->withPivot(['id', 'role', 'started_at', 'ended_at']);
     }
 
     public function activePrograms(): BelongsToMany
