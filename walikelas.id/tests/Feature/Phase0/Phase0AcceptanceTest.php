@@ -13,30 +13,33 @@ use App\Models\User;
 use App\Policies\MasteryStatePolicy;
 use App\Policies\ProgramPolicy;
 use Illuminate\Database\QueryException;
-use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Foundation\Testing\DatabaseTransactions;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 use Tests\TestCase;
 
 class Phase0AcceptanceTest extends TestCase
 {
+    use DatabaseTransactions;
+
     /**
      * TAT-01: Tutor privat membuat program tanpa institusi (TI-01).
      * Sukses tersimpan; form & model tidak mewajibkan organization_id.
      */
     public function test_tat_01_private_tutor_creates_program_without_organization(): void
     {
+        $uniqueId = Str::random(8);
         $tutor = User::create([
             'id' => Str::uuid()->toString(),
             'name' => 'Kak Dian - Tutor Privat',
-            'email' => 'dian.tutor@example.com',
+            'email' => "dian.tutor_{$uniqueId}@example.com",
             'password_hash' => bcrypt('secret123'),
         ]);
 
         $program = LearningProgram::create([
             'id' => Str::uuid()->toString(),
             'mode' => 'private',
-            'organization_id' => null, // Bebas institusi / NPSN
+            'organization_id' => null, // Bebas institusi / NPSN (TI-01)
             'title' => 'Pendampingan Membaca Intensif Privat',
             'grade_level' => 3,
             'status' => 'draft',
@@ -68,10 +71,11 @@ class Phase0AcceptanceTest extends TestCase
      */
     public function test_tat_02_educator_switches_between_school_and_private_modes(): void
     {
+        $uniqueId = Str::random(8);
         $educator = User::create([
             'id' => Str::uuid()->toString(),
             'name' => 'Pak Joko Multi-Mode',
-            'email' => 'joko.multimode@example.com',
+            'email' => "joko.multimode_{$uniqueId}@example.com",
             'password_hash' => bcrypt('secret123'),
         ]);
 
@@ -79,7 +83,7 @@ class Phase0AcceptanceTest extends TestCase
             'id' => Str::uuid()->toString(),
             'kind' => 'school',
             'name' => 'SD Harapan Bangsa',
-            'npsn' => '20109988',
+            'npsn' => '20109988_' . $uniqueId,
             'created_by' => $educator->id,
         ]);
 
@@ -137,17 +141,18 @@ class Phase0AcceptanceTest extends TestCase
      */
     public function test_tat_07_tenant_isolation_denies_cross_program_access(): void
     {
+        $uniqueId = Str::random(8);
         $educatorA = User::create([
             'id' => Str::uuid()->toString(),
             'name' => 'Guru A (Sekolah Timur)',
-            'email' => 'guru.a@example.com',
+            'email' => "guru.a_{$uniqueId}@example.com",
             'password_hash' => bcrypt('secret123'),
         ]);
 
         $educatorB = User::create([
             'id' => Str::uuid()->toString(),
             'name' => 'Guru B (Sekolah Barat)',
-            'email' => 'guru.b@example.com',
+            'email' => "guru.b_{$uniqueId}@example.com",
             'password_hash' => bcrypt('secret123'),
         ]);
 
@@ -197,17 +202,18 @@ class Phase0AcceptanceTest extends TestCase
      */
     public function test_tat_19_mastery_validation_constraint_and_policy(): void
     {
+        $uniqueId = Str::random(8);
         $educator = User::create([
             'id' => Str::uuid()->toString(),
             'name' => 'Guru Validasi',
-            'email' => 'guru.validasi@example.com',
+            'email' => "guru.validasi_{$uniqueId}@example.com",
             'password_hash' => bcrypt('secret123'),
         ]);
 
         $nonEducator = User::create([
             'id' => Str::uuid()->toString(),
             'name' => 'Orang Tua / Non-Pendidik',
-            'email' => 'wali.murid@example.com',
+            'email' => "wali.murid_{$uniqueId}@example.com",
             'password_hash' => bcrypt('secret123'),
         ]);
 
@@ -263,24 +269,23 @@ class Phase0AcceptanceTest extends TestCase
     }
 
     /**
-     * TAT-20: Percobaan UPDATE atau DELETE pada audit_events ditolak (TI-13).
+     * TAT-20: Percobaan UPDATE pada audit_events ditolak (TI-13).
      * Ditolak oleh PostgreSQL immutability trigger trigger_prevent_audit_events_mutation.
      */
-    public function test_tat_20_audit_events_table_is_append_only_and_immutable(): void
+    public function test_tat_20_audit_events_table_blocks_updates(): void
     {
         $audit = AuditEvent::log(
             actorType: 'system',
             actorId: null,
-            action: 'PHASE_0_SECURITY_AUDIT_LOG_TEST',
+            action: 'PHASE_0_SECURITY_AUDIT_UPDATE_TEST',
             payload: ['integrity' => 'strict']
         );
 
         $this->assertDatabaseHas('audit_events', [
             'id' => $audit->id,
-            'action' => 'PHASE_0_SECURITY_AUDIT_LOG_TEST',
+            'action' => 'PHASE_0_SECURITY_AUDIT_UPDATE_TEST',
         ]);
 
-        // 1. Percobaan UPDATE pada tabel audit_events harus dilempar Exception oleh Postgres Trigger
         $updateFailed = false;
         try {
             DB::table('audit_events')
@@ -291,8 +296,26 @@ class Phase0AcceptanceTest extends TestCase
             $this->assertStringContainsString('audit_events is append-only', $e->getMessage());
         }
         $this->assertTrue($updateFailed, 'PostgreSQL Trigger failed to block UPDATE on audit_events');
+    }
 
-        // 2. Percobaan DELETE pada tabel audit_events harus dilempar Exception oleh Postgres Trigger
+    /**
+     * TAT-20: Percobaan DELETE pada audit_events ditolak (TI-13).
+     * Ditolak oleh PostgreSQL immutability trigger trigger_prevent_audit_events_mutation.
+     */
+    public function test_tat_20_audit_events_table_blocks_deletes(): void
+    {
+        $audit = AuditEvent::log(
+            actorType: 'system',
+            actorId: null,
+            action: 'PHASE_0_SECURITY_AUDIT_DELETE_TEST',
+            payload: ['integrity' => 'strict']
+        );
+
+        $this->assertDatabaseHas('audit_events', [
+            'id' => $audit->id,
+            'action' => 'PHASE_0_SECURITY_AUDIT_DELETE_TEST',
+        ]);
+
         $deleteFailed = false;
         try {
             DB::table('audit_events')
