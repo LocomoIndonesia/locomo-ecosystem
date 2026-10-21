@@ -4,11 +4,39 @@
     "src": "resources/css/app.css",
     "isEntry": true
   },
+  "resources/js/Pages/Dashboard.tsx": {
+    "file": "assets/Dashboard-Cpaq6jJn.js",
+    "name": "Dashboard",
+    "src": "resources/js/Pages/Dashboard.tsx",
+    "isDynamicEntry": true,
+    "imports": [
+      "resources/js/app.tsx"
+    ],
+    "css": [
+      "assets/app-Yom8aoXW.css"
+    ]
+  },
+  "resources/js/Pages/Program/Workspace.tsx": {
+    "file": "assets/Workspace-CwBtYMPy.js",
+    "name": "Workspace",
+    "src": "resources/js/Pages/Program/Workspace.tsx",
+    "isDynamicEntry": true,
+    "imports": [
+      "resources/js/app.tsx"
+    ],
+    "css": [
+      "assets/app-Yom8aoXW.css"
+    ]
+  },
   "resources/js/app.tsx": {
-    "file": "assets/app-BCDXDiEo.js",
+    "file": "assets/app-PaLTA1Sa.js",
     "name": "app",
     "src": "resources/js/app.tsx",
     "isEntry": true,
+    "dynamicImports": [
+      "resources/js/Pages/Dashboard.tsx",
+      "resources/js/Pages/Program/Workspace.tsx"
+    ],
     "css": [
       "assets/app-Yom8aoXW.css"
     ]
