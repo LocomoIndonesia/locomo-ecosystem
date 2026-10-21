@@ -37,7 +37,7 @@ services:
       - .:/app
     ports:
       - "5174:5173"
-    command: sh -c "npm install --legacy-peer-deps && npm run dev -- --host"
+    command: sh -c "npm install --legacy-peer-deps && npm run build && rm -f /app/public/hot && tail -f /dev/null"
     depends_on:
       - app
 
