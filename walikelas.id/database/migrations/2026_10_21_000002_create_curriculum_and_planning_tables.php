@@ -22,6 +22,9 @@ return new class extends Migration
             $table->timestamp('created_at')->useCurrent();
 
             $table->unique(['code', 'version']);
+        });
+
+        Schema::table('competencies', function (Blueprint $table) {
             $table->foreign('prerequisite_id')->references('id')->on('competencies')->nullOnDelete();
         });
 

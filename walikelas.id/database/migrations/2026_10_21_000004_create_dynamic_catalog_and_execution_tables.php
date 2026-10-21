@@ -149,6 +149,8 @@ return new class extends Migration
             $table->foreign('competency_id')->references('id')->on('competencies')->onDelete('cascade');
             $table->foreign('decided_by')->references('id')->on('users')->nullOnDelete();
         });
+
+        \Illuminate\Support\Facades\DB::statement("ALTER TABLE mastery_states ADD CONSTRAINT check_educator_validation CHECK (level <> 'educator_validated' OR (decided_by_type = 'educator' AND decided_by IS NOT NULL))");
     }
 
     public function down(): void
