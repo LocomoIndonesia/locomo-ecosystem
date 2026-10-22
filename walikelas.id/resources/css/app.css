@@ -149,6 +149,88 @@ h1, h2, h3, h4, .font-display {
 }
 
 .badge-primary { background-color: var(--primary-50); color: var(--primary-700); border: 1px solid var(--primary-200); }
-.badge-success { background-color: var(--success-50); color: var(--success-700); }
-.badge-warning { background-color: var(--warning-50); color: var(--warning-500); }
-.badge-neutral { background-color: var(--slate-100); color: var(--slate-600); }
+.badge-success { background-color: var(--success-50); color: var(--success-700); border: 1px solid #a7f3d0; }
+.badge-warning { background-color: var(--warning-50); color: var(--warning-600); border: 1px solid var(--accent-100); }
+.badge-danger  { background-color: var(--danger-50); color: var(--danger-700); border: 1px solid #fecaca; }
+.badge-accent  { background-color: var(--accent-100); color: var(--accent-600); border: 1px solid #fde68a; }
+.badge-neutral { background-color: var(--slate-100); color: var(--slate-600); border: 1px solid var(--slate-200); }
+
+/* Button Variants */
+.btn-emerald {
+  background: linear-gradient(135deg, #059669, #047857);
+  color: white;
+  box-shadow: 0 2px 4px rgba(5, 150, 105, 0.25);
+}
+.btn-emerald:hover {
+  background: linear-gradient(135deg, #047857, #065f46);
+  box-shadow: 0 4px 8px rgba(5, 150, 105, 0.35);
+  transform: translateY(-1px);
+}
+
+.btn-danger {
+  background: linear-gradient(135deg, #dc2626, #b91c1c);
+  color: white;
+  box-shadow: 0 2px 4px rgba(220, 38, 38, 0.25);
+}
+.btn-danger:hover {
+  background: linear-gradient(135deg, #b91c1c, #991b1b);
+  box-shadow: 0 4px 8px rgba(220, 38, 38, 0.35);
+  transform: translateY(-1px);
+}
+
+.btn-outline {
+  background: white;
+  color: var(--slate-700);
+  border: 1px solid var(--slate-300);
+}
+.btn-outline:hover {
+  background-color: var(--slate-50);
+  border-color: var(--slate-400);
+  color: var(--slate-900);
+}
+
+.btn-ghost {
+  background: transparent;
+  color: var(--slate-600);
+  border-color: transparent;
+}
+.btn-ghost:hover {
+  background-color: var(--slate-100);
+  color: var(--slate-900);
+}
+
+/* Modal Overlay & Card */
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background-color: rgba(15, 23, 42, 0.65);
+  backdrop-filter: blur(4px);
+  z-index: 100;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+}
+
+.modal-dialog {
+  background: white;
+  border-radius: var(--radius-2xl);
+  box-shadow: var(--shadow-xl);
+  border: 1px solid var(--slate-200);
+  width: 100%;
+  max-width: 640px;
+  max-height: 90vh;
+  overflow-y: auto;
+  padding: 1.75rem;
+}
+
+/* Animations & Transitions */
+@keyframes pulseSubtle {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.85; transform: scale(1.02); }
+}
+
+.animate-pulse-subtle {
+  animation: pulseSubtle 3s infinite ease-in-out;
+}
+
